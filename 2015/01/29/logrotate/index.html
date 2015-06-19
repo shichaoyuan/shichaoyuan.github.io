@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   
-  <title>命令logrotate | My Wiki</title>
+  <title>命令logrotate | Notes</title>
   <meta name="author" content="Shichao Yuan">
   
   <meta name="description" content="1
@@ -17,7 +17,7 @@ logrotate在笔者使用的服务器CentOS release 6.5上已经自带安装了�
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
   <meta property="og:title" content="命令logrotate"/>
-  <meta property="og:site_name" content="My Wiki"/>
+  <meta property="og:site_name" content="Notes"/>
 
   
     <meta property="og:image" content="undefined"/>
@@ -53,7 +53,7 @@ logrotate在笔者使用的服务器CentOS release 6.5上已经自带安装了�
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-	  <a class="navbar-brand" href="/">My Wiki</a>
+	  <a class="navbar-brand" href="/">Notes</a>
       <div class="collapse navbar-collapse nav-menu">
 		<ul class="nav navbar-nav">
 		  
@@ -149,7 +149,7 @@ logrotate在笔者使用的服务器CentOS release 6.5上已经自带安装了�
 <p>执行<code>logrotate -f /etc/logrotate.d/nginx</code>。</p>
 <p>为什么执行第一次有效果，执行第二次就没有效果了？</p>
 <p>因为logrotate会记录执行的状态，默认保存在<code>/var/lib/logrotate.status</code>中。</p>
-<figure class="highlight pf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">logrotate <span class="keyword">state</span> -- version <span class="number">2</span></span><br><span class="line"><span class="string">"/home/xxx/nginx/logs/error.log"</span> <span class="number">2015</span>-<span class="number">1</span>-<span class="number">29</span></span><br><span class="line"><span class="string">"/home/xxx/nginx/logs/access.log"</span> <span class="number">2015</span>-<span class="number">1</span>-<span class="number">29</span></span><br><span class="line"><span class="string">"/home/xxx/nginx/logs/*.log"</span> <span class="number">2015</span>-<span class="number">1</span>-<span class="number">12</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">logrotate state -- version 2&#10;&#34;/home/xxx/nginx/logs/error.log&#34; 2015-1-29&#10;&#34;/home/xxx/nginx/logs/access.log&#34; 2015-1-29&#10;&#34;/home/xxx/nginx/logs/*.log&#34; 2015-1-12</span><br></pre></td></tr></table></figure>
 <p>如果想再次执行，那么修改一下日期，或者删掉改行就行。</p>
 <h1 id="section-4">5</h1>
 <p>还有一个比较容易忽略的问题，</p>
@@ -164,13 +164,13 @@ logrotate在笔者使用的服务器CentOS release 6.5上已经自带安装了�
 <ul class="pagination">
 	 
 				
-    	<li class="prev"><a href="/2015/02/12/copy_ins_popular_tab/" class="alignleft prev"><i class="fa fa-arrow-circle-o-left"></i>上一頁</a></li>
+    	<li class="prev"><a href="/2015/02/12/copy_ins_popular_tab/" class="alignleft prev"><i class="fa fa-arrow-circle-o-left"></i>上一页</a></li>
   		
 
         <li><a href="/archives"><i class="fa fa-archive"></i>Archive</a></li>
 
 		
-		   <li class="next"><a href="/2014/12/28/sample_algorithm/" class="alignright next">下一頁<i class="fa fa-arrow-circle-o-right"></i></a></li>         
+		   <li class="next"><a href="/2014/12/28/sample_algorithm/" class="alignright next">下一页<i class="fa fa-arrow-circle-o-right"></i></a></li>         
         
 	
 </ul>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   
-  <title>关于附近的XXX | My Wiki</title>
+  <title>关于附近的XXX | Notes</title>
   <meta name="author" content="Shichao Yuan">
   
   <meta name="description" content="1
@@ -20,7 +20,7 @@ google一下，
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
   <meta property="og:title" content="关于附近的XXX"/>
-  <meta property="og:site_name" content="My Wiki"/>
+  <meta property="og:site_name" content="Notes"/>
 
   
     <meta property="og:image" content="undefined"/>
@@ -56,7 +56,7 @@ google一下，
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-	  <a class="navbar-brand" href="/">My Wiki</a>
+	  <a class="navbar-brand" href="/">Notes</a>
       <div class="collapse navbar-collapse nav-menu">
 		<ul class="nav navbar-nav">
 		  
@@ -129,7 +129,7 @@ google一下，
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator"><span class="keyword">set</span> @orig_lat=<span class="number">121.9763</span>;</span> <span class="operator"><span class="keyword">set</span> @orig_lon=<span class="number">37.40445</span>;</span></span><br><span class="line"><span class="operator"><span class="keyword">set</span> @dist=<span class="number">10</span>;</span></span><br><span class="line"><span class="operator"><span class="keyword">SELECT</span> *, <span class="number">3956</span> * <span class="number">2</span> * <span class="keyword">ASIN</span>(<span class="keyword">SQRT</span>(</span><br><span class="line"><span class="keyword">POWER</span>(<span class="keyword">SIN</span>((@orig_lat - <span class="keyword">abs</span>(dest.lat)) * <span class="keyword">pi</span>()/<span class="number">180</span> / <span class="number">2</span>),</span><br><span class="line"><span class="number">2</span>) + <span class="keyword">COS</span>(@orig_lat * <span class="keyword">pi</span>()/<span class="number">180</span> ) * <span class="keyword">COS</span>(<span class="keyword">abs</span>(dest.lat) *</span><br><span class="line"><span class="keyword">pi</span>()/<span class="number">180</span>) * <span class="keyword">POWER</span>(<span class="keyword">SIN</span>((@orig_lon - dest.lon) *</span><br><span class="line"><span class="keyword">pi</span>()/<span class="number">180</span> / <span class="number">2</span>), <span class="number">2</span>) )) <span class="keyword">as</span> distance</span><br><span class="line"><span class="keyword">FROM</span> hotels dest</span><br><span class="line"><span class="keyword">having</span> distance &lt; @dist</span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> distance <span class="keyword">limit</span> <span class="number">10</span>\G</span></span><br></pre></td></tr></table></figure>
 <p>这么复杂…… 数据量大的话肯定性能低下。</p>
 <p>其中给出了一个解决方案，就是通过计算距离缩小探索空间：</p>
-<figure class="highlight inform7"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1° <span class="keyword">of</span> latitude ~= 69 miles</span><br><span class="line">1° <span class="keyword">of</span> longitude ~= cos(latitude)*69</span><br><span class="line">To calculate lon and lat for the rectangle:</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1&#176; of latitude ~= 69 miles&#10;1&#176; of longitude ~= cos(latitude)*69&#10;To calculate lon and lat for the rectangle:</span><br></pre></td></tr></table></figure>
 <p>当然这个PPT是某个DBA写的……</p>
 <p>我们通常不会把这么多计算的逻辑放在mysql上。</p>
 <h1 id="section-2">3</h1>
@@ -164,13 +164,13 @@ google一下，
 <ul class="pagination">
 	 
 				
-    	<li class="prev"><a href="/2015/06/15/link_prediction_problem/" class="alignleft prev"><i class="fa fa-arrow-circle-o-left"></i>上一頁</a></li>
+    	<li class="prev"><a href="/2015/06/15/link_prediction_problem/" class="alignleft prev"><i class="fa fa-arrow-circle-o-left"></i>上一页</a></li>
   		
 
         <li><a href="/archives"><i class="fa fa-archive"></i>Archive</a></li>
 
 		
-		   <li class="next"><a href="/2015/04/09/privoxy/" class="alignright next">下一頁<i class="fa fa-arrow-circle-o-right"></i></a></li>         
+		   <li class="next"><a href="/2015/04/09/privoxy/" class="alignright next">下一页<i class="fa fa-arrow-circle-o-right"></i></a></li>         
         
 	
 </ul>
