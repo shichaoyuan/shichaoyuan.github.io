@@ -1,0 +1,256 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>小工具Privoxy | My Wiki</title>
+  <meta name="author" content="Shichao Yuan">
+  
+  <meta name="description" content="1
+抓取墙外的内容，
+翻墙，
+VPN，在程序中调用不方便；代理，比较方便。
+有一台墙外的服务器，安装了shadowsocks
+shadowsocks走的是socks5协议，
+在程序中调用也不太方便，虽然shadowsocks是用python写的，但是在python3中使用socks5代理真是不方便…">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="小工具Privoxy"/>
+  <meta property="og:site_name" content="My Wiki"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  
+  
+    <link href="/favicon.png" rel="icon">
+  
+  
+  <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/font-awesome.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/highlight.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/google-fonts.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+  <script src="/js/jquery-2.0.3.min.js"></script>
+
+  <!-- analytics -->
+  
+
+
+
+</head>
+
+ <body>  
+  <nav id="main-nav" class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <button type="button" class="navbar-header navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+		<span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+	  <a class="navbar-brand" href="/">My Wiki</a>
+      <div class="collapse navbar-collapse nav-menu">
+		<ul class="nav navbar-nav">
+		  
+		  <li>
+			<a href="/archives" title="All the articles.">
+			  <i class="fa fa-archive"></i>Archives
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/categories" title="All the categories.">
+			  <i class="fa fa-folder"></i>Categories
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/tags" title="All the tags.">
+			  <i class="fa fa-tags"></i>Tags
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/about" title="About me.">
+			  <i class="fa fa-user"></i>About
+			</a>
+		  </li>
+		  
+		</ul>
+      </div>
+    </div> <!-- container -->
+</nav>
+<div class="clearfix"></div>
+
+  <div class="container">
+  	<div class="content">
+    	 
+
+
+	
+		<div class="page-header">		
+			<h1> 小工具Privoxy</h1>
+		</div>		
+	
+
+
+
+<div class="row post">
+	<!-- cols -->
+	
+	<div class="col-md-9">
+	
+
+			
+
+	<!-- content -->
+	<div class="mypage">		
+	    <h1 id="section">1</h1>
+<p>抓取墙外的内容，</p>
+<p>翻墙，</p>
+<p>VPN，在程序中调用不方便；代理，比较方便。</p>
+<p>有一台墙外的服务器，安装了<a href="https://github.com/shadowsocks/shadowsocks" target="_blank" rel="external">shadowsocks</a></p>
+<p>shadowsocks走的是socks5协议，</p>
+<p>在程序中调用也不太方便，虽然shadowsocks是用python写的，但是在python3中使用socks5代理真是不方便……</p>
+<p>如果能转成HTTP(s)协议就好了~</p>
+<h1 id="section-1">2</h1>
+<p>怎么办？</p>
+<p>有个小工具<a href="http://www.privoxy.org/" target="_blank" rel="external">Privoxy</a></p>
+<p>实际上这个工具相对强大，这里只使用了几个简单的功能。</p>
+<blockquote>
+<p>Privoxy is a non-caching web proxy with advanced filtering capabilities for enhancing privacy, modifying web page data and HTTP headers, controlling access, and removing ads and other obnoxious Internet junk. Privoxy has a flexible configuration and can be customized to suit individual needs and tastes. It has application for both stand-alone systems and multi-user networks.</p>
+</blockquote>
+<p>编译安装，参考<a href="http://www.privoxy.org/user-manual/installation.html#INSTALLATION-SOURCE" target="_blank" rel="external">2.2. Building from Source</a></p>
+<p>配置文件默认位于<code>/usr/local/etc/privoxy</code></p>
+<h1 id="section-2">3</h1>
+<p>将socks5协议转成HTTP(s)协议</p>
+<p>修改<code>config</code>，添加如下规则</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">forward-socks5 / xx<span class="class">.xx</span><span class="class">.xx</span><span class="class">.xx</span>:<span class="number">1080</span> .</span><br></pre></td></tr></table></figure>
+<p>为了让外网用户也能访问该服务，修改</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">\<span class="id">#listen-address</span>  127<span class="class">.0</span><span class="class">.0</span><span class="class">.1</span><span class="pseudo">:8118</span></span><br><span class="line"><span class="tag">listen-address</span>  0<span class="class">.0</span><span class="class">.0</span><span class="class">.0</span><span class="pseudo">:8118</span></span><br></pre></td></tr></table></figure>
+<h1 id="section-3">4</h1>
+<p>另外需要限制一下可以访问的域名</p>
+<p>在添加两个配置文件<code>blacklist.action</code>和<code>whitelist.action</code></p>
+<p>内容如下：</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># <span class="keyword">blacklist.action</span><br><span class="line"></span>&#123; +<span class="keyword">block </span>&#125;</span><br><span class="line">/</span><br></pre></td></tr></table></figure>
+<p>加过滤，也就是过滤所有域名。</p>
+<figure class="highlight nimrod"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># whitelist.action</span></span><br><span class="line">&#123; -<span class="keyword">block</span> &#125;</span><br><span class="line">instagram.com</span><br></pre></td></tr></table></figure>
+<p>减过滤，也就是允许访问<code>instagram.com</code></p>
+<p>在<code>config</code>添加两行</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">actionsfile</span> <span class="tag">blacklist</span><span class="class">.action</span></span><br><span class="line"><span class="tag">actionsfile</span> <span class="tag">whitelist</span><span class="class">.action</span></span><br></pre></td></tr></table></figure>
+	  
+	</div>
+
+	<div>
+  	<center>
+	<div class="pagination">
+<ul class="pagination">
+	 
+				
+    	<li class="prev"><a href="/2015/05/26/geonear/" class="alignleft prev"><i class="fa fa-arrow-circle-o-left"></i>上一頁</a></li>
+  		
+
+        <li><a href="/archives"><i class="fa fa-archive"></i>Archive</a></li>
+
+		
+		   <li class="next"><a href="/2015/03/21/popular_data/" class="alignright next">下一頁<i class="fa fa-arrow-circle-o-right"></i></a></li>         
+        
+	
+</ul>
+</div>
+
+    </center>
+	</div>
+	
+	<!-- comment -->
+	
+<section id="comment">
+  <h2 class="title">留言</h2>
+
+  
+</section>
+
+	
+	</div> <!-- col-md-9/col-md-12 -->
+	
+	
+		<div class="col-md-3"> 
+
+	<!-- date -->
+	
+	<div class="meta-widget">
+	<i class="fa fa-clock-o"></i>
+	2015-04-09 
+	</div>
+	
+
+	<!-- categories -->
+    
+	<div class="meta-widget">
+	<a data-toggle="collapse" data-target="#categorys"><i class="fa fa-folder"></i></a>	
+    <ul id="categorys" class="tag_box list-unstyled collapse in">
+          
+  <li>
+    <li><a href="/categories/http-proxy/">http proxy<span>1</span></a></li>
+  </li>
+
+    </ul>
+	</div>
+	
+
+	<!-- tags -->
+		
+
+	<!-- toc -->
+	<div class="meta-widget">
+	
+	</div>
+	
+    <hr>
+	
+</div><!-- col-md-3 -->
+
+	
+
+</div><!-- row -->
+
+	</div>
+  </div>
+  <div class="container-narrow">
+  <footer> <p>
+  &copy; 2015 Shichao Yuan
+  
+      with help from <a href="http://hexo.io/" target="_blank">Hexo</a> and <a href="http://getbootstrap.com/" target="_blank">Twitter Bootstrap</a>. Theme by <a href="http://github.com/wzpan/hexo-theme-freemind/">Freemind</a>.    
+</p> </footer>
+</div> <!-- container-narrow -->
+  
+<a id="gotop" href="#">   
+  <span>▲</span> 
+</a>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/main.js"></script>
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+
+</body>
+   </html>

@@ -1,0 +1,238 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>关于JAVA GC LOG —— 如何看 | My Wiki</title>
+  <meta name="author" content="Shichao Yuan">
+  
+  <meta name="description" content="本文基于Java HotSpot(TM) 64-Bit Server VM (build 24.71-b01, mixed mode)
+1
+GC相关的几个JVM启动参数：
+参数 | 描述 | —-|——| -XX:+PrintGCDetails | Print more details at gar">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="关于JAVA GC LOG —— 如何看"/>
+  <meta property="og:site_name" content="My Wiki"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  
+  
+    <link href="/favicon.png" rel="icon">
+  
+  
+  <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/font-awesome.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/highlight.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/google-fonts.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+  <script src="/js/jquery-2.0.3.min.js"></script>
+
+  <!-- analytics -->
+  
+
+
+
+</head>
+
+ <body>  
+  <nav id="main-nav" class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <button type="button" class="navbar-header navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+		<span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+	  <a class="navbar-brand" href="/">My Wiki</a>
+      <div class="collapse navbar-collapse nav-menu">
+		<ul class="nav navbar-nav">
+		  
+		  <li>
+			<a href="/archives" title="All the articles.">
+			  <i class="fa fa-archive"></i>Archives
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/categories" title="All the categories.">
+			  <i class="fa fa-folder"></i>Categories
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/tags" title="All the tags.">
+			  <i class="fa fa-tags"></i>Tags
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/about" title="About me.">
+			  <i class="fa fa-user"></i>About
+			</a>
+		  </li>
+		  
+		</ul>
+      </div>
+    </div> <!-- container -->
+</nav>
+<div class="clearfix"></div>
+
+  <div class="container">
+  	<div class="content">
+    	 
+
+
+	
+		<div class="page-header">		
+			<h1> 关于JAVA GC LOG —— 如何看</h1>
+		</div>		
+	
+
+
+
+<div class="row post">
+	<!-- cols -->
+	
+	<div class="col-md-9">
+	
+
+			
+
+	<!-- content -->
+	<div class="mypage">		
+	    <p>本文基于Java HotSpot(TM) 64-Bit Server VM (build 24.71-b01, mixed mode)</p>
+<h1 id="section">1</h1>
+<p>GC相关的几个JVM启动参数：</p>
+<p>参数 | 描述 | —-|——| -XX:+PrintGCDetails | Print more details at garbage collection. Manageable. (Introduced in 1.4.0.) | | -XX:+PrintGCDateStamps | Enables printing of a date stamp at every GC | -Xloggc:<filename> | Log GC verbose output to specified file. The verbose output is controlled by the normal verbose GC flags. | -XX:+UseGCLogFileRotation | Enabled GC log rotation, requires -Xloggc. | -XX:NumberOfGCLogFiles=1 | Set the number of files to use when rotating logs, must be &gt;= 1. The rotated log files will use the following naming scheme, <filename>.0, <filename>.1, …, <filename>.n-1. | -XX:GCLogFileSize=8K | The size of the log file at which point the log will be rotated, must be &gt;= 8K. | -XX:+PrintTenuringDistribution | Print tenuring age information. |</filename></filename></filename></filename></p>
+<p>其它参数，详见<a href="http://www.oracle.com/technetwork/java/javase/tech/vmoptions-jsp-140102.html" target="_blank" rel="external">Java HotSpot VM Options</a></p>
+<h1 id="section-1">2</h1>
+<p>一个Tomcat/7.0.26的例子：</p>
+<figure class="highlight autohotkey"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">JAV<span class="built_in">A_OPTS</span>=<span class="string">"-server -Xms1500M -Xmx1500M -Xmn500M -Xss256k -XX:PermSize=256m -XX:MaxPermSize=256m -XX:+UseParNewGC -XX:ParallelGCThreads=8 -XX:SurvivorRatio=6 -XX:TargetSurvivorRatio=90 -XX:MaxTenuringThreshold=15 -XX:SoftRefLRUPolicyMSPerMB=0 -XX:+UseConcMarkSweepGC -XX:+CMSIncrementalMode -XX:+UseCMSCompactAtFullCollection -XX:CMSFullGCsBeforeCompaction=5 -XX:CMSInitiatingOccupancyFraction=55 -XX:CMSIncrementalSafetyFactor=20 -XX:+PrintGCDetails -XX:+PrintGCDateStamps -Xloggc:../logs/gc-$DATE.log -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=5 -XX:GCLogFileSize=128K -XX:+PrintTenuringDistribution "</span></span><br></pre></td></tr></table></figure>
+<p>对于young generation，使用ParNew；对于Tenured generation，使用CMS。</p>
+<p>如何配置这些不同的算法，详见<a href="https://blogs.oracle.com/jonthecollector/entry/our_collectors" target="_blank" rel="external">Our Collectors</a></p>
+<p>一段GC日志：</p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">2015-02-05</span>T<span class="number">19:27:34.53</span>7+0800: <span class="number">3737.811</span>: [Full GC<span class="number">2015-02-05</span>T<span class="number">19:27:34.53</span>7+0800: <span class="number">3737.812</span>: [CMS: 68036K-&gt;71687K(<span class="number">1024000</span>K), <span class="number">0.3253180</span> secs] 228627K-&gt;71687K(<span class="number">1472000</span>K), [CMS Perm : 58490K-&gt;58337K(262144K)] icms_dc=0 , <span class="number">0.3257740</span> secs] [Times: user=0.33 sys=0.00, real=0.33 secs]</span><br><span class="line"><span class="number">2015-02-05</span>T<span class="number">19:27:34.86</span>6+0800: <span class="number">3738.141</span>: [GC [1 CMS-initial-mark: 71687K(<span class="number">1024000</span>K)] 71689K(<span class="number">1472000</span>K), <span class="number">0.0041430</span> secs] [Times: user=0.01 sys=0.00, real=0.01 secs]</span><br><span class="line"><span class="number">2015-02-05</span>T<span class="number">19:27:34.87</span>1+0800: <span class="number">3738.145</span>: [CMS-concurrent-mark-start]</span><br><span class="line"><span class="number">2015-02-05</span>T<span class="number">19:31:25.88</span>1+0800: <span class="number">3969.156</span>: [GC<span class="number">2015-02-05</span>T<span class="number">19:31:25.88</span>1+0800: <span class="number">3969.156</span>: [ParNew</span><br><span class="line">Desired survivor size <span class="number">58982400</span> bytes, new threshold 15 (max 15)</span><br><span class="line">- age   1:    <span class="number">8783432</span> bytes,    <span class="number">8783432</span> total</span><br><span class="line">: 384000K-&gt;13384K(448000K), <span class="number">0.0148490</span> secs] 455687K-&gt;85071K(<span class="number">1472000</span>K) icms_dc=0 , <span class="number">0.0153590</span> secs] [Times: user=0.05 sys=0.00, real=0.02 secs]</span><br><span class="line"><span class="number">2015-02-05</span>T<span class="number">19:33:50.170</span>+0800: <span class="number">4113.445</span>: [GC<span class="number">2015-02-05</span>T<span class="number">19:33:50.171</span>+0800: <span class="number">4113.445</span>: [ParNew</span><br><span class="line">Desired survivor size <span class="number">58982400</span> bytes, new threshold 15 (max 15)</span><br><span class="line">- age   1:    <span class="number">5015016</span> bytes,    <span class="number">5015016</span> total</span><br><span class="line">- age   2:    <span class="number">3093632</span> bytes,    <span class="number">8108648</span> total</span><br></pre></td></tr></table></figure>
+<p>我们仔细看看：</p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">2015-02-05</span>T<span class="number">19:27:34.53</span>7+0800:(日期) <span class="number">3737.811</span>:(时间戳) [Full GC(垃圾收集类型)<span class="number">2015-02-05</span>T<span class="number">19:27:34.53</span>7+0800:(日期) <span class="number">3737.812</span>:(时间戳) [CMS:(算法以及generation) 68036K-&gt;71687K(<span class="number">1024000</span>K), <span class="number">0.3253180</span> secs(Tenured generation的情况)] 228627K-&gt;71687K(<span class="number">1472000</span>K)(整个堆的情况), [CMS Perm : 58490K-&gt;58337K(262144K)(Perm的情况)] icms_dc=0 , <span class="number">0.3257740</span> secs] [Times: user=0.33 sys=0.00, real=0.33 secs]</span><br><span class="line"></span><br><span class="line"><span class="number">2015-02-05</span>T<span class="number">19:31:25.88</span>1+0800: <span class="number">3969.156</span>: [GC<span class="number">2015-02-05</span>T<span class="number">19:31:25.88</span>1+0800: <span class="number">3969.156</span>: [ParNew</span><br><span class="line">Desired survivor size <span class="number">58982400</span> bytes, new threshold 15 (max 15)</span><br><span class="line">- age   1:    <span class="number">8783432</span> bytes,    <span class="number">8783432</span> total</span><br><span class="line">: 384000K-&gt;13384K(448000K), <span class="number">0.0148490</span> secs] 455687K-&gt;85071K(<span class="number">1472000</span>K) icms_dc=0 , <span class="number">0.0153590</span> secs] [Times: user=0.05 sys=0.00, real=0.02 secs]</span><br></pre></td></tr></table></figure>
+<p>更加详细的分析，参考<a href="https://blogs.oracle.com/poonam/entry/understanding_cms_gc_logs" target="_blank" rel="external">Understanding CMS GC Logs</a></p>
+<h1 id="section-2">3</h1>
+<p>如何可视化？</p>
+<p>使用<a href="https://github.com/chewiebug/GCViewer" target="_blank" rel="external">GCViewer</a></p>
+	  
+	</div>
+
+	<div>
+  	<center>
+	<div class="pagination">
+<ul class="pagination">
+	 
+				
+    	<li class="prev"><a href="/2015/03/21/popular_data/" class="alignleft prev"><i class="fa fa-arrow-circle-o-left"></i>上一頁</a></li>
+  		
+
+        <li><a href="/archives"><i class="fa fa-archive"></i>Archive</a></li>
+
+		
+		   <li class="next"><a href="/2015/02/12/copy_ins_popular_tab/" class="alignright next">下一頁<i class="fa fa-arrow-circle-o-right"></i></a></li>         
+        
+	
+</ul>
+</div>
+
+    </center>
+	</div>
+	
+	<!-- comment -->
+	
+<section id="comment">
+  <h2 class="title">留言</h2>
+
+  
+</section>
+
+	
+	</div> <!-- col-md-9/col-md-12 -->
+	
+	
+		<div class="col-md-3"> 
+
+	<!-- date -->
+	
+	<div class="meta-widget">
+	<i class="fa fa-clock-o"></i>
+	2015-02-16 
+	</div>
+	
+
+	<!-- categories -->
+    
+	<div class="meta-widget">
+	<a data-toggle="collapse" data-target="#categorys"><i class="fa fa-folder"></i></a>	
+    <ul id="categorys" class="tag_box list-unstyled collapse in">
+          
+  <li>
+    <li><a href="/categories/java/">java<span>2</span></a></li>
+  </li>
+
+    </ul>
+	</div>
+	
+
+	<!-- tags -->
+		
+
+	<!-- toc -->
+	<div class="meta-widget">
+	
+	</div>
+	
+    <hr>
+	
+</div><!-- col-md-3 -->
+
+	
+
+</div><!-- row -->
+
+	</div>
+  </div>
+  <div class="container-narrow">
+  <footer> <p>
+  &copy; 2015 Shichao Yuan
+  
+      with help from <a href="http://hexo.io/" target="_blank">Hexo</a> and <a href="http://getbootstrap.com/" target="_blank">Twitter Bootstrap</a>. Theme by <a href="http://github.com/wzpan/hexo-theme-freemind/">Freemind</a>.    
+</p> </footer>
+</div> <!-- container-narrow -->
+  
+<a id="gotop" href="#">   
+  <span>▲</span> 
+</a>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/main.js"></script>
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+
+</body>
+   </html>

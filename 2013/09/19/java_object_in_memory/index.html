@@ -1,0 +1,266 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Java Object in Memory | My Wiki</title>
+  <meta name="author" content="Shichao Yuan">
+  
+  <meta name="description" content="在一些高性能的Java代码中，经常会看到padding，其作用是避免false sharing。
+例如Disruptor中的Sequencer：
+1234567891011121314151617public class Sequence&amp;#123;    static final long INI">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Java Object in Memory"/>
+  <meta property="og:site_name" content="My Wiki"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  
+  
+    <link href="/favicon.png" rel="icon">
+  
+  
+  <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/font-awesome.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/highlight.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/google-fonts.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+  <script src="/js/jquery-2.0.3.min.js"></script>
+
+  <!-- analytics -->
+  
+
+
+
+</head>
+
+ <body>  
+  <nav id="main-nav" class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <button type="button" class="navbar-header navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+		<span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+	  <a class="navbar-brand" href="/">My Wiki</a>
+      <div class="collapse navbar-collapse nav-menu">
+		<ul class="nav navbar-nav">
+		  
+		  <li>
+			<a href="/archives" title="All the articles.">
+			  <i class="fa fa-archive"></i>Archives
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/categories" title="All the categories.">
+			  <i class="fa fa-folder"></i>Categories
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/tags" title="All the tags.">
+			  <i class="fa fa-tags"></i>Tags
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/about" title="About me.">
+			  <i class="fa fa-user"></i>About
+			</a>
+		  </li>
+		  
+		</ul>
+      </div>
+    </div> <!-- container -->
+</nav>
+<div class="clearfix"></div>
+
+  <div class="container">
+  	<div class="content">
+    	 
+
+
+	
+		<div class="page-header">		
+			<h1> Java Object in Memory</h1>
+		</div>		
+	
+
+
+
+<div class="row post">
+	<!-- cols -->
+	
+	<div class="col-md-9">
+	
+
+			
+
+	<!-- content -->
+	<div class="mypage">		
+	    <p>在一些高性能的Java代码中，经常会看到padding，其作用是避免false sharing。</p>
+<p>例如Disruptor中的Sequencer：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Sequence</span></span><br><span class="line">&#123;</span></span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">final</span> <span class="typename">long</span> INITIAL_VALUE = -<span class="number">1</span>L;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Unsafe UNSAFE;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="typename">long</span> VALUE_OFFSET;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span></span><br><span class="line">    &#123;</span><br><span class="line">        UNSAFE = Util.getUnsafe();</span><br><span class="line">        <span class="keyword">final</span> <span class="typename">int</span> base = UNSAFE.arrayBaseOffset(<span class="typename">long</span>[].<span class="keyword">class</span>);</span><br><span class="line">        <span class="keyword">final</span> <span class="typename">int</span> scale = UNSAFE.arrayIndexScale(<span class="typename">long</span>[].<span class="keyword">class</span>);</span><br><span class="line">        VALUE_OFFSET = base + (scale * <span class="number">7</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="typename">long</span>[] paddedValue = <span class="keyword">new</span> <span class="typename">long</span>[<span class="number">15</span>];</span><br><span class="line">	</span><br><span class="line">......</span><br></pre></td></tr></table></figure>
+<p>其中的paddedValue从功能上来说只用到了第8个long值，而为了避免false sharing初始化15个long。</p>
+<p>false sharing很容易理解，cache line嘛，通常是64byte或者128byte。这里让笔者困惑的是——为什么是15而不是16？</p>
+<p>关于Java Object在内存中结构，笔者在<a href="http://docs.oracle.com/javase/specs/jvms/se7/jvms7.pdf" target="_blank" rel="external">JVMS</a>中没有找到详细的解释。而在一篇博客<a href="http://www.codeinstructions.com/2008/12/java-objects-memory-structure.html" target="_blank" rel="external">Java Objects Memory Structure</a>中找到了一些关于HotSpot JVM的相关内容。</p>
+<blockquote>
+<p>Rule 1: every object is aligned to an 8 bytes granularity.</p>
+</blockquote>
+<blockquote>
+<p>Rule 2: class attributes are ordered like this: first longs and doubles; then ints and floats; then chars and shorts; then bytes and booleans, and last the references. The attributes are aligned to their own granularity.</p>
+</blockquote>
+<blockquote>
+<p>Rule 3: Fields that belong to different classes of the hierarchy are NEVER mixed up together. Fields of the superclass come first, obeying rule 2, followed by the fields of the subclass.</p>
+</blockquote>
+<blockquote>
+<p>Rule 4: Between the last field of the superclass and the first field of the subclass there must be padding to align to a 4 bytes boundary.</p>
+</blockquote>
+<blockquote>
+<p>Rule 5: When the first field of a subclass is a double or long and the superclass doesn’t align to an 8 bytes boundary, JVM will break rule 2 and try to put an int, then shorts, then bytes, and then references at the beginning of the space reserved to the subclass until it fills the gap.</p>
+</blockquote>
+<p>这些Rules也解决不了笔者的困惑，不过另外几句话提供了一些线索。</p>
+<blockquote>
+<p>In the Sun JVM, every object (except arrays) has a 2 words header. The first word contains the object’s identity hash code plus some flags like lock state and age, and the second word contains a reference to the object’s class.</p>
+</blockquote>
+<blockquote>
+<p>Arrays have an extra header field that contain the value of the ‘length’ variable. The array elements follow, and the arrays, as any regular objects, are also aligned to an 8 bytes boundary.</p>
+</blockquote>
+<p>这篇博客的描述基于32bits HotSpot JVM，我们先写个程序验证一下。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.lang.reflect.Field;</span><br><span class="line"><span class="keyword">import</span> java.security.AccessController;</span><br><span class="line"><span class="keyword">import</span> java.security.PrivilegedExceptionAction;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> sun.misc.Unsafe;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ObjectsMemoryStructure</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">long</span>[] paddedValue = <span class="keyword">new</span> <span class="keyword">long</span>[<span class="number">15</span>];</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Unsafe UNSAFE;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">static</span> &#123;</span><br><span class="line">		<span class="keyword">try</span> &#123;</span><br><span class="line">			<span class="keyword">final</span> PrivilegedExceptionAction&lt;Unsafe&gt; action = <span class="keyword">new</span> PrivilegedExceptionAction&lt;Unsafe&gt;() &#123;</span><br><span class="line">				<span class="annotation">@Override</span></span><br><span class="line">				<span class="function"><span class="keyword">public</span> Unsafe <span class="title">run</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">					Field theUnsafe = Unsafe.class</span><br><span class="line">							.getDeclaredField(<span class="string">"theUnsafe"</span>);</span><br><span class="line">					theUnsafe.setAccessible(<span class="keyword">true</span>);</span><br><span class="line">					<span class="keyword">return</span> (Unsafe) theUnsafe.get(<span class="keyword">null</span>);</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;;</span><br><span class="line">			UNSAFE = AccessController.doPrivileged(action);</span><br><span class="line">		&#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">			<span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"Unable to load unsafe"</span>, e);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">		</span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; paddedValue.length; i++) &#123;</span><br><span class="line">			paddedValue[i] = i+<span class="number">1</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">long</span> i = <span class="number">0</span>; i &lt; <span class="number">160</span>; i++) &#123;</span><br><span class="line">			System.out.print(String.format(<span class="string">"%02x "</span>, UNSAFE.getByte(paddedValue, i) &amp; <span class="number">0xFF</span>));</span><br><span class="line">			<span class="keyword">if</span> (((i+<span class="number">1</span>) % <span class="number">8</span>) == <span class="number">0</span>)</span><br><span class="line">				System.out.println();</span><br><span class="line">		&#125;</span><br><span class="line">		System.out.println();</span><br><span class="line">		</span><br><span class="line">		VolatileLong vlong = <span class="keyword">new</span> VolatileLong();</span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">long</span> i = <span class="number">0</span>; i &lt; <span class="number">88</span>; i++) &#123;</span><br><span class="line">			System.out.print(String.format(<span class="string">"%02x "</span>, UNSAFE.getByte(vlong, i) &amp; <span class="number">0xFF</span>));</span><br><span class="line">			<span class="keyword">if</span> (((i+<span class="number">1</span>) % <span class="number">8</span>) == <span class="number">0</span>)</span><br><span class="line">				System.out.println();</span><br><span class="line">		&#125;</span><br><span class="line">		System.out.println();</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">VolatileLong</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">volatile</span> <span class="keyword">long</span> value = <span class="number">0L</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">long</span> p1=<span class="number">1</span>, p2=<span class="number">2</span>, p3=<span class="number">3</span>, p4=<span class="number">4</span>, p5=<span class="number">5</span>, p6=<span class="number">6</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在32bits HotSpot JVM下执行输出如下：</p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">D:\springsource\workspace-sts-3.2.0.RELEASE\test\bin&gt;"C:\Program Files (x86)\Jav</span><br><span class="line">a\jre7\bin\java.exe" ObjectsMemoryStructure</span><br><span class="line"><span class="number">01 00 00 00</span> a<span class="number">0 46 04 3</span>c</span><br><span class="line">0f <span class="number">00 00 00 00</span> 00 00 00</span><br><span class="line"><span class="number">01 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">02 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">03 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">04 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">05 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">06 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">07 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">08 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">09 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line">0a <span class="number">00 00 00 00</span> 00 00 00</span><br><span class="line">0b <span class="number">00 00 00 00</span> 00 00 00</span><br><span class="line">0c <span class="number">00 00 00 00</span> 00 00 00</span><br><span class="line">0d <span class="number">00 00 00 00</span> 00 00 00</span><br><span class="line">0e <span class="number">00 00 00 00</span> 00 00 00</span><br><span class="line">0f <span class="number">00 00 00 00</span> 00 00 00</span><br><span class="line"><span class="number">01 00 00 00</span> a8 09 a1 3b</span><br><span class="line">a8 b2 09 27 eb fa 7e ef</span><br><span class="line"><span class="number">00 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"></span><br><span class="line"><span class="number">01 00 00 00</span> 70 6e 05 37</span><br><span class="line"><span class="number">00 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">01 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">02 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">03 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">04 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">05 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">06 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">01 00 00 00</span> <span class="number">40 17 05 3</span>c</span><br><span class="line"><span class="number">01 00 00 00</span> e8 f0 09 27</span><br><span class="line"><span class="number">01 00 00 00</span> 38 d2 03 37</span><br></pre></td></tr></table></figure>
+<p>可见上文的描述与实现相符。<code>private final long[] paddedValue = new long[15];</code>在内存中占用了136byte，不是完美的128byte。按照paddedValue的使用方式，无论136还是128没有太大的区别，但是笔者还是有点儿小小的疑问。</p>
+<p>在64bits HotSpot JVM下执行输出如下（UseCompressedOops默认是为true）：</p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">proxynode@proxynode0:~/shichaoyuan$ jdk<span class="number">1.7.0_25</span>/bin/java ObjectsMemoryStructure</span><br><span class="line"><span class="number">01 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line">7a 02 e8 e7 0f 00 00 00</span><br><span class="line"><span class="number">01 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">02 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">03 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">04 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">05 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">06 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">07 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">08 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">09 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line">0a <span class="number">00 00 00 00</span> 00 00 00</span><br><span class="line">0b <span class="number">00 00 00 00</span> 00 00 00</span><br><span class="line">0c <span class="number">00 00 00 00</span> 00 00 00</span><br><span class="line">0d <span class="number">00 00 00 00</span> 00 00 00</span><br><span class="line">0e <span class="number">00 00 00 00</span> 00 00 00</span><br><span class="line">0f <span class="number">00 00 00 00</span> 00 00 00</span><br><span class="line"><span class="number">01 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line">d8 16 e8 e7 0b 5e 2f f8</span><br><span class="line">eb fa 7e ef <span class="number">00 00 00 00</span></span><br><span class="line"></span><br><span class="line"><span class="number">01 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line">cc 3c ed e<span class="number">7 00 00 00</span> 00</span><br><span class="line"><span class="number">00 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">01 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">02 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">03 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">04 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">05 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">06 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">01 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line">5c 56 e9 e<span class="number">7 01 00 00</span> 00</span><br></pre></td></tr></table></figure>
+<p>header的格式与长度发生了变化，非arrays的object的header也变成了16byte。</p>
+<p>在64bits HotSpot JVM下执行输出如下（将UseCompressedOops设置为false）：</p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">proxynode@proxynode0:~/shichaoyuan$ jdk<span class="number">1.7.0_25</span>/bin/java -XX:-UseCompressedOops ObjectsMemoryStructure</span><br><span class="line"><span class="number">01 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line">d0 13 40 a4 41 7f 00 00</span><br><span class="line">0f <span class="number">00 00 00 00</span> 00 00 00</span><br><span class="line"><span class="number">01 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">02 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">03 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">04 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">05 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">06 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">07 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">08 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">09 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line">0a <span class="number">00 00 00 00</span> 00 00 00</span><br><span class="line">0b <span class="number">00 00 00 00</span> 00 00 00</span><br><span class="line">0c <span class="number">00 00 00 00</span> 00 00 00</span><br><span class="line">0d <span class="number">00 00 00 00</span> 00 00 00</span><br><span class="line">0e <span class="number">00 00 00 00</span> 00 00 00</span><br><span class="line">0f <span class="number">00 00 00 00</span> 00 00 00</span><br><span class="line"><span class="number">01 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line">c8 ba 40 a4 41 7f 00 00</span><br><span class="line"></span><br><span class="line"><span class="number">01 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line">38 9c 6a a4 41 7f 00 00</span><br><span class="line"><span class="number">00 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">01 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">02 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">03 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">04 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">05 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">06 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line"><span class="number">01 00 00 00</span> <span class="number">00 00 00 00</span></span><br><span class="line">c0 e9 4a a4 41 7f 00 00</span><br></pre></td></tr></table></figure>
+<p>header的格式与长度又发生了变化，arrays的header变成了24byte。</p>
+<p>看来这个没有被规范的地方，不同的硬件和平台存在着些许的不同。15或许在某些JVM实现中是完美的，所以笔者也不打算深究这个疑问了。</p>
+<p>下面我们来看看header里存储了那些内容。</p>
+<p>笔者查看了<a href="http://hg.openjdk.java.net/jdk7u/jdk7u" target="_blank" rel="external">openjdk7u</a>项目中hotspot的源代码，在<code>oop.hpp</code>和<code>markOop.hpp</code>中找到了一些相关的代码和注释。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> oopDesc &#123;</span><br><span class="line">  <span class="keyword">friend</span> <span class="keyword">class</span> VMStructs;</span><br><span class="line"> <span class="keyword">private</span>:</span><br><span class="line">  <span class="keyword">volatile</span> markOop  _mark;</span><br><span class="line">  <span class="keyword">union</span> _metadata &#123;</span><br><span class="line">    wideKlassOop    _klass;</span><br><span class="line">    narrowOop       _compressed_klass;</span><br><span class="line">  &#125; _metadata;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// The markOop describes the header of an object.</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">// Note that the mark is not a real oop but just a word.</span></span><br><span class="line"><span class="comment">// It is placed in the oop hierarchy for historical reasons.</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">// Bit-format of an object header (most significant first, big endian layout below):</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//  32 bits:</span></span><br><span class="line"><span class="comment">//  --------</span></span><br><span class="line"><span class="comment">//             hash:25 ------------&gt;| age:4    biased_lock:1 lock:2 (normal object)</span></span><br><span class="line"><span class="comment">//             JavaThread*:23 epoch:2 age:4    biased_lock:1 lock:2 (biased object)</span></span><br><span class="line"><span class="comment">//             size:32 ------------------------------------------&gt;| (CMS free block)</span></span><br><span class="line"><span class="comment">//             PromotedObject*:29 ----------&gt;| promo_bits:3 -----&gt;| (CMS promoted object)</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//  64 bits:</span></span><br><span class="line"><span class="comment">//  --------</span></span><br><span class="line"><span class="comment">//  unused:25 hash:31 --&gt;| unused:1   age:4    biased_lock:1 lock:2 (normal object)</span></span><br><span class="line"><span class="comment">//  JavaThread*:54 epoch:2 unused:1   age:4    biased_lock:1 lock:2 (biased object)</span></span><br><span class="line"><span class="comment">//  PromotedObject*:61 ---------------------&gt;| promo_bits:3 -----&gt;| (CMS promoted object)</span></span><br><span class="line"><span class="comment">//  size:64 -----------------------------------------------------&gt;| (CMS free block)</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//  unused:25 hash:31 --&gt;| cms_free:1 age:4    biased_lock:1 lock:2 (COOPs &amp;&amp; normal object)</span></span><br><span class="line"><span class="comment">//  JavaThread*:54 epoch:2 cms_free:1 age:4    biased_lock:1 lock:2 (COOPs &amp;&amp; biased object)</span></span><br><span class="line"><span class="comment">//  narrowOop:32 unused:24 cms_free:1 unused:4 promo_bits:3 -----&gt;| (COOPs &amp;&amp; CMS promoted object)</span></span><br><span class="line"><span class="comment">//  unused:21 size:35 --&gt;| cms_free:1 unused:7 ------------------&gt;| (COOPs &amp;&amp; CMS free block)</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//  - hash contains the identity hash value: largest value is</span></span><br><span class="line"><span class="comment">//    31 bits, see os::random().  Also, 64-bit vm's require</span></span><br><span class="line"><span class="comment">//    a hash value no bigger than 32 bits because they will not</span></span><br><span class="line"><span class="comment">//    properly generate a mask larger than that: see library_call.cpp</span></span><br><span class="line"><span class="comment">//    and c1_CodePatterns_sparc.cpp.</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//  - the biased lock pattern is used to bias a lock toward a given</span></span><br><span class="line"><span class="comment">//    thread. When this pattern is set in the low three bits, the lock</span></span><br><span class="line"><span class="comment">//    is either biased toward a given thread or "anonymously" biased,</span></span><br><span class="line"><span class="comment">//    indicating that it is possible for it to be biased. When the</span></span><br><span class="line"><span class="comment">//    lock is biased toward a given thread, locking and unlocking can</span></span><br><span class="line"><span class="comment">//    be performed by that thread without using atomic operations.</span></span><br><span class="line"><span class="comment">//    When a lock's bias is revoked, it reverts back to the normal</span></span><br><span class="line"><span class="comment">//    locking scheme described below.</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//    Note that we are overloading the meaning of the "unlocked" state</span></span><br><span class="line"><span class="comment">//    of the header. Because we steal a bit from the age we can</span></span><br><span class="line"><span class="comment">//    guarantee that the bias pattern will never be seen for a truly</span></span><br><span class="line"><span class="comment">//    unlocked object.</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//    Note also that the biased state contains the age bits normally</span></span><br><span class="line"><span class="comment">//    contained in the object header. Large increases in scavenge</span></span><br><span class="line"><span class="comment">//    times were seen when these bits were absent and an arbitrary age</span></span><br><span class="line"><span class="comment">//    assigned to all biased objects, because they tended to consume a</span></span><br><span class="line"><span class="comment">//    significant fraction of the eden semispaces and were not</span></span><br><span class="line"><span class="comment">//    promoted promptly, causing an increase in the amount of copying</span></span><br><span class="line"><span class="comment">//    performed. The runtime system aligns all JavaThread* pointers to</span></span><br><span class="line"><span class="comment">//    a very large value (currently 128 bytes (32bVM) or 256 bytes (64bVM))</span></span><br><span class="line"><span class="comment">//    to make room for the age bits &amp; the epoch bits (used in support of</span></span><br><span class="line"><span class="comment">//    biased locking), and for the CMS "freeness" bit in the 64bVM (+COOPs).</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//    [JavaThread* | epoch | age | 1 | 01]       lock is biased toward given thread</span></span><br><span class="line"><span class="comment">//    [0           | epoch | age | 1 | 01]       lock is anonymously biased</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//  - the two lock bits are used to describe three states: locked/unlocked and monitor.</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//    [ptr             | 00]  locked             ptr points to real header on stack</span></span><br><span class="line"><span class="comment">//    [header      | 0 | 01]  unlocked           regular object header</span></span><br><span class="line"><span class="comment">//    [ptr             | 10]  monitor            inflated lock (header is wapped out)</span></span><br><span class="line"><span class="comment">//    [ptr             | 11]  marked             used by markSweep to mark an object</span></span><br><span class="line"><span class="comment">//                                               not valid at any other time</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//    We assume that stack/thread pointers have the lowest two bits cleared.</span></span><br></pre></td></tr></table></figure>
+<p>在32bits的情况下，前32bits包含hash值以及锁信息，后32bit包含指向类的指针。</p>
+<p>在64bits的情况下，前32bits包含hash值以及锁信息，后64bit包含指向类的指针，如果没有UseCompressedOops，那么长度为64bit；如果使用了UseCompressedOops，那么长度为32bit。这也就解释了第二个测试中，array的长度仍为16byte的原因，因为表示长度的32bit藏在了压缩后的指针后面。</p>
+<p>坦白说，显式使用padding的方式很不优雅，如果能实现在JIT中对Java程序员来说绝对是福音啊。</p>
+	  
+	</div>
+
+	<div>
+  	<center>
+	<div class="pagination">
+<ul class="pagination">
+	 
+				
+    	<li class="prev"><a href="/2013/11/05/notes_eyawtkasbwata/" class="alignleft prev"><i class="fa fa-arrow-circle-o-left"></i>上一頁</a></li>
+  		
+
+        <li><a href="/archives"><i class="fa fa-archive"></i>Archive</a></li>
+
+		
+		   <li class="next"><a href="/2013/08/10/memorybarrier/" class="alignright next">下一頁<i class="fa fa-arrow-circle-o-right"></i></a></li>         
+        
+	
+</ul>
+</div>
+
+    </center>
+	</div>
+	
+	<!-- comment -->
+	
+<section id="comment">
+  <h2 class="title">留言</h2>
+
+  
+</section>
+
+	
+	</div> <!-- col-md-9/col-md-12 -->
+	
+	
+		<div class="col-md-3"> 
+
+	<!-- date -->
+	
+	<div class="meta-widget">
+	<i class="fa fa-clock-o"></i>
+	2013-09-19 
+	</div>
+	
+
+	<!-- categories -->
+    
+	<div class="meta-widget">
+	<a data-toggle="collapse" data-target="#categorys"><i class="fa fa-folder"></i></a>	
+    <ul id="categorys" class="tag_box list-unstyled collapse in">
+          
+  <li>
+    <li><a href="/categories/java/">java<span>2</span></a></li>
+  </li>
+
+    </ul>
+	</div>
+	
+
+	<!-- tags -->
+		
+
+	<!-- toc -->
+	<div class="meta-widget">
+	
+	</div>
+	
+    <hr>
+	
+</div><!-- col-md-3 -->
+
+	
+
+</div><!-- row -->
+
+	</div>
+  </div>
+  <div class="container-narrow">
+  <footer> <p>
+  &copy; 2015 Shichao Yuan
+  
+      with help from <a href="http://hexo.io/" target="_blank">Hexo</a> and <a href="http://getbootstrap.com/" target="_blank">Twitter Bootstrap</a>. Theme by <a href="http://github.com/wzpan/hexo-theme-freemind/">Freemind</a>.    
+</p> </footer>
+</div> <!-- container-narrow -->
+  
+<a id="gotop" href="#">   
+  <span>▲</span> 
+</a>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/main.js"></script>
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+
+</body>
+   </html>

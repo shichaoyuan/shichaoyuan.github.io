@@ -1,0 +1,295 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>思考热门发现Tab的内容配置 | My Wiki</title>
+  <meta name="author" content="Shichao Yuan">
+  
+  <meta name="description" content="1
+之前有篇文章是介绍如何山寨Instagram的热门发现Tab
+其中留了一个坑，如何配置不同类型的数据。
+近来跟PM讨论的比较多，所以记一下。
+2
+首先交代一下背景，
+小项目、刚起步，
+没有什么数据，直接通过data mining的方法不太合适，
+所以运营人员会维护一个热门内容库，并且会对热门内容">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="思考热门发现Tab的内容配置"/>
+  <meta property="og:site_name" content="My Wiki"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  
+  
+    <link href="/favicon.png" rel="icon">
+  
+  
+  <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/font-awesome.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/highlight.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/google-fonts.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+  <script src="/js/jquery-2.0.3.min.js"></script>
+
+  <!-- analytics -->
+  
+
+
+
+</head>
+
+ <body>  
+  <nav id="main-nav" class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <button type="button" class="navbar-header navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+		<span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+	  <a class="navbar-brand" href="/">My Wiki</a>
+      <div class="collapse navbar-collapse nav-menu">
+		<ul class="nav navbar-nav">
+		  
+		  <li>
+			<a href="/archives" title="All the articles.">
+			  <i class="fa fa-archive"></i>Archives
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/categories" title="All the categories.">
+			  <i class="fa fa-folder"></i>Categories
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/tags" title="All the tags.">
+			  <i class="fa fa-tags"></i>Tags
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/about" title="About me.">
+			  <i class="fa fa-user"></i>About
+			</a>
+		  </li>
+		  
+		</ul>
+      </div>
+    </div> <!-- container -->
+</nav>
+<div class="clearfix"></div>
+
+  <div class="container">
+  	<div class="content">
+    	 
+
+
+	
+		<div class="page-header">		
+			<h1> 思考热门发现Tab的内容配置</h1>
+		</div>		
+	
+
+
+
+<div class="row post">
+	<!-- cols -->
+	
+	<div class="col-md-9">
+	
+
+			
+
+	<!-- content -->
+	<div class="mypage">		
+	    <h1 id="section">1</h1>
+<p>之前有篇文章是介绍<a href="http://shichaoyuan.github.io/engineering/2015/02/12/copy_ins_popular_tab.html">如何山寨Instagram的热门发现Tab</a></p>
+<p>其中留了一个坑，如何配置不同类型的数据。</p>
+<p>近来跟PM讨论的比较多，所以记一下。</p>
+<h1 id="section-1">2</h1>
+<p>首先交代一下背景，</p>
+<p>小项目、刚起步，</p>
+<p>没有什么数据，直接通过data mining的方法不太合适，</p>
+<p>所以运营人员会维护一个热门内容库，并且会对热门内容打tag，包括feed和user。</p>
+<p>然后是对于发现页的定位，</p>
+<p>帮助用户发现自己感兴趣的东西，引导用户关注这些内容。</p>
+<h1 id="section-2">3</h1>
+<h2 id="第一个想法-直接random">第一个想法 —— 直接Random</h2>
+<p>直接对热门内容库随机选择，这个想法最直观，</p>
+<p>而且毕竟是经过运营人员筛选出来的，质量通常相当的高。</p>
+<p>简单、直接。</p>
+<h2 id="第二个想法-以时间做为权重random">第二个想法 —— 以时间做为权重Random</h2>
+<p>这是一个很直观的优化，新feed感觉上应该更容易引起支持，特别是某些热门一时的话题。</p>
+<p>可以简单这样来算：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">double</span> <span class="title">calculateWeightByTime</span><span class="params">(Date date)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">double</span> weight = <span class="number">1.0</span>;</span><br><span class="line">    <span class="keyword">double</span> deltaDay = ((<span class="keyword">double</span>)(System.currentTimeMillis() - date.getTime())) / <span class="number">1000.0</span> / <span class="number">60.0</span> / <span class="number">60.0</span> / <span class="number">24.0</span>;</span><br><span class="line">    <span class="keyword">if</span> (deltaDay &lt; <span class="number">99.0</span>) &#123;</span><br><span class="line">        weight = <span class="number">100</span> - deltaDay;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> weight;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>目前线上的算法就是这个，按照友盟的统计，在热门发现页40%左右的点击会进入feed终端页。</p>
+<h1 id="section-3">4</h1>
+<h2 id="第三个想法">第三个想法</h2>
+<h3 id="问题">问题：</h3>
+<p>用户（我们）到底想看到什么内容？</p>
+<p>感兴趣的呗。</p>
+<p>什么是感兴趣的？</p>
+<p>给用户一个列表，让其选择。</p>
+<p>根据我们使用app的经历，这个方式比较不靠谱。</p>
+<p>为什么？</p>
+<p>因为很多时候并不知道自己喜欢什么，所以通常都是随便选几个。</p>
+<p>那么现在的问题就是如何获取用户的兴趣。</p>
+<h3 id="判断用户的兴趣">判断用户的兴趣</h3>
+<p>因为目前有运营的支持，对于优质用户会对其打tag，那么我们可以这样理解用户的兴趣。</p>
+<p>用户A关注了用户B，那么用户A的兴趣可以理解为用户B的tags。</p>
+<p>这个逻辑总体来说是说的通的，除了礼貌性的互粉，但是身上有tag的用户都是运营筛选出来的，所以这种情况相对不会太多。</p>
+<p>另外用户的兴趣也是会变化的，所以基于关注行为判断用户当前的兴趣是一个相对可取的方法。</p>
+<p>在于数据量比较少，运营顶得住的情况下，这是一个不错的策略。</p>
+<p>当然也可以通过用户点赞和评论的行为，判断用户当前的兴趣。</p>
+<p>当数据量上来之后，就可以改为通过协同过滤推荐计算用户当前感兴趣的内容。</p>
+<h3 id="问题-1">问题</h3>
+<p>既然想出了一种判断用户当前兴趣的方法，那么是否狂推这些内容就行了？</p>
+<p>看多了也就看厌了，所以还是想看到一些未知的。</p>
+<p>那么现在的问题就是怎么配置已经感兴趣的内容与未知的内容。</p>
+<h3 id="配置内容">配置内容</h3>
+<p>目前有两个来源：</p>
+<ol style="list-style-type: decimal">
+<li>运营筛选的。这些内容和用户都会被打tag。</li>
+<li>算法计算的。目前是协同过滤推荐，目前来说只是为了丰富一下内容源。</li>
+</ol>
+<p>基于用户的兴趣，运营筛选的内容可以分为动态的分为两类：</p>
+<ol style="list-style-type: decimal">
+<li>用户目前感兴趣的内容</li>
+<li>未知内容</li>
+</ol>
+<p>那么怎么控制比例呢？</p>
+<p>拍脑袋，第一类80%，第二类20%。</p>
+<p>然后根据用户的刷新的次数，依次衰减第一类的比例。</p>
+<p>大致的思路就是这样。</p>
+<h1 id="section-4">5</h1>
+<h2 id="怎么实现">怎么实现</h2>
+<p>逻辑比较复杂，怎么兼顾响应时间呢？</p>
+<p>大致的实现思路如下：</p>
+<p>根据用户的兴趣，将运营筛选的内容分为两类，放到redis中，</p>
+<p>当有新的关注行为，也就是新的兴趣时，异步更新redis。</p>
+<p>用户拉取热门内容时，</p>
+<p>拉取redis中的内容，过滤掉已经关注的用户的内容，</p>
+<p>根据时间权重随机选择。</p>
+<p>如果内容太少，使用协同过滤推荐计算的内容补全。</p>
+<p>最后shuffle一下，搞定。</p>
+	  
+	</div>
+
+	<div>
+  	<center>
+	<div class="pagination">
+<ul class="pagination">
+	 
+				
+    	<li class="prev"><a href="/2015/04/09/privoxy/" class="alignleft prev"><i class="fa fa-arrow-circle-o-left"></i>上一頁</a></li>
+  		
+
+        <li><a href="/archives"><i class="fa fa-archive"></i>Archive</a></li>
+
+		
+		   <li class="next"><a href="/2015/02/16/gc_log_1/" class="alignright next">下一頁<i class="fa fa-arrow-circle-o-right"></i></a></li>         
+        
+	
+</ul>
+</div>
+
+    </center>
+	</div>
+	
+	<!-- comment -->
+	
+<section id="comment">
+  <h2 class="title">留言</h2>
+
+  
+</section>
+
+	
+	</div> <!-- col-md-9/col-md-12 -->
+	
+	
+		<div class="col-md-3"> 
+
+	<!-- date -->
+	
+	<div class="meta-widget">
+	<i class="fa fa-clock-o"></i>
+	2015-03-21 
+	</div>
+	
+
+	<!-- categories -->
+    
+	<div class="meta-widget">
+	<a data-toggle="collapse" data-target="#categorys"><i class="fa fa-folder"></i></a>	
+    <ul id="categorys" class="tag_box list-unstyled collapse in">
+          
+  <li>
+    <li><a href="/categories/product/">product<span>1</span></a></li>
+  </li>
+
+    </ul>
+	</div>
+	
+
+	<!-- tags -->
+		
+
+	<!-- toc -->
+	<div class="meta-widget">
+	
+	</div>
+	
+    <hr>
+	
+</div><!-- col-md-3 -->
+
+	
+
+</div><!-- row -->
+
+	</div>
+  </div>
+  <div class="container-narrow">
+  <footer> <p>
+  &copy; 2015 Shichao Yuan
+  
+      with help from <a href="http://hexo.io/" target="_blank">Hexo</a> and <a href="http://getbootstrap.com/" target="_blank">Twitter Bootstrap</a>. Theme by <a href="http://github.com/wzpan/hexo-theme-freemind/">Freemind</a>.    
+</p> </footer>
+</div> <!-- container-narrow -->
+  
+<a id="gotop" href="#">   
+  <span>▲</span> 
+</a>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/main.js"></script>
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+
+</body>
+   </html>
