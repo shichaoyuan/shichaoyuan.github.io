@@ -93,6 +93,82 @@
 	
 	<!-- display as entry -->	
 		<h3 class="title">
+			<div class="date"> 2015-07-10 </div>
+			<div class="article-title"><a href="/2015/07/10/notes-pepfcp/" >Reading Notes - Prudent Engineering Practice for Cryptographic Protocols</a></div>						
+		</h3>
+	
+
+
+			<div class="entry">
+  <div class="row">
+  
+	<div class="col-md-12">
+	  
+	
+	  <h2 id="section">1</h2>
+<p>最近在做一个关于支付的小需求，其中有个关于支付密码的地方，由于运维短时间内提供不了HTTPS，所以需要设计一个简单的加密协议，保证密码不能泄露，不能被重放攻击。</p>
+<p>如何做？</p>
+<p>使用RSA算法，客户端内置一个公钥（或者动态获取），服务器保存一个私钥，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1. server -------------nonce-----------&#62; client&#10;2. server &#60;---encrypt(passowrd+nonce)--- client&#10;&#10;server decrypt(message) and check(password+nonce)</span><br></pre></td></tr></table></figure>
+<p>当然密码存储不当也存在泄露的问题，解决这个问题可以使用PBKDF2(<a href="https://tools.ietf.org/html/rfc2898" target="_blank" rel="external">rfc2898</a>)。至于迭代次数可以参考stackexchange中的这个<a href="http://security.stackexchange.com/questions/3959/recommended-of-iterations-when-using-pkbdf2-sha256" target="_blank" rel="external">问题</a>。</p>
+<p>另外终端安全坑太大，暂时不考虑。</p>
+<p>然后又想起读书的时候上《安全协议》那门课读的那些论文，其中有一篇感觉相当经典，所以又找出来读了一遍。</p>
+<h2 id="section-1">2</h2>
+<p><a href="http://ieeexplore.ieee.org/xpl/articleDetails.jsp?arnumber=481513&amp;filter%3DAND%28p_IS_Number%3A10294%29" target="_blank" rel="external">Prudent Engineering Practice for Cryptographic Protocols</a></p>
+<h3 id="principle-1">Principle 1</h3>
+<blockquote>
+<p>Every message should say what it means: the interpretation of the message should depend only on its content. It should be possible to write down a straightforward English sentence describing the content – though if there is a suitable formalism available that is good too.</p>
+</blockquote>
+<h3 id="principle-2">Principle 2</h3>
+<blockquote>
+<p>The conditions for a message to be acted upon should be clearly set out so that someone reviewing a design may see whether they are acceptable or not.</p>
+</blockquote>
+<h3 id="principle-3">Principle 3</h3>
+<blockquote>
+<p>If the identity of a principal is essential to the meaning of a message, it is prudent to mention the principal’s name explicitly in the message.</p>
+</blockquote>
+<h3 id="principle-4">Principle 4</h3>
+<blockquote>
+<p>Be clear as to why encryption is being done. Encryption is not wholly cheap, and not asking precisely why it is being done can lead to redundancy. Encryption is not synonymous with security, and its improper use can lead to errors. ###Principle 5 When a principal signs material that has already been encrypted, it should not be inferred that the principal knows the content of the message. On the other hand, it is proper to infer that the principal that signs a message and then encrypts it for privacy knows the content of the message.</p>
+</blockquote>
+<h3 id="principle-6">Principle 6</h3>
+<blockquote>
+<p>Be clear what properties you are assuming about nonces. What may do for ensuring temporal succession may not do for ensuring association – and perhaps association is best established by other means.</p>
+</blockquote>
+<h3 id="principle-7">Principle 7</h3>
+<blockquote>
+<p>The use of a predictable quantity (such as the value of a counter) can serve in guaranteeing newness, through a challenge-response exchange. But if a predictable quantity is to be effective, it should be protected so that an intruder cannot simulate a challenge and later replay a response.</p>
+</blockquote>
+<h3 id="principle-8">Principle 8</h3>
+<blockquote>
+<p>If timestamps are used as freshness guarantees by reference to absolute time, then the difference between local clocks at various machines must be much less than the allowable age of a message deemed to be valid. Furthermore, the time maintenance mechanism everywhere becomes part of the trusted computing base.</p>
+</blockquote>
+<h3 id="principle-9">Principle 9</h3>
+<blockquote>
+<p>A key may have been used recently, for example to encrypt a nonce, yet be quite old, and possibly compromised. Recent use does not make the key look any better than it would otherwise.</p>
+</blockquote>
+<h3 id="principle-10">Principle 10</h3>
+<blockquote>
+<p>If an encoding is used to present the meaning of a message, then it should be possible to tell which encoding is being used. In the common case where the encoding is protocol dependent, it should be possible to deduce that the message belongs to this protocol, and in fact to a particular run of the protocol, and to know its number in the protocol.</p>
+</blockquote>
+<h3 id="principle-11">Principle 11</h3>
+<blockquote>
+<p>The protocol designer should know which trust relations his protocol depends on, and why the dependence is necessary. The reasons for particular trust relations being acceptable should be explicit though they will be founded on judgement and policy rather than on logic.</p>
+</blockquote>
+
+	
+	</div>
+	
+  
+</div>
+	<a type="button" href="/2015/07/10/notes-pepfcp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+	
+	<!-- display as entry -->	
+		<h3 class="title">
 			<div class="date"> 2015-06-30 </div>
 			<div class="article-title"><a href="/2015/06/30/weak-reference/" >weak reference</a></div>						
 		</h3>
@@ -777,42 +853,6 @@
 </div>
 
 		
-			
-	
-	<!-- display as entry -->	
-		<h3 class="title">
-			<div class="date"> 2014-04-03 </div>
-			<div class="article-title"><a href="/2014/04/03/hadoop1/" >Hadoop2.2.0代码阅读-RPC部分</a></div>						
-		</h3>
-	
-
-
-			<div class="entry">
-  <div class="row">
-  
-	<div class="col-md-12">
-	  
-	
-	  <p>RPC部分的代码位于工程hadoop-common中，有三个主要的类。</p>
-<p>1 org.apache.hadoop.ipc.Server</p>
-<p>该类秉承了reactive programming的思想，结合了Java NIO，是一个高性能的服务器端实现，总的来说可以分为四部分。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">Listener:</span><br><span class="line"><span class="keyword">private</span> Listener listener = <span class="keyword">null</span>;</span><br><span class="line"><span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">Listener</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 非阻塞同步I/O</span></span><br><span class="line">  <span class="keyword">private</span> ServerSocketChannel acceptChannel = <span class="keyword">null</span>;</span><br><span class="line">  <span class="keyword">private</span> Selector selector = <span class="keyword">null</span>;</span><br><span class="line">  <span class="comment">// 读进程</span></span><br><span class="line">  <span class="keyword">private</span> Reader[] readers = <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Queue:</span><br><span class="line"><span class="keyword">private</span> BlockingQueue&lt;Call&gt; callQueue;</span><br><span class="line"></span><br><span class="line">Handler:</span><br><span class="line"><span class="keyword">private</span> Handler[] handlers = <span class="keyword">null</span>;</span><br><span class="line"><span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">Handler</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</span><br><span class="line">  <span class="annotation">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">while</span> (running) &#123;</span><br><span class="line">      <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="comment">//不断从队列中读取Call处理</span></span><br><span class="line">      <span class="keyword">final</span> Call call = callQueue.take();</span><br><span class="line">      <span class="comment">// call是一个抽象方法，选择合适的rpcInvoker，执行远程调用方法</span></span><br><span class="line">      value = call(...);</span><br><span class="line">      <span class="comment">//通过responder返回消息</span></span><br><span class="line">      responder.doRespond(call);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Responder:</span><br><span class="line"><span class="keyword">private</span> Responder responder = <span class="keyword">null</span>;</span><br></pre></td></tr></table></figure>
-<p>另外网络层的读写逻辑和连接信息封装在public class Connection中。</p>
-<p>2 org.apache.hadoop.ipc.Client</p>
-<p>Client的实现很直观，就是一个基于ExecutorService的多线程客户端。</p>
-<p>3 org.apache.hadoop.ipc.RPC</p>
-<p>RPC类主要是对底层网络进行了封装，提供统一的编程接口，使用动态代理完成远程方法调用。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RPC</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 封装方法调用的接口</span></span><br><span class="line">  <span class="comment">// 在WritableRpcEngine和ProtobufRpcEngine中有具体的实现</span></span><br><span class="line">  <span class="class"><span class="keyword">interface</span> <span class="title">RpcInvoker</span> </span>&#123;&#125;</span><br><span class="line">  <span class="comment">// 设置不同的序列化和反序列化引擎：WritableRpcEngine和ProtobufRpcEngine</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">setProtocolEngine</span><span class="params">(...)</span> </span>&#123;&#125;</span><br><span class="line">  <span class="comment">// 构建客户端的代理对象</span></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; <span class="function">T <span class="title">getProxy</span><span class="params">()</span> </span>&#123;&#125;</span><br><span class="line">  <span class="comment">// 构建RPC服务器的辅助类</span></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Builder</span> </span>&#123;&#125;</span><br><span class="line">  <span class="comment">// 对Server的再封装</span></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Server</span> <span class="keyword">extends</span> <span class="title">org</span>.<span class="title">apache</span>.<span class="title">hadoop</span>.<span class="title">ipc</span>.<span class="title">Server</span> </span>&#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-	
-	</div>
-	
-  
-</div>
-	<a type="button" href="/2014/04/03/hadoop1/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
 
 		</div>
 
@@ -852,6 +892,10 @@
   <ul class="entry list-unstyled">
     
       <li>
+        <a href="/2015/07/10/notes-pepfcp/" ><i class="fa fa-file-o"></i>Reading Notes - Prudent Eng...</a>
+      </li>
+    
+      <li>
         <a href="/2015/06/30/weak-reference/" ><i class="fa fa-file-o"></i>weak reference...</a>
       </li>
     
@@ -865,10 +909,6 @@
     
       <li>
         <a href="/2015/04/09/privoxy/" ><i class="fa fa-file-o"></i>小工具Privoxy...</a>
-      </li>
-    
-      <li>
-        <a href="/2015/03/21/popular_data/" ><i class="fa fa-file-o"></i>思考热门发现Tab的内容配置...</a>
       </li>
     
   </ul>

@@ -93,6 +93,42 @@
 	
 	<!-- display as entry -->	
 		<h3 class="title">
+			<div class="date"> 2014-04-03 </div>
+			<div class="article-title"><a href="/2014/04/03/hadoop1/" >Hadoop2.2.0代码阅读-RPC部分</a></div>						
+		</h3>
+	
+
+
+			<div class="entry">
+  <div class="row">
+  
+	<div class="col-md-12">
+	  
+	
+	  <p>RPC部分的代码位于工程hadoop-common中，有三个主要的类。</p>
+<p>1 org.apache.hadoop.ipc.Server</p>
+<p>该类秉承了reactive programming的思想，结合了Java NIO，是一个高性能的服务器端实现，总的来说可以分为四部分。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">Listener:</span><br><span class="line"><span class="keyword">private</span> Listener listener = <span class="keyword">null</span>;</span><br><span class="line"><span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">Listener</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 非阻塞同步I/O</span></span><br><span class="line">  <span class="keyword">private</span> ServerSocketChannel acceptChannel = <span class="keyword">null</span>;</span><br><span class="line">  <span class="keyword">private</span> Selector selector = <span class="keyword">null</span>;</span><br><span class="line">  <span class="comment">// 读进程</span></span><br><span class="line">  <span class="keyword">private</span> Reader[] readers = <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Queue:</span><br><span class="line"><span class="keyword">private</span> BlockingQueue&lt;Call&gt; callQueue;</span><br><span class="line"></span><br><span class="line">Handler:</span><br><span class="line"><span class="keyword">private</span> Handler[] handlers = <span class="keyword">null</span>;</span><br><span class="line"><span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">Handler</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</span><br><span class="line">  <span class="annotation">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">while</span> (running) &#123;</span><br><span class="line">      <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="comment">//不断从队列中读取Call处理</span></span><br><span class="line">      <span class="keyword">final</span> Call call = callQueue.take();</span><br><span class="line">      <span class="comment">// call是一个抽象方法，选择合适的rpcInvoker，执行远程调用方法</span></span><br><span class="line">      value = call(...);</span><br><span class="line">      <span class="comment">//通过responder返回消息</span></span><br><span class="line">      responder.doRespond(call);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Responder:</span><br><span class="line"><span class="keyword">private</span> Responder responder = <span class="keyword">null</span>;</span><br></pre></td></tr></table></figure>
+<p>另外网络层的读写逻辑和连接信息封装在public class Connection中。</p>
+<p>2 org.apache.hadoop.ipc.Client</p>
+<p>Client的实现很直观，就是一个基于ExecutorService的多线程客户端。</p>
+<p>3 org.apache.hadoop.ipc.RPC</p>
+<p>RPC类主要是对底层网络进行了封装，提供统一的编程接口，使用动态代理完成远程方法调用。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RPC</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 封装方法调用的接口</span></span><br><span class="line">  <span class="comment">// 在WritableRpcEngine和ProtobufRpcEngine中有具体的实现</span></span><br><span class="line">  <span class="class"><span class="keyword">interface</span> <span class="title">RpcInvoker</span> </span>&#123;&#125;</span><br><span class="line">  <span class="comment">// 设置不同的序列化和反序列化引擎：WritableRpcEngine和ProtobufRpcEngine</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">setProtocolEngine</span><span class="params">(...)</span> </span>&#123;&#125;</span><br><span class="line">  <span class="comment">// 构建客户端的代理对象</span></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; <span class="function">T <span class="title">getProxy</span><span class="params">()</span> </span>&#123;&#125;</span><br><span class="line">  <span class="comment">// 构建RPC服务器的辅助类</span></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Builder</span> </span>&#123;&#125;</span><br><span class="line">  <span class="comment">// 对Server的再封装</span></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Server</span> <span class="keyword">extends</span> <span class="title">org</span>.<span class="title">apache</span>.<span class="title">hadoop</span>.<span class="title">ipc</span>.<span class="title">Server</span> </span>&#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+	
+	</div>
+	
+  
+</div>
+	<a type="button" href="/2014/04/03/hadoop1/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+	
+	<!-- display as entry -->	
+		<h3 class="title">
 			<div class="date"> 2013-11-05 </div>
 			<div class="article-title"><a href="/2013/11/05/notes_eyawtkasbwata/" >Reading notes: Everything You Always Wanted to Know About Synchronization but Were Afraid to Ask</a></div>						
 		</h3>
@@ -650,6 +686,10 @@
   <ul class="entry list-unstyled">
     
       <li>
+        <a href="/2015/07/10/notes-pepfcp/" ><i class="fa fa-file-o"></i>Reading Notes - Prudent Eng...</a>
+      </li>
+    
+      <li>
         <a href="/2015/06/30/weak-reference/" ><i class="fa fa-file-o"></i>weak reference...</a>
       </li>
     
@@ -663,10 +703,6 @@
     
       <li>
         <a href="/2015/04/09/privoxy/" ><i class="fa fa-file-o"></i>小工具Privoxy...</a>
-      </li>
-    
-      <li>
-        <a href="/2015/03/21/popular_data/" ><i class="fa fa-file-o"></i>思考热门发现Tab的内容配置...</a>
       </li>
     
   </ul>
