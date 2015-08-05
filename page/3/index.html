@@ -1,0 +1,249 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Page 3 | Notes</title>
+  <meta name="author" content="Shichao Yuan">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+  <meta property="og:site_name" content="Notes"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  
+  
+    <link href="/favicon.png" rel="icon">
+  
+  
+  <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/font-awesome.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/highlight.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/google-fonts.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+  <script src="/js/jquery-2.0.3.min.js"></script>
+
+  <!-- analytics -->
+  
+
+
+
+</head>
+
+ <body>  
+  <nav id="main-nav" class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <button type="button" class="navbar-header navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+		<span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+	  <a class="navbar-brand" href="/">Notes</a>
+      <div class="collapse navbar-collapse nav-menu">
+		<ul class="nav navbar-nav">
+		  
+		  <li>
+			<a href="/archives" title="All the articles.">
+			  <i class="fa fa-archive"></i>Archives
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/about" title="About me.">
+			  <i class="fa fa-user"></i>About
+			</a>
+		  </li>
+		  
+		</ul>
+      </div>
+    </div> <!-- container -->
+</nav>
+<div class="clearfix"></div>
+
+  <div class="container">
+  	<div class="content">
+    	 <div class="page-header">
+  <h1>Notes</h1>
+</div>
+
+<div class="row page">
+
+	
+	<div class="col-md-9">
+	
+
+		<div class="slogan">
+      <i class="fa fa-heart"></i>
+      Stay Hungry, Stay Foolish.
+</div>    
+
+		<div class="mypage">
+		
+		<!-- title and entry -->
+		
+			
+	
+	<!-- display as entry -->	
+		<h3 class="title">
+			<div class="date"> 2013-06-09 </div>
+			<div class="article-title"><a href="/2013/06/09/disruptor1/" >Disruptor: what&#39;s Disruptor</a></div>						
+		</h3>
+	
+
+
+			<div class="entry">
+  <div class="row">
+  
+	<div class="col-md-12">
+	  
+	
+	  <p>Q: 什么是Disruptor？</p>
+<p>A: 就是个message queue。</p>
+<p>Q: 满大街都是。。。有什么特别的？</p>
+<p>A：快！</p>
+<p>Q：好吧，来个example呗。</p>
+<p>A：去看disruptor的perftest就行了呗。</p>
+<p>Q：你也太懒了吧。。。我就想看一下用起来方便否？</p>
+<p>A：OK</p>
+<p>首先肯定是定义消息类嘛</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">package</span> com.lmax.disruptor.support;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.lmax.disruptor.EventFactory;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">ValueEvent</span></span><br><span class="line"></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">long</span> value;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">long</span> <span class="title">getValue</span><span class="params">()</span></span><br><span class="line">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> value;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setValue</span><span class="params">(<span class="keyword">final</span> <span class="keyword">long</span> value)</span></span><br><span class="line">    </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.value = value;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> EventFactory&lt;ValueEvent&gt; EVENT_FACTORY = <span class="keyword">new</span> EventFactory&lt;ValueEvent&gt;()</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> ValueEvent <span class="title">newInstance</span><span class="params">()</span></span><br><span class="line">        </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> ValueEvent();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>再定义一个消息的handler呗</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">package</span> com.lmax.disruptor.support;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.lmax.disruptor.EventHandler;</span><br><span class="line"><span class="keyword">import</span> com.lmax.disruptor.util.PaddedLong;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.CountDownLatch;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">ValueAdditionEventHandler</span> <span class="keyword">implements</span> <span class="title">EventHandler</span>&lt;<span class="title">ValueEvent</span>&gt;</span><br><span class="line"></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> PaddedLong value = <span class="keyword">new</span> PaddedLong();</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">long</span> count;</span><br><span class="line">    <span class="keyword">private</span> CountDownLatch latch;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">long</span> localSequence = -<span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">long</span> <span class="title">getValue</span><span class="params">()</span></span><br><span class="line">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> value.get();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">reset</span><span class="params">(<span class="keyword">final</span> CountDownLatch latch, <span class="keyword">final</span> <span class="keyword">long</span> expectedCount)</span></span><br><span class="line">    </span>&#123;</span><br><span class="line">        value.set(<span class="number">0L</span>);</span><br><span class="line">        <span class="keyword">this</span>.latch = latch;</span><br><span class="line">        count = expectedCount;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="annotation">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onEvent</span><span class="params">(<span class="keyword">final</span> ValueEvent event, <span class="keyword">final</span> <span class="keyword">long</span> sequence, <span class="keyword">final</span> <span class="keyword">boolean</span> endOfBatch)</span> <span class="keyword">throws</span> Exception</span><br><span class="line">    </span>&#123;</span><br><span class="line">        value.set(value.get() + event.getValue());</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (localSequence + <span class="number">1</span> == sequence)</span><br><span class="line">        &#123;</span><br><span class="line">            localSequence = sequence;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            System.err.println(<span class="string">"Expected: "</span> + (localSequence + <span class="number">1</span>) + <span class="string">"found: "</span> + sequence);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (count == sequence)</span><br><span class="line">        &#123;</span><br><span class="line">            latch.countDown();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后就是定义我们的MQ，在我们的Disruptor中称做RingBuffer和SequenceBarrier，只要搞明白这个Barrier就能搞出各种队列类型。</p>
+<p>例如最简单的单进单出队列这样定义：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">Disruptor:</span><br><span class="line">==========</span><br><span class="line">             track to prevent wrap</span><br><span class="line">             +------------------+</span><br><span class="line">             |                  |</span><br><span class="line">             |                  v</span><br><span class="line">+----+    +====+    +====+   +-----+</span><br><span class="line">| P1 |---&gt;| RB |&lt;---| SB |   | EP1 |</span><br><span class="line">+----+    +====+    +====+   +-----+</span><br><span class="line">     claim      get    ^        |</span><br><span class="line">                       |        |</span><br><span class="line">                       +--------+</span><br><span class="line">                         waitFor</span><br><span class="line"> </span><br><span class="line">P1  - Publisher <span class="number">1</span></span><br><span class="line">RB  - RingBuffer</span><br><span class="line">SB  - SequenceBarrier</span><br><span class="line">EP1 - EventProcessor <span class="number">1</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> RingBuffer&lt;ValueEvent&gt; ringBuffer =</span><br><span class="line">    createSingleProducer(ValueEvent.EVENT_FACTORY, BUFFER_SIZE, <span class="keyword">new</span> YieldingWaitStrategy());</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> ValueAdditionEventHandler handler = <span class="keyword">new</span> ValueAdditionEventHandler();</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> BatchEventProcessor&lt;ValueEvent&gt; batchEventProcessor = <span class="keyword">new</span> BatchEventProcessor&lt;ValueEvent&gt;(ringBuffer, sequenceBarrier, handler);</span><br><span class="line">&#123;</span><br><span class="line">    ringBuffer.addGatingSequences(batchEventProcessor.getSequence());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最后模拟发发消息，搞个Executor执行EventProcessor就可以玩一下啦</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">long</span> <span class="title">runDisruptorPass</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException</span><br><span class="line"></span>&#123;</span><br><span class="line">    <span class="keyword">final</span> CountDownLatch latch = <span class="keyword">new</span> CountDownLatch(<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">long</span> expectedCount = batchEventProcessor.getSequence().get() + ITERATIONS;</span><br><span class="line">    handler.reset(latch, expectedCount);</span><br><span class="line">    executor.submit(batchEventProcessor);</span><br><span class="line">    <span class="keyword">long</span> start = System.currentTimeMillis();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">final</span> RingBuffer&lt;ValueEvent&gt; rb = ringBuffer;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">long</span> i = <span class="number">0</span>; i &lt; ITERATIONS; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">long</span> next = rb.next();</span><br><span class="line">        rb.get(next).setValue(i);</span><br><span class="line">        rb.publish(next);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    latch.await();</span><br><span class="line">    <span class="keyword">long</span> opsPerSecond = (ITERATIONS * <span class="number">1000L</span>) / (System.currentTimeMillis() - start);</span><br><span class="line">    waitForEventProcessorSequence(expectedCount);</span><br><span class="line">    batchEventProcessor.halt();</span><br><span class="line"></span><br><span class="line">    Assert.assertEquals(expectedResult, handler.getValue());</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> opsPerSecond;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+	
+	</div>
+	
+  
+</div>
+	<a type="button" href="/2013/06/09/disruptor1/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+
+		</div>
+
+		<!-- pagination -->
+		<div>
+  		<center>
+		<div class="pagination">
+<ul class="pagination">
+	 
+		
+    	<li class="prev"><a href="/page/2/" class="alignleft prev"><i class="fa fa-arrow-circle-o-left"></i> Prev</a></li>
+  		
+
+        <li><a href="/"><i class="fa fa-home"></i>Home</a></li>
+
+		
+          <li class="next disabled"><a>Next<i class="fa fa-arrow-circle-o-right"></i></a></li>
+        
+	
+</ul>
+</div>
+
+  		</center>
+		</div>
+
+		
+		
+	</div> <!-- col-md-9 -->
+
+	
+		<div class="col-md-3">
+	<div id="sidebar">
+	
+			
+<div class="widget">
+  <h4>Recent Posts</h4>
+  <ul class="entry list-unstyled">
+    
+      <li>
+        <a href="/2015/08/05/startup-web-spring/" ><i class="fa fa-file-o"></i>如何快速开始一个小项目 —— spring-boot...</a>
+      </li>
+    
+      <li>
+        <a href="/2015/07/10/notes-pepfcp/" ><i class="fa fa-file-o"></i>Reading Notes - Prudent Eng...</a>
+      </li>
+    
+      <li>
+        <a href="/2015/06/30/weak-reference/" ><i class="fa fa-file-o"></i>weak reference...</a>
+      </li>
+    
+      <li>
+        <a href="/2015/06/15/link_prediction_problem/" ><i class="fa fa-file-o"></i>Link Prediction Problem...</a>
+      </li>
+    
+      <li>
+        <a href="/2015/05/26/geonear/" ><i class="fa fa-file-o"></i>关于附近的XXX...</a>
+      </li>
+    
+  </ul>
+</div>
+
+		
+			
+<div class="widget">
+	<h4>Links</h4>
+	<ul class="blogroll list-unstyled">
+	
+		<li><i class="fa fa-github"></i><a href="http://www.github.com/shichaoyuan" title="My Github account." target="_blank"]);">My Github</a></li>
+	
+	</ul>
+</div>
+
+
+		
+	</div> <!-- sidebar -->
+</div> <!-- col-md-3 -->
+
+	
+	
+</div> <!-- row-fluid -->
+	</div>
+  </div>
+  <div class="container-narrow">
+  <footer> <p>
+  &copy; 2015 Shichao Yuan
+  
+      with help from <a href="http://hexo.io/" target="_blank">Hexo</a> and <a href="http://getbootstrap.com/" target="_blank">Twitter Bootstrap</a>. Theme by <a href="http://github.com/wzpan/hexo-theme-freemind/">Freemind</a>.    
+</p> </footer>
+</div> <!-- container-narrow -->
+  
+<a id="gotop" href="#">   
+  <span>▲</span> 
+</a>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/main.js"></script>
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+
+</body>
+   </html>
