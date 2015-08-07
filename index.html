@@ -93,6 +93,53 @@
 	
 	<!-- display as entry -->	
 		<h3 class="title">
+			<div class="date"> 2015-08-06 </div>
+			<div class="article-title"><a href="/2015/08/06/startup-web-playframework/" >如何快速开始一个小项目 —— playframework</a></div>						
+		</h3>
+	
+
+
+			<div class="entry">
+  <div class="row">
+  
+	<div class="col-md-12">
+	  
+	
+	  <h2 id="section">1</h2>
+<p>基本文档 <a href="https://www.playframework.com/documentation/2.4.x/Home" target="_blank" rel="external">Play 2.4.x documentation</a></p>
+<h2 id="section-1">2</h2>
+<p>生成框架 <a href="https://www.playframework.com/documentation/2.4.x/NewApplication" target="_blank" rel="external">Creating a new application</a></p>
+<p>导入Eclipse <a href="https://www.playframework.com/documentation/2.4.x/IDE#Eclipse" target="_blank" rel="external">Setting up your preferred IDE</a></p>
+<p><strong>NOTE</strong> 目前<code>Scala IDE</code>的4.1.1版本的play plugin有问题，可以暂时自行编译安装<a href="https://github.com/cweinreben/scala-ide-play2" class="uri" target="_blank" rel="external">https://github.com/cweinreben/scala-ide-play2</a>这个fork。</p>
+<h2 id="section-2">3</h2>
+<p>连接数据库</p>
+<p><a href="http://slick.typesafe.com/" target="_blank" rel="external"><strong>Slick</strong></a></p>
+<p>用于连接MySQL，详见文档<a href="https://www.playframework.com/documentation/2.4.x/PlaySlick" target="_blank" rel="external">PlaySlick</a></p>
+<p><a href="http://reactivemongo.org/" target="_blank" rel="external"><strong>ReactiveMongo</strong></a></p>
+<p>用于连接MongoDB，详见文档<a href="http://reactivemongo.org/releases/0.11/documentation/tutorial/play2.html" target="_blank" rel="external">Reactive Scala Driver for MongoDB</a></p>
+<h2 id="section-3">4</h2>
+<p>Log</p>
+<p>基本上就是配置logback</p>
+<p><a href="https://www.playframework.com/documentation/2.4.x/SettingsLogger" target="_blank" rel="external">Configuring logging</a></p>
+<p><a href="https://www.playframework.com/documentation/2.4.x/ScalaLogging" target="_blank" rel="external">The Logging API</a></p>
+<p>文档中还很贴心的给出了两种实现accesslog的方法。</p>
+<h2 id="section-4">5</h2>
+<p>部署服务</p>
+<p><a href="https://www.playframework.com/documentation/2.4.x/Production" target="_blank" rel="external">Deploying your application</a></p>
+
+	
+	</div>
+	
+  
+</div>
+	<a type="button" href="/2015/08/06/startup-web-playframework/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+	
+	<!-- display as entry -->	
+		<h3 class="title">
 			<div class="date"> 2015-08-05 </div>
 			<div class="article-title"><a href="/2015/08/05/startup-web-spring/" >如何快速开始一个小项目 —— spring-boot</a></div>						
 		</h3>
@@ -105,12 +152,12 @@
 	<div class="col-md-12">
 	  
 	
-	  <p>最近帮朋友搭建了一些小东东，用得都是开源的东东，感觉都还挺方便，基本上稍微配置一下就可以开始一个小项目。</p>
+	  <p>最近帮朋友搭了一些小东东，用得都是开源的东东，感觉都还挺方便，基本上稍微配置一下就可以开始一个小项目。</p>
 <p>所以简单记一下。</p>
-<p>这篇记录spring-boot。</p>
+<p>这篇记录spring-boot</p>
 <h2 id="section">1</h2>
 <p>基本的框架：<a href="http://spring.io/guides/gs/rest-service/" target="_blank" rel="external">Building a RESTful Web Service</a></p>
-<p>基本文档：<a href="http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/" target="_blank" rel="external">Spring Boot Reference Guide</a></p>
+<p>基本的文档：<a href="http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/" target="_blank" rel="external">Spring Boot Reference Guide</a></p>
 <h2 id="section-1">2</h2>
 <p>连接MySQL</p>
 <p><code>pom.xml</code></p>
@@ -121,7 +168,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="annotation">@Query</span>(<span class="string">"select u from User u where u.email = ?1 "</span>)</span><br><span class="line"></span><br><span class="line"><span class="annotation">@Transactional</span>(rollbackFor=RuntimeException.class)</span><br></pre></td></tr></table></figure>
 <h2 id="section-2">3</h2>
 <p>处理异常以及返回结果</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="annotation">@ControllerAdvice</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">GlobalExceptionHandler</span> </span>&#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	<span class="annotation">@ExceptionHandler</span>(&#123; UnAuthenticationException.class &#125;)</span><br><span class="line">	<span class="annotation">@ResponseBody</span></span><br><span class="line">	<span class="keyword">public</span> ResponseEntity&lt;?&gt; handleUnauthenticationException(Exception e) &#123;</span><br><span class="line">		<span class="keyword">return</span> errorResponse(e, HttpStatus.UNAUTHORIZED);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="annotation">@ExceptionHandler</span>(&#123; Exception.class &#125;)</span><br><span class="line">	<span class="annotation">@ResponseBody</span></span><br><span class="line">	<span class="keyword">public</span> ResponseEntity&lt;?&gt; handleAnyException(Exception e) &#123;</span><br><span class="line">		<span class="keyword">return</span> errorResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">protected</span> ResponseEntity&lt;Result&gt; <span class="title">errorResponse</span><span class="params">(Throwable throwable, HttpStatus status)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">if</span> (<span class="keyword">null</span> != throwable) &#123;</span><br><span class="line">			<span class="keyword">return</span> response(<span class="keyword">new</span> Result(<span class="keyword">new</span> Meta(status.value(), throwable.getMessage())), status);</span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> response(<span class="keyword">new</span> Result(<span class="keyword">new</span> Meta(status.value(), <span class="string">""</span>)), status);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">protected</span> &lt;T&gt; <span class="function">ResponseEntity&lt;T&gt; <span class="title">response</span><span class="params">(T body, HttpStatus status)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">new</span> ResponseEntity&lt;T&gt;(body, <span class="keyword">new</span> HttpHeaders(), status);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="annotation">@ControllerAdvice</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">GlobalExceptionHandler</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="annotation">@ExceptionHandler</span>(&#123; UnAuthenticationException.class &#125;)</span><br><span class="line">	<span class="annotation">@ResponseBody</span></span><br><span class="line">	<span class="keyword">public</span> ResponseEntity&lt;?&gt; handleUnauthenticationException(Exception e) &#123;</span><br><span class="line">		<span class="keyword">return</span> errorResponse(e, HttpStatus.UNAUTHORIZED);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="annotation">@ExceptionHandler</span>(&#123; Exception.class &#125;)</span><br><span class="line">	<span class="annotation">@ResponseBody</span></span><br><span class="line">	<span class="keyword">public</span> ResponseEntity&lt;?&gt; handleAnyException(Exception e) &#123;</span><br><span class="line">		<span class="keyword">return</span> errorResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">protected</span> ResponseEntity&lt;Result&gt; <span class="title">errorResponse</span><span class="params">(Throwable throwable, HttpStatus status)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">if</span> (<span class="keyword">null</span> != throwable) &#123;</span><br><span class="line">			<span class="keyword">return</span> response(<span class="keyword">new</span> Result(<span class="keyword">new</span> Meta(status.value(), throwable.getMessage())), status);</span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> response(<span class="keyword">new</span> Result(<span class="keyword">new</span> Meta(status.value(), <span class="string">""</span>)), status);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">protected</span> &lt;T&gt; <span class="function">ResponseEntity&lt;T&gt; <span class="title">response</span><span class="params">(T body, HttpStatus status)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">new</span> ResponseEntity&lt;T&gt;(body, <span class="keyword">new</span> HttpHeaders(), status);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>处理JSON</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="annotation">@JsonInclude</span>(Include.NON_NULL)</span><br><span class="line"><span class="annotation">@JsonIgnore</span></span><br></pre></td></tr></table></figure>
 <h2 id="section-3">4</h2>
@@ -133,9 +180,9 @@
 <p>例如，access log</p>
 <figure class="highlight fortran"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">server.tomcat.<span class="keyword">access</span>-<span class="built_in">log</span>-pattern= # <span class="built_in">log</span> pattern of the <span class="keyword">access</span> <span class="built_in">log</span></span><br><span class="line">server.tomcat.<span class="keyword">access</span>-<span class="built_in">log</span>-enabled=false # is <span class="keyword">access</span> logging enabled</span><br></pre></td></tr></table></figure>
 <h2 id="section-4">5</h2>
-<p>interceptor</p>
+<p>Interceptor</p>
 <p><a href="http://www.concretepage.com/spring/spring-mvc/spring-handlerinterceptor-annotation-example-webmvcconfigureradapter" target="_blank" rel="external">Spring MVC HandlerInterceptor Annotation Example with WebMvcConfigurerAdapter</a></p>
-<p>这篇文章写得蛮清楚的，唯一需呀注意的是：<a href="http://stackoverflow.com/questions/31082981/spring-boot-adding-http-request-interceptors" target="_blank" rel="external">do not annotate this with EnableWebMvc, if you want to keep Spring Boots auto configuration for mvc</a></p>
+<p>这篇文章写得蛮清楚的，唯一需要注意的是：<a href="http://stackoverflow.com/questions/31082981/spring-boot-adding-http-request-interceptors" target="_blank" rel="external">do not annotate this with EnableWebMvc, if you want to keep Spring Boots auto configuration for mvc</a></p>
 <h2 id="section-5">6</h2>
 <p>未完待续</p>
 <h2 id="section-6">0</h2>
@@ -785,77 +832,6 @@
 </div>
 
 		
-			
-	
-	<!-- display as entry -->	
-		<h3 class="title">
-			<div class="date"> 2015-01-29 </div>
-			<div class="article-title"><a href="/2015/01/29/logrotate/" >命令logrotate</a></div>						
-		</h3>
-	
-
-
-			<div class="entry">
-  <div class="row">
-  
-	<div class="col-md-12">
-	  
-	
-	  <h1 id="section">1</h1>
-<p>最近在做的项目中有个小问题：</p>
-<p>nginx的log不支持自动分割（类似log4j的<code>DailyRollingFileAppender</code>）。</p>
-<p>查了一下，有个小命令logrotate可以很好的解决这个问题。</p>
-<h1 id="section-1">2</h1>
-<p>logrotate在笔者使用的服务器<code>CentOS release 6.5</code>上已经自带安装了，所以略过安装的部分。</p>
-<p>首先，在<code>/etc/logrotate.d/nginx</code>中配置log文件的分割逻辑，</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">/home/xxx/nginx/logs/*.log &#123;</span><br><span class="line">    daily</span><br><span class="line">    dateext</span><br><span class="line">    compress</span><br><span class="line">    rotate <span class="number">30</span></span><br><span class="line">    create <span class="number">644</span> xxx xxx</span><br><span class="line">    delaycompress</span><br><span class="line">    notifempty</span><br><span class="line">    sharedscripts</span><br><span class="line">    postrotate</span><br><span class="line">        [ <span class="operator">-f</span> /usr/<span class="built_in">local</span>/nginx/logs/nginx.pid ] &amp;&amp; <span class="built_in">kill</span> -USR1 `cat /usr/<span class="built_in">local</span>/nginx/logs/nginx.pid`</span><br><span class="line">    endscript</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>具体的参数详见<a href="http://linuxcommand.org/man_pages/logrotate8.html" target="_blank" rel="external">logrotate8.html</a></p>
-<p>需要解释一下的是delaycompress和sharedscripts这两个参数。</p>
-<blockquote>
-<p>delaycompress</p>
-</blockquote>
-<blockquote>
-<p>Postpone compression of the previous log file to the next rotation cycle. This has only effect when used in combination with compress. It can be used when some program can not be told to close its logfile and thus might continue writing to the previous log file for some time.</p>
-</blockquote>
-<p>简而言之，20号执行命令，那么压缩19号的log文件。 如果马上压缩，那么就会使得分割之后（kill -USR1之前）的部分log丢失，如果隔一天再压缩就没有这个问题。</p>
-<blockquote>
-<p>sharedscripts</p>
-</blockquote>
-<blockquote>
-<p>Normally, prescript and postscript scripts are run for each log which is rotated, meaning that a single script may be run multiple times for log file entries which match multiple files (such as the /var/log/news/* example). If sharedscript is specified, the scripts are only run once, no matter how many logs match the wildcarded pattern. However, if none of the logs in the pattern require rotating, the scripts will not be run at all. This option overrides the nosharedscripts option and implies create option.</p>
-</blockquote>
-<p>因为用到了通配符，sharedscripts的作用就是在所有log文件都处理完后再执行下面的脚本，如果没有添加这个参数，那么每处理完一个文件就执行一次脚本。</p>
-<h1 id="section-2">3</h1>
-<p>好的，配置完了，那么logrotate是怎么执行的呢？</p>
-<p>很简单，基于CRON。</p>
-<p><code>/etc/logrotate.conf</code>是logrotate的配置文件，前面nginx中配置的参数，会覆盖其中的缺省参数。</p>
-<p>接着往上找，<code>/etc/cron.daily/logrotate</code></p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="shebang">#!/bin/sh</span><br><span class="line"></span></span><br><span class="line">/usr/sbin/logrotate /etc/logrotate.conf &gt;/dev/null <span class="number">2</span>&gt;&amp;<span class="number">1</span></span><br><span class="line">EXITVALUE=$?</span><br><span class="line"><span class="keyword">if</span> [ <span class="variable">$EXITVALUE</span> != <span class="number">0</span> ]; <span class="keyword">then</span></span><br><span class="line">    /usr/bin/logger -t logrotate <span class="string">"ALERT exited abnormally with [<span class="variable">$EXITVALUE</span>]"</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"><span class="built_in">exit</span> <span class="number">0</span></span><br></pre></td></tr></table></figure>
-<p>这个脚本很简单，就是执行logrotate这个命令。</p>
-<p>再接着往上找，<code>/etc/cron.d/0daily</code></p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">SHELL=/bin/bash</span><br><span class="line">PATH=/sbin:/bin:/usr/sbin:/usr/bin</span><br><span class="line">MAILTO=root</span><br><span class="line">HOME=/</span><br><span class="line"><span class="number">5</span> <span class="number">1</span> * * * root run-parts /etc/cron.daily</span><br></pre></td></tr></table></figure>
-<p>这里指定了<code>cron.daily</code>的执行时间。</p>
-<h1 id="section-3">4</h1>
-<p>如果不想等，想直接看效果，怎么办？</p>
-<p>执行<code>logrotate -f /etc/logrotate.d/nginx</code>。</p>
-<p>为什么执行第一次有效果，执行第二次就没有效果了？</p>
-<p>因为logrotate会记录执行的状态，默认保存在<code>/var/lib/logrotate.status</code>中。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">logrotate state -- version 2&#10;&#34;/home/xxx/nginx/logs/error.log&#34; 2015-1-29&#10;&#34;/home/xxx/nginx/logs/access.log&#34; 2015-1-29&#10;&#34;/home/xxx/nginx/logs/*.log&#34; 2015-1-12</span><br></pre></td></tr></table></figure>
-<p>如果想再次执行，那么修改一下日期，或者删掉改行就行。</p>
-<h1 id="section-4">5</h1>
-<p>还有一个比较容易忽略的问题，</p>
-<p><code>/etc/logrotate.d/nginx</code>文件的mode建议为<code>644</code>，否则可能无法执行。</p>
-<p>具体的原因参见<a href="https://fedorahosted.org/logrotate/changeset/302" target="_blank" rel="external">Changeset 302</a></p>
-
-	
-	</div>
-	
-  
-</div>
-	<a type="button" href="/2015/01/29/logrotate/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
 
 		</div>
 
@@ -895,6 +871,10 @@
   <ul class="entry list-unstyled">
     
       <li>
+        <a href="/2015/08/06/startup-web-playframework/" ><i class="fa fa-file-o"></i>如何快速开始一个小项目 —— playframewor...</a>
+      </li>
+    
+      <li>
         <a href="/2015/08/05/startup-web-spring/" ><i class="fa fa-file-o"></i>如何快速开始一个小项目 —— spring-boot...</a>
       </li>
     
@@ -908,10 +888,6 @@
     
       <li>
         <a href="/2015/06/15/link_prediction_problem/" ><i class="fa fa-file-o"></i>Link Prediction Problem...</a>
-      </li>
-    
-      <li>
-        <a href="/2015/05/26/geonear/" ><i class="fa fa-file-o"></i>关于附近的XXX...</a>
       </li>
     
   </ul>

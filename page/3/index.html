@@ -93,6 +93,40 @@
 	
 	<!-- display as entry -->	
 		<h3 class="title">
+			<div class="date"> 2013-06-18 </div>
+			<div class="article-title"><a href="/2013/06/18/disruptor2/" >Disruptor: about concurrency</a></div>						
+		</h3>
+	
+
+
+			<div class="entry">
+  <div class="row">
+  
+	<div class="col-md-12">
+	  
+	
+	  <p>Q：Concurrency有什么难的？</p>
+<p>A：既然是Concurrency，那么自然而然就有两个问题——mutual exclusion和visibility of change。要实现互斥就得加lock，不仅逻辑上复杂而且对性能也有很大影响。visibility of change相对容易，只要牺牲一下cache就行。</p>
+<p>Q：不过是有个CAS么，这个比lock的性能好多了。</p>
+<p>A：CAS的性能是比lock高很多，但是CAS结合Memory Barriers会使程序跟复杂，很难验证程序的正确性。</p>
+<p>Q：memory barriers是什么？</p>
+<p>A：memory barriers可以很好的解决上面提到的visibility of change。另外现在的CPU为了提高性能，不都是乱序执行的嘛，单线程乱序执行CPU自己就能解决，但是对多线程的共享变量，CPU就会被搞糊涂了，所以就引入了memory barriers用来指明某段代码对内存更新的顺序很关心。对于Java语言来说，明白volatile这个关键字就明白memory barriers了。</p>
+<p>Q：既然concurrency这么难，为什么还要使用这个？</p>
+<p>A：因为CPU单核性能的提升空间已经很小了，多核化是必然的趋势。而要充分利用多核，还就得利用multithreading。。。仔细想想为什么需要mutal exclusion，不就是因为对共享资源有竞争写嘛，实际上在设计软件的时候，如果能避免这种竞争写的情况，就不要lock了，那就太棒了。对于竞争读，memory barriers就能解决问题，而且性能损失不大，又能解决visibity of change。</p>
+
+	
+	</div>
+	
+  
+</div>
+	<a type="button" href="/2013/06/18/disruptor2/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+	
+	<!-- display as entry -->	
+		<h3 class="title">
 			<div class="date"> 2013-06-09 </div>
 			<div class="article-title"><a href="/2013/06/09/disruptor1/" >Disruptor: what&#39;s Disruptor</a></div>						
 		</h3>
@@ -172,6 +206,10 @@
   <ul class="entry list-unstyled">
     
       <li>
+        <a href="/2015/08/06/startup-web-playframework/" ><i class="fa fa-file-o"></i>如何快速开始一个小项目 —— playframewor...</a>
+      </li>
+    
+      <li>
         <a href="/2015/08/05/startup-web-spring/" ><i class="fa fa-file-o"></i>如何快速开始一个小项目 —— spring-boot...</a>
       </li>
     
@@ -185,10 +223,6 @@
     
       <li>
         <a href="/2015/06/15/link_prediction_problem/" ><i class="fa fa-file-o"></i>Link Prediction Problem...</a>
-      </li>
-    
-      <li>
-        <a href="/2015/05/26/geonear/" ><i class="fa fa-file-o"></i>关于附近的XXX...</a>
       </li>
     
   </ul>
