@@ -1,0 +1,230 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Slick中的upsert操作 | Notes</title>
+  <meta name="author" content="Shichao Yuan">
+  
+  <meta name="description" content="1
+在做一个Single Page Application，然后使用三方登陆，不维护账号信息，每次登陆拉一次最新的三方账户信息。
+所以数据库操作就有个问题，没有注册，insert，老用户，update，俗称upsert。
+2
+使用mysql直接写SQL语句很简单：
+INSERT ... ON DUP">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Slick中的upsert操作"/>
+  <meta property="og:site_name" content="Notes"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  
+  
+    <link href="/favicon.png" rel="icon">
+  
+  
+  <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/font-awesome.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/highlight.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/google-fonts.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+  <script src="/js/jquery-2.0.3.min.js"></script>
+
+  <!-- analytics -->
+  
+
+
+
+</head>
+
+ <body>  
+  <nav id="main-nav" class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <button type="button" class="navbar-header navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+		<span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+	  <a class="navbar-brand" href="/">Notes</a>
+      <div class="collapse navbar-collapse nav-menu">
+		<ul class="nav navbar-nav">
+		  
+		  <li>
+			<a href="/archives" title="All the articles.">
+			  <i class="fa fa-archive"></i>Archives
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/about" title="About me.">
+			  <i class="fa fa-user"></i>About
+			</a>
+		  </li>
+		  
+		</ul>
+      </div>
+    </div> <!-- container -->
+</nav>
+<div class="clearfix"></div>
+
+  <div class="container">
+  	<div class="content">
+    	 
+
+
+	
+		<div class="page-header">		
+			<h1> Slick中的upsert操作</h1>
+		</div>		
+	
+
+
+
+<div class="row post">
+	<!-- cols -->
+	
+	<div class="col-md-9">
+	
+
+			
+
+	<!-- content -->
+	<div class="mypage">		
+	    <h2 id="section">1</h2>
+<p>在做一个Single Page Application，然后使用三方登陆，不维护账号信息，每次登陆拉一次最新的三方账户信息。</p>
+<p>所以数据库操作就有个问题，没有注册，insert，老用户，update，俗称upsert。</p>
+<h2 id="section-1">2</h2>
+<p>使用mysql直接写SQL语句很简单：</p>
+<p><a href="http://dev.mysql.com/doc/refman/5.6/en/insert-on-duplicate.html" target="_blank" rel="external"><code>INSERT ... ON DUPLICATE KEY UPDATE</code></a></p>
+<h2 id="section-2">3</h2>
+<p>但是这个小项目使用<a href="https://www.playframework.com/documentation/2.4.x/PlaySlick" target="_blank" rel="external"><code>play-slick 1.0.1</code></a></p>
+<p>刚开始学着用，就捣鼓出了这样一段逻辑</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">insert</span>(</span>user: <span class="type">User</span>): <span class="type">Future</span>[<span class="type">Int</span>] = db.run(<span class="type">Users</span> += user)</span><br><span class="line">  </span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">update</span>(</span>user: <span class="type">User</span>): <span class="type">Future</span>[<span class="type">Int</span>] = &#123;</span><br><span class="line">  db.run(<span class="type">Users</span>.filter(_.id === user.id.get).update(user))</span><br><span class="line">&#125;</span><br><span class="line">  </span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">selectByQQOpenID</span>(</span>qqOpenID: <span class="type">String</span>): <span class="type">Future</span>[<span class="type">Option</span>[<span class="type">User</span>]] = db.run( <span class="type">Users</span>.filter(_.qqOpenID === qqOpenID).result.headOption )</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">createOrUpdateUserByOpenID</span>(</span>openID: <span class="type">String</span>, userInfo: <span class="type">UserInfo</span>): <span class="type">Future</span>[<span class="type">Int</span>] = &#123;</span><br><span class="line">	<span class="function"><span class="keyword">val</span> <span class="title">user</span> =</span> userDAO.selectByQQOpenID(openID)</span><br><span class="line">	user.flatMap &#123; </span><br><span class="line">		<span class="keyword">case</span> <span class="type">Some</span>(u) =&gt; userDAO.update(u.copy(name = userInfo.name, headURL = userInfo.headURL))</span><br><span class="line">		<span class="keyword">case</span> <span class="type">None</span> =&gt; userDAO.insert(<span class="type">User</span>(<span class="type">None</span>, userInfo.name, userInfo.headURL, openID))</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="section-3">4</h2>
+<p>感觉不漂亮，搜了一下，原来还挺多研究这个问题的……</p>
+<p>比如：<a href="http://underscore.io/blog/posts/2015/07/14/upsert.html" target="_blank" rel="external">Upsert in Slick 3</a></p>
+<p>原来有个内建的<code>insertOrUpdate</code>，代码提示居然没让我看到……</p>
+<p>所以对于单主键</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">postReview</span>(</span>title: <span class="type">String</span>, rating: <span class="type">Int</span>): <span class="type">DBIO</span>[<span class="type">Int</span>] = <span class="keyword">for</span> &#123;</span><br><span class="line">  existing &lt;- reviews.filter(_.title === title).result.headOption</span><br><span class="line">  row       = existing.map(_.copy(rating=rating)) getOrElse <span class="type">Review</span>(title, rating)</span><br><span class="line">  result  &lt;- reviews.insertOrUpdate(row)</span><br><span class="line">&#125; <span class="keyword">yield</span> result</span><br></pre></td></tr></table></figure>
+<p>对于联合主键</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">postReview</span>(</span>critic: <span class="type">String</span>, title: <span class="type">String</span>, rating: <span class="type">Int</span>): <span class="type">DBIO</span>[<span class="type">Int</span>] = <span class="keyword">for</span> &#123;</span><br><span class="line">  existing &lt;- reviews.filter(r =&gt; r.title === title &amp;&amp; r.critic === critic).result.headOption</span><br><span class="line">  row       = existing.map(_.copy(rating=rating)) getOrElse <span class="type">Review</span>(critic, title, rating)</span><br><span class="line">  result  &lt;- reviews.insertOrUpdate(row)</span><br><span class="line">&#125; <span class="keyword">yield</span> result</span><br></pre></td></tr></table></figure>
+<p>当然也可以纯手工</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">postReview</span>(</span>critic: <span class="type">String</span>, title: <span class="type">String</span>, rating: <span class="type">Int</span>)(<span class="keyword">implicit</span> ec: <span class="type">ExecutionContext</span>): <span class="type">DBIO</span>[<span class="type">Int</span>] = &#123;</span><br><span class="line">  <span class="keyword">for</span> &#123;</span><br><span class="line">    rowsAffected &lt;- reviews.filter(r =&gt; r.critic === critic &amp;&amp; r.title === title).map(_.rating).update(rating)</span><br><span class="line">    result &lt;- rowsAffected <span class="keyword">match</span> &#123;</span><br><span class="line">      <span class="keyword">case</span> <span class="number">0</span> =&gt; reviews += <span class="type">Review</span>(critic, title, rating)</span><br><span class="line">      <span class="keyword">case</span> <span class="number">1</span> =&gt; <span class="type">DBIO</span>.successful(<span class="number">1</span>)</span><br><span class="line">      <span class="keyword">case</span> n =&gt; <span class="type">DBIO</span>.failed(<span class="keyword">new</span> <span class="type">RuntimeException</span>(s<span class="string">"Expected 0 or 1 change, not $n for $critic @ $title"</span>))</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; <span class="keyword">yield</span> result</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+	  
+	</div>
+
+	<div>
+  	<center>
+	<div class="pagination">
+<ul class="pagination">
+	 
+		
+          <li class="prev disabled"><a><i class="fa fa-arrow-circle-o-left"></i>Prev</a></li>
+        
+
+        <li><a href="/archives"><i class="fa fa-archive"></i>Archive</a></li>
+
+		
+		   <li class="next"><a href="/2015/08/06/startup-web-playframework/" class="alignright next">Next<i class="fa fa-arrow-circle-o-right"></i></a></li>         
+        
+	
+</ul>
+</div>
+
+    </center>
+	</div>
+	
+	<!-- comment -->
+	
+<section id="comment">
+  <h2 class="title">Comments</h2>
+
+  
+</section>
+
+	
+	</div> <!-- col-md-9/col-md-12 -->
+	
+	
+		<div class="col-md-3"> 
+
+	<!-- date -->
+	
+	<div class="meta-widget">
+	<i class="fa fa-clock-o"></i>
+	2015-08-13 
+	</div>
+	
+
+	<!-- categories -->
+    
+	<div class="meta-widget">
+	<a data-toggle="collapse" data-target="#categorys"><i class="fa fa-folder"></i></a>	
+    <ul id="categorys" class="tag_box list-unstyled collapse in">
+          
+  <li>
+    <li><a href="/categories/scala/">scala<span>1</span></a></li> <li><a href="/categories/scala/slick/">slick<span>1</span></a></li>
+  </li>
+
+    </ul>
+	</div>
+	
+
+	<!-- tags -->
+		
+
+	<!-- toc -->
+	<div class="meta-widget">
+	
+	</div>
+	
+    <hr>
+	
+</div><!-- col-md-3 -->
+
+	
+
+</div><!-- row -->
+
+	</div>
+  </div>
+  <div class="container-narrow">
+  <footer> <p>
+  &copy; 2015 Shichao Yuan
+  
+      with help from <a href="http://hexo.io/" target="_blank">Hexo</a> and <a href="http://getbootstrap.com/" target="_blank">Twitter Bootstrap</a>. Theme by <a href="http://github.com/wzpan/hexo-theme-freemind/">Freemind</a>.    
+</p> </footer>
+</div> <!-- container-narrow -->
+  
+<a id="gotop" href="#">   
+  <span>▲</span> 
+</a>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/main.js"></script>
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+
+</body>
+   </html>

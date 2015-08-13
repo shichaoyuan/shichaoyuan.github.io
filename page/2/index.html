@@ -93,6 +93,73 @@
 	
 	<!-- display as entry -->	
 		<h3 class="title">
+			<div class="date"> 2015-02-12 </div>
+			<div class="article-title"><a href="/2015/02/12/copy_ins_popular_tab/" >如何高仿Instagram的热门发现Tab</a></div>						
+		</h3>
+	
+
+
+			<div class="entry">
+  <div class="row">
+  
+	<div class="col-md-12">
+	  
+	
+	  <h1 id="section">1</h1>
+<p>最近在做的项目类似Instagram，其中第二个Tab基本上完全一致……</p>
+<p>如何做呢？</p>
+<p>首先看看INS是如何做的。</p>
+<p>狂刷INS的第二个Tab，发现其中的feed分了两类：“全球热门项目”和“根据你关注的用户”；点击进入feed终端页，感觉内容你预先加载完的（除了照片）。</p>
+<p>申请一个开发者账号，调用一下https://api.instagram.com/v1/media/popular?access_token=ACCESS-TOKEN</p>
+<p>发现其返回的json包含feed的完整信息。</p>
+<h1 id="section-1">2</h1>
+<p>我们的需求：</p>
+<ol style="list-style-type: decimal">
+<li>下拉刷新，根据权重随机呈现；</li>
+<li>上滑翻页，分页读取；</li>
+<li>多个内容源，比如：运营筛选、算法推荐、地理位置；</li>
+<li>可以很用容易改变不同内容源的配比。</li>
+</ol>
+<p>还有不要太慢 嘻嘻</p>
+<h1 id="section-2">3</h1>
+<p>总体设计：</p>
+<ol style="list-style-type: decimal">
+<li>生产内容源；</li>
+<li>配比内容源，更新线上内容库；</li>
+<li>读取线上内容库，根据权重随机呈现。</li>
+</ol>
+<p>其中使用Redis做为线上内容库。</p>
+<h1 id="section-3">4</h1>
+<p>生产内容源</p>
+<p>目前有两个：一个mahout的协同过滤推荐算法，一个运营人员筛选。</p>
+<p>没什么需要解释的。</p>
+<h1 id="section-4">5</h1>
+<p>配比内容源，更新线上内容库；</p>
+<p>一个定时任务，从不同的内容源中选择不同的配备的内容，然后推送到Redis中。</p>
+<p>其中如何设定权重是一个比较有趣的问题，先留坑。</p>
+<h1 id="section-5">6</h1>
+<p>读取线上内容库，根据权重随机呈现</p>
+<p>Redis中数据的组织形式是，userId对应一个redisList，redisList中数据项的序列化和反序列化使用protobuf。</p>
+<p>目前设想单个user对应feed的数量为一万左右，如果一次全部读取，并发量较高的时候，程序GC的负担会比较重，所以使用了分段读取的方法——<a href="https://github.com/shichaoyuan/snippets/blob/master/RedisListIterator.java" target="_blank" rel="external">RedisListIterator.java</a>。</p>
+<p>如何根据权重随机选择，参考之前的文章——<a href="http://shichaoyuan.github.io/algorithm/2014/12/28/sample_algorithm.html">关于sample算法</a>。</p>
+<p>至于分页，用Reids的List也很容易解决。</p>
+<h1 id="section-6">7</h1>
+<p>该接口的性能基本上严重依赖Redis的性能；</p>
+<p>随着用户的增加，Reids集群的容量也得成正比增加。</p>
+
+	
+	</div>
+	
+  
+</div>
+	<a type="button" href="/2015/02/12/copy_ins_popular_tab/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+	
+	<!-- display as entry -->	
+		<h3 class="title">
 			<div class="date"> 2015-01-29 </div>
 			<div class="article-title"><a href="/2015/01/29/logrotate/" >命令logrotate</a></div>						
 		</h3>
@@ -670,38 +737,6 @@
 </div>
 
 		
-			
-	
-	<!-- display as entry -->	
-		<h3 class="title">
-			<div class="date"> 2013-06-22 </div>
-			<div class="article-title"><a href="/2013/06/22/disruptor3/" >Disruptor: about queue</a></div>						
-		</h3>
-	
-
-
-			<div class="entry">
-  <div class="row">
-  
-	<div class="col-md-12">
-	  
-	
-	  <p>Q：queue这种如此简单的数据结构为什么得到了这么广泛的关注？</p>
-<p>A：queue确实是一种很容易理解的数据结构，她受到广泛关注是因为在SEDA和Actors中她扮演者重要的角色，她重要是因为她很容易成为系统性能的瓶颈。为什么呢？因为有很多actor或者thread要并发的对queue进程操作嘛。</p>
-<p>Q：SEDA和Actors，我也略知一二，仔细想想这里的queue肯定得加锁或者用CAS，之前你也说到这些对性能影响很大，有什么更好的方法么？</p>
-<p>A：有，就像之前说到的——避免写竞争。</p>
-<p>Q：说起来容易。。。</p>
-<p>A：做起来也不难，Disruptor就做到了。</p>
-
-	
-	</div>
-	
-  
-</div>
-	<a type="button" href="/2013/06/22/disruptor3/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
 
 		</div>
 
@@ -741,6 +776,10 @@
   <ul class="entry list-unstyled">
     
       <li>
+        <a href="/2015/08/13/slick-upsert/" ><i class="fa fa-file-o"></i>Slick中的upsert操作...</a>
+      </li>
+    
+      <li>
         <a href="/2015/08/06/startup-web-playframework/" ><i class="fa fa-file-o"></i>如何快速开始一个小项目 —— playframewor...</a>
       </li>
     
@@ -754,10 +793,6 @@
     
       <li>
         <a href="/2015/06/30/weak-reference/" ><i class="fa fa-file-o"></i>weak reference...</a>
-      </li>
-    
-      <li>
-        <a href="/2015/06/15/link_prediction_problem/" ><i class="fa fa-file-o"></i>Link Prediction Problem...</a>
       </li>
     
   </ul>
