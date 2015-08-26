@@ -93,6 +93,87 @@
 	
 	<!-- display as entry -->	
 		<h3 class="title">
+			<div class="date"> 2015-02-16 </div>
+			<div class="article-title"><a href="/2015/02/16/gc_log_1/" >关于JAVA GC LOG —— 如何看</a></div>						
+		</h3>
+	
+
+
+			<div class="entry">
+  <div class="row">
+  
+	<div class="col-md-12">
+	  
+	
+	  <p>本文基于Java HotSpot(TM) 64-Bit Server VM (build 24.71-b01, mixed mode)</p>
+<h1 id="section">1</h1>
+<p>GC相关的几个JVM启动参数：</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">参数</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">-XX:+PrintGCDetails</td>
+<td align="left">Print more details at garbage collection. Manageable. (Introduced in 1.4.0.)</td>
+</tr>
+<tr class="even">
+<td align="left">-XX:+PrintGCDateStamps</td>
+<td align="left">Enables printing of a date stamp at every GC</td>
+</tr>
+<tr class="odd">
+<td align="left">-Xloggc::filename</td>
+<td align="left">Log GC verbose output to specified file. The verbose output is controlled by the normal verbose GC flags.</td>
+</tr>
+<tr class="even">
+<td align="left">-XX:+UseGCLogFileRotation</td>
+<td align="left">Enabled GC log rotation, requires -Xloggc.</td>
+</tr>
+<tr class="odd">
+<td align="left">-XX:NumberOfGCLogFiles=1</td>
+<td align="left">Set the number of files to use when rotating logs, must be &gt;= 1. The rotated log files will use the following naming scheme, filename.0, filename.1, …, filename.n-1.</td>
+</tr>
+<tr class="even">
+<td align="left">-XX:GCLogFileSize=8K</td>
+<td align="left">The size of the log file at which point the log will be rotated, must be &gt;= 8K.</td>
+</tr>
+<tr class="odd">
+<td align="left">-XX:+PrintTenuringDistribution</td>
+<td align="left">Print tenuring age information.</td>
+</tr>
+</tbody>
+</table>
+<p>其它参数，详见<a href="http://www.oracle.com/technetwork/java/javase/tech/vmoptions-jsp-140102.html" target="_blank" rel="external">Java HotSpot VM Options</a></p>
+<h1 id="section-1">2</h1>
+<p>一个Tomcat/7.0.26的例子：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#10;JAVA_OPTS=&#34;-server -Xms1500M -Xmx1500M -Xmn500M -Xss256k -XX:PermSize=256m -XX:MaxPermSize=256m -XX:+UseParNewGC -XX:ParallelGCThreads=8 -XX:SurvivorRatio=6 -XX:TargetSurvivorRatio=90 -XX:MaxTenuringThreshold=15 -XX:SoftRefLRUPolicyMSPerMB=0 -XX:+UseConcMarkSweepGC -XX:+CMSIncrementalMode -XX:+UseCMSCompactAtFullCollection -XX:CMSFullGCsBeforeCompaction=5 -XX:CMSInitiatingOccupancyFraction=55 -XX:CMSIncrementalSafetyFactor=20 -XX:+PrintGCDetails -XX:+PrintGCDateStamps -Xloggc:../logs/gc-$DATE.log -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=5 -XX:GCLogFileSize=128K -XX:+PrintTenuringDistribution &#34;</span><br></pre></td></tr></table></figure>
+<p>对于young generation，使用ParNew；对于Tenured generation，使用CMS。</p>
+<p>如何配置这些不同的算法，详见<a href="https://blogs.oracle.com/jonthecollector/entry/our_collectors" target="_blank" rel="external">Our Collectors</a></p>
+<p>一段GC日志：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#10;2015-02-05T19:27:34.537+0800: 3737.811: [Full GC2015-02-05T19:27:34.537+0800: 3737.812: [CMS: 68036K-&#62;71687K(1024000K), 0.3253180 secs] 228627K-&#62;71687K(1472000K), [CMS Perm : 58490K-&#62;58337K(262144K)] icms_dc=0 , 0.3257740 secs] [Times: user=0.33 sys=0.00, real=0.33 secs]&#10;2015-02-05T19:27:34.866+0800: 3738.141: [GC [1 CMS-initial-mark: 71687K(1024000K)] 71689K(1472000K), 0.0041430 secs] [Times: user=0.01 sys=0.00, real=0.01 secs]&#10;2015-02-05T19:27:34.871+0800: 3738.145: [CMS-concurrent-mark-start]&#10;2015-02-05T19:31:25.881+0800: 3969.156: [GC2015-02-05T19:31:25.881+0800: 3969.156: [ParNew&#10;Desired survivor size 58982400 bytes, new threshold 15 (max 15)&#10;- age   1:    8783432 bytes,    8783432 total&#10;: 384000K-&#62;13384K(448000K), 0.0148490 secs] 455687K-&#62;85071K(1472000K) icms_dc=0 , 0.0153590 secs] [Times: user=0.05 sys=0.00, real=0.02 secs]&#10;2015-02-05T19:33:50.170+0800: 4113.445: [GC2015-02-05T19:33:50.171+0800: 4113.445: [ParNew&#10;Desired survivor size 58982400 bytes, new threshold 15 (max 15)&#10;- age   1:    5015016 bytes,    5015016 total&#10;- age   2:    3093632 bytes,    8108648 total</span><br></pre></td></tr></table></figure>
+<p>我们仔细看看：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#10;2015-02-05T19:27:34.537+0800:(&#26085;&#26399;) 3737.811:(&#26102;&#38388;&#25139;) [Full GC(&#22403;&#22334;&#25910;&#38598;&#31867;&#22411;)2015-02-05T19:27:34.537+0800:(&#26085;&#26399;) 3737.812:(&#26102;&#38388;&#25139;) [CMS:(&#31639;&#27861;&#20197;&#21450;generation) 68036K-&#62;71687K(1024000K), 0.3253180 secs(Tenured generation&#30340;&#24773;&#20917;)] 228627K-&#62;71687K(1472000K)(&#25972;&#20010;&#22534;&#30340;&#24773;&#20917;), [CMS Perm : 58490K-&#62;58337K(262144K)(Perm&#30340;&#24773;&#20917;)] icms_dc=0 , 0.3257740 secs] [Times: user=0.33 sys=0.00, real=0.33 secs]&#10;&#10;2015-02-05T19:31:25.881+0800: 3969.156: [GC2015-02-05T19:31:25.881+0800: 3969.156: [ParNew&#10;Desired survivor size 58982400 bytes, new threshold 15 (max 15)&#10;- age   1:    8783432 bytes,    8783432 total&#10;: 384000K-&#62;13384K(448000K), 0.0148490 secs] 455687K-&#62;85071K(1472000K) icms_dc=0 , 0.0153590 secs] [Times: user=0.05 sys=0.00, real=0.02 secs]</span><br></pre></td></tr></table></figure>
+<p>更加详细的分析，参考<a href="https://blogs.oracle.com/poonam/entry/understanding_cms_gc_logs" target="_blank" rel="external">Understanding CMS GC Logs</a></p>
+<h1 id="section-2">3</h1>
+<p>如何可视化？</p>
+<p>使用<a href="https://github.com/chewiebug/GCViewer" target="_blank" rel="external">GCViewer</a></p>
+
+	
+	</div>
+	
+  
+</div>
+	<a type="button" href="/2015/02/16/gc_log_1/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+	
+	<!-- display as entry -->	
+		<h3 class="title">
 			<div class="date"> 2015-02-12 </div>
 			<div class="article-title"><a href="/2015/02/12/copy_ins_popular_tab/" >如何高仿Instagram的热门发现Tab</a></div>						
 		</h3>
@@ -695,48 +776,6 @@
 </div>
 
 		
-			
-	
-	<!-- display as entry -->	
-		<h3 class="title">
-			<div class="date"> 2013-06-23 </div>
-			<div class="article-title"><a href="/2013/06/23/disruptor4/" >Disruptor: design overview</a></div>						
-		</h3>
-	
-
-
-			<div class="entry">
-  <div class="row">
-  
-	<div class="col-md-12">
-	  
-	
-	  <p>Disruptor是一个MQ，其中的Queue是一个ring buffer。</p>
-<p>对于queue来说有三个问题需要关注：</p>
-<ol style="list-style-type: decimal">
-<li>被交换项的存储</li>
-<li>声明下一个交换的sequence，用于协调生产者们</li>
-<li>通知新的交换项可获得，用于协调消费者们</li>
-</ol>
-<ul>
-<li>针对1，预先分配固定大小的queue，好处是可以减少GC的影响，更好的利用cache。</li>
-<li>针对2，对于单生产者，获取序列号没有竞争的问题；对于多生产者，使用CAS操作来获取序列号。</li>
-<li>针对3，对于消费者们来说就没有竞争的问题了。可以按照CPU资源的稀缺度，或者使用信号通知模式，或者使用循环检查模式。</li>
-</ul>
-<p>可见sequence在并发管理中处于核心地位。</p>
-<p>在生产者这边，如果是单生产者没有竞争写的问题；如果是多生产者，可以用CAS解决竞争的问题。写完之后，需要更新一个独立的计数器cursor指明最近一个可获得的消息项，这里只需要使用memory barrier，而不需要CAS操作。</p>
-<p>在消费者这边，消费者通过使用memory barrier读cursor来等待新的消息项。消费者也有自己的sequence，生产者可以通过读这个sequence来防止覆盖ring上未处理的消息，消费者们也可以通过各自的sequence来协调消费者们的处理顺序。</p>
-<p>对于传统的SEDA，不同的stage之间都需要queue，但是对于Disruptor来说，复杂的依赖图完全可以基于一个ringe buffer来实现，这极大的提高了吞吐量，减少了延迟。对于某些stage处于落后的状态，可以使用batch处理的方式迅速赶上来。</p>
-
-	
-	</div>
-	
-  
-</div>
-	<a type="button" href="/2013/06/23/disruptor4/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
 
 		</div>
 
@@ -776,6 +815,10 @@
   <ul class="entry list-unstyled">
     
       <li>
+        <a href="/2015/08/26/RSA-PKCS1-V1-5-Padding/" ><i class="fa fa-file-o"></i>BigInteger#toByteArray引发的处理...</a>
+      </li>
+    
+      <li>
         <a href="/2015/08/13/slick-upsert/" ><i class="fa fa-file-o"></i>Slick中的upsert操作...</a>
       </li>
     
@@ -789,10 +832,6 @@
     
       <li>
         <a href="/2015/07/10/notes-pepfcp/" ><i class="fa fa-file-o"></i>Reading Notes - Prudent Eng...</a>
-      </li>
-    
-      <li>
-        <a href="/2015/06/30/weak-reference/" ><i class="fa fa-file-o"></i>weak reference...</a>
       </li>
     
   </ul>

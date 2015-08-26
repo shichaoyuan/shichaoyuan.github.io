@@ -93,6 +93,48 @@
 	
 	<!-- display as entry -->	
 		<h3 class="title">
+			<div class="date"> 2013-06-23 </div>
+			<div class="article-title"><a href="/2013/06/23/disruptor4/" >Disruptor: design overview</a></div>						
+		</h3>
+	
+
+
+			<div class="entry">
+  <div class="row">
+  
+	<div class="col-md-12">
+	  
+	
+	  <p>Disruptor是一个MQ，其中的Queue是一个ring buffer。</p>
+<p>对于queue来说有三个问题需要关注：</p>
+<ol style="list-style-type: decimal">
+<li>被交换项的存储</li>
+<li>声明下一个交换的sequence，用于协调生产者们</li>
+<li>通知新的交换项可获得，用于协调消费者们</li>
+</ol>
+<ul>
+<li>针对1，预先分配固定大小的queue，好处是可以减少GC的影响，更好的利用cache。</li>
+<li>针对2，对于单生产者，获取序列号没有竞争的问题；对于多生产者，使用CAS操作来获取序列号。</li>
+<li>针对3，对于消费者们来说就没有竞争的问题了。可以按照CPU资源的稀缺度，或者使用信号通知模式，或者使用循环检查模式。</li>
+</ul>
+<p>可见sequence在并发管理中处于核心地位。</p>
+<p>在生产者这边，如果是单生产者没有竞争写的问题；如果是多生产者，可以用CAS解决竞争的问题。写完之后，需要更新一个独立的计数器cursor指明最近一个可获得的消息项，这里只需要使用memory barrier，而不需要CAS操作。</p>
+<p>在消费者这边，消费者通过使用memory barrier读cursor来等待新的消息项。消费者也有自己的sequence，生产者可以通过读这个sequence来防止覆盖ring上未处理的消息，消费者们也可以通过各自的sequence来协调消费者们的处理顺序。</p>
+<p>对于传统的SEDA，不同的stage之间都需要queue，但是对于Disruptor来说，复杂的依赖图完全可以基于一个ringe buffer来实现，这极大的提高了吞吐量，减少了延迟。对于某些stage处于落后的状态，可以使用batch处理的方式迅速赶上来。</p>
+
+	
+	</div>
+	
+  
+</div>
+	<a type="button" href="/2013/06/23/disruptor4/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+	
+	<!-- display as entry -->	
+		<h3 class="title">
 			<div class="date"> 2013-06-22 </div>
 			<div class="article-title"><a href="/2013/06/22/disruptor3/" >Disruptor: about queue</a></div>						
 		</h3>
@@ -238,6 +280,10 @@
   <ul class="entry list-unstyled">
     
       <li>
+        <a href="/2015/08/26/RSA-PKCS1-V1-5-Padding/" ><i class="fa fa-file-o"></i>BigInteger#toByteArray引发的处理...</a>
+      </li>
+    
+      <li>
         <a href="/2015/08/13/slick-upsert/" ><i class="fa fa-file-o"></i>Slick中的upsert操作...</a>
       </li>
     
@@ -251,10 +297,6 @@
     
       <li>
         <a href="/2015/07/10/notes-pepfcp/" ><i class="fa fa-file-o"></i>Reading Notes - Prudent Eng...</a>
-      </li>
-    
-      <li>
-        <a href="/2015/06/30/weak-reference/" ><i class="fa fa-file-o"></i>weak reference...</a>
       </li>
     
   </ul>

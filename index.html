@@ -93,6 +93,58 @@
 	
 	<!-- display as entry -->	
 		<h3 class="title">
+			<div class="date"> 2015-08-26 </div>
+			<div class="article-title"><a href="/2015/08/26/RSA-PKCS1-V1-5-Padding/" >BigInteger#toByteArray引发的处理PKCS1Padding的问题</a></div>						
+		</h3>
+	
+
+
+			<div class="entry">
+  <div class="row">
+  
+	<div class="col-md-12">
+	  
+	
+	  <h2 id="section">1</h2>
+<p>之前的<a href="http://shichaoyuan.github.io/2015/07/10/notes-pepfcp/">文章</a>提到过使用RSA加密传输密码的应用场景，在和H5联调的时候遇到了不少问题……</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Cipher cipher = Cipher.getInstance(<span class="string">"RSA/ECB/PKCS1Padding"</span>);</span><br><span class="line">cipher.init(Cipher.DECRYPT_MODE, prikey);</span><br></pre></td></tr></table></figure>
+<p>后端限定的RSA解密实现如上所示；H5前端发来的消息，偶尔会报下述异常：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Caused by: javax.crypto.BadPaddingException: Data must start with zero</span><br><span class="line">	at sun.security.rsa.RSAPadding.unpadV15(RSAPadding.java:<span class="number">308</span>)</span><br><span class="line">	at sun.security.rsa.RSAPadding.unpad(RSAPadding.java:<span class="number">255</span>)</span><br><span class="line">	at com.sun.crypto.provider.RSACipher.a(DashoA13*..)</span><br><span class="line">	at com.sun.crypto.provider.RSACipher.engineDoFinal(DashoA13*..)</span><br><span class="line">	at javax.crypto.Cipher.doFinal(DashoA13*..)</span><br></pre></td></tr></table></figure>
+<p>之前概率不大，一直没太关心，最近发现失败的情况还挺多，所以查了一下，顺便做个笔记。</p>
+<h2 id="section-1">2</h2>
+<p>首先跟一下异常抛出的位置，线上用的是jdk1.6，所以先到<a href="http://hg.openjdk.java.net/jdk6/jdk6/jdk/" class="uri" target="_blank" rel="external">http://hg.openjdk.java.net/jdk6/jdk6/jdk/</a>这里下载一下源码，定位到文件，看了一下，实现上差别挺大。</p>
+<p>怎么办？使用Bytecode反编译吧。</p>
+<p>抛异常的位置在这儿：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">byte</span>[] unpadV15(<span class="keyword">final</span> <span class="keyword">byte</span>[] array) <span class="keyword">throws</span> BadPaddingException &#123;</span><br><span class="line">    <span class="keyword">int</span> n = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span> (array[n++] != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> BadPaddingException(<span class="string">"Data must start with zero"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (array[n++] != <span class="keyword">this</span>.type) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> BadPaddingException(<span class="string">"Blocktype mismatch: "</span> + array[<span class="number">1</span>]);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">int</span> n2 = array[n++] &amp; <span class="number">0xFF</span>;</span><br><span class="line">        <span class="keyword">if</span> (n2 == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">final</span> <span class="keyword">int</span> n3 = array.length - n;</span><br><span class="line">            <span class="keyword">if</span> (n3 &gt; <span class="keyword">this</span>.maxDataSize) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> BadPaddingException(<span class="string">"Padding string too short"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">final</span> <span class="keyword">byte</span>[] array2 = <span class="keyword">new</span> <span class="keyword">byte</span>[n3];</span><br><span class="line">            System.arraycopy(array, array.length - n3, array2, <span class="number">0</span>, n3);</span><br><span class="line">            <span class="keyword">return</span> array2;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (n == array.length) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> BadPaddingException(<span class="string">"Padding string not terminated"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">this</span>.type == <span class="number">1</span> &amp;&amp; n2 != <span class="number">255</span>) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> BadPaddingException(<span class="string">"Padding byte not 0xff: "</span> + n2);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>也就是说解密之后开始的第一个byte不是0……</p>
+<p>好的，我们再看一下异常的消息：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">byte</span>[] passwordBytes = <span class="keyword">new</span> BigInteger(encryptedPassword, <span class="number">16</span>).toByteArray()</span><br></pre></td></tr></table></figure>
+<p>后端这里使用上述方式，将十六进制的消息转成byte数组，打印出来：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#24322;&#24120;&#30340;&#28040;&#24687;&#65306;&#10;93e15ed1e75e5e5f51d45498fd704d96a0e7fc6892bca10dc2976bb1d39659e0ea3eb0b586dcb2f5f491e8d3f4db07e5856406634f64ac0c307181a9a52d4fb75dc872b3bb070ea6bacdcaa0a78cdd9330dc91d33141852669068896754161dee37a51fcb1d74690ab2e5387cede616adf29472058f4d669500710b68d0d8eeea0fb2fc4a703e13ef3179dba8ba00c6a59ab9048c8847af06c2d9e82a00355bae44762fda6ceee6ac69c4c47638a17ba39a4135c6ee0175f7c8e0c46f280925a1f15e5f9ea43bfa64d6c16ea59f011605c32b7f4a0c5b09dd0c178b68e0cce3413ff03db13eddc4bc3a84062310d3f540d34bca4bfc648699a83145b21753d6f&#10;&#10;  0: 00000000 10010011 11100001 01011110 11010001 11100111 01011110 01011110&#10;  8: 01011111 01010001 11010100 01010100 10011000 11111101 01110000 01001101&#10;&#8230;&#8230;&#30465;&#30053;  &#10;248: 01101001 10011010 10000011 00010100 01011011 00100001 01110101 00111101&#10;256: 01101111&#10;&#10;&#10;&#27491;&#24120;&#30340;&#28040;&#24687;&#65306;&#10;5eb2dc0d2c675a60830ea92ccb3c514a26fcdc6a7d2621d905ba0cb3eb02ce0bac052cf1833022a0a9ebccf546b0a3a8d50f165a6ae0b7c86840f09b99e32bf25e614ff2ca59bdc220377effde60f6d464d13f8403ad0f5e03fa79985eb0c842743eb3179211a0438d7dabe8567c11871b5d1182d1cb8cd58b9a06777463c62f79d0c1fdfb01a0a637906919e58ca9cd9d8d2e883655e5b7401ce16e0d507bea97f8a54a44231b88b4a7d65133949aacdde8c0e672a21f6bc8277ed0abc8ac4239a909007db3b8063c82d70af7df665550cb79fded779e9f92ff6c4c6b2cda17879b6a3e854b77224ebec5b0095b2f1123e7730d62c188eac9f6019dd7cff3a3&#10;&#10;  0: 01011110 10110010 11011100 00001101 00101100 01100111 01011010 01100000&#10;  8: 10000011 00001110 10101001 00101100 11001011 00111100 01010001 01001010&#10;&#8230;&#8230;&#30465;&#30053;&#10;240: 00100011 11100111 01110011 00001101 01100010 11000001 10001000 11101010&#10;248: 11001001 11110110 00000001 10011101 11010111 11001111 11110011 10100011</span><br></pre></td></tr></table></figure>
+<p>我们发现异常的消息前面多了一个为0的byte，问题出在BigInteger的toByteArray方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">byte</span>[] toByteArray() &#123;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> n = <span class="keyword">this</span>.bitLength() / <span class="number">8</span> + <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">byte</span>[] array = <span class="keyword">new</span> <span class="keyword">byte</span>[n];</span><br><span class="line">    <span class="keyword">int</span> i = n - <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">int</span> n2 = <span class="number">4</span>;</span><br><span class="line">    <span class="keyword">int</span> int1 = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">int</span> n3 = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span> (i &gt;= <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (n2 == <span class="number">4</span>) &#123;</span><br><span class="line">            int1 = <span class="keyword">this</span>.getInt(n3++);</span><br><span class="line">            n2 = <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            int1 &gt;&gt;&gt;= <span class="number">8</span>;</span><br><span class="line">            ++n2;</span><br><span class="line">        &#125;</span><br><span class="line">        array[i] = (<span class="keyword">byte</span>)int1;</span><br><span class="line">        --i;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> array;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果bit长度是8的倍数，前面就会多一个为0的byte……所以自己写一个转换方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">byte</span>[] hexStringToByteArray(String s) &#123;</span><br><span class="line">    <span class="keyword">int</span> len = s.length();</span><br><span class="line">    <span class="keyword">byte</span>[] data = <span class="keyword">new</span> <span class="keyword">byte</span>[len / <span class="number">2</span>];</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; len; i += <span class="number">2</span>) &#123;</span><br><span class="line">        data[i / <span class="number">2</span>] = (<span class="keyword">byte</span>) ((Character.digit(s.charAt(i), <span class="number">16</span>) &lt;&lt; <span class="number">4</span>)</span><br><span class="line">                                 + Character.digit(s.charAt(i+<span class="number">1</span>), <span class="number">16</span>));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> data;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>测试了几次都没有问题……</p>
+<p>所以偶尔得多看看JDK的实现，一不小心使用的姿势就不对了……</p>
+<h2 id="section-2">3</h2>
+<p>最后贴点儿资料</p>
+<p><a href="https://tools.ietf.org/html/rfc3447" target="_blank" rel="external">rfc3447</a> RSA加密规范</p>
+<p><a href="http://etherhack.co.uk/asymmetric/docs/rsa_key_breakdown.html" target="_blank" rel="external">OpenSSL 1024 bit RSA Private Key Breakdown</a> Key文件描述</p>
+
+	
+	</div>
+	
+  
+</div>
+	<a type="button" href="/2015/08/26/RSA-PKCS1-V1-5-Padding/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+	
+	<!-- display as entry -->	
+		<h3 class="title">
 			<div class="date"> 2015-08-13 </div>
 			<div class="article-title"><a href="/2015/08/13/slick-upsert/" >Slick中的upsert操作</a></div>						
 		</h3>
@@ -741,87 +793,6 @@
 </div>
 
 		
-			
-	
-	<!-- display as entry -->	
-		<h3 class="title">
-			<div class="date"> 2015-02-16 </div>
-			<div class="article-title"><a href="/2015/02/16/gc_log_1/" >关于JAVA GC LOG —— 如何看</a></div>						
-		</h3>
-	
-
-
-			<div class="entry">
-  <div class="row">
-  
-	<div class="col-md-12">
-	  
-	
-	  <p>本文基于Java HotSpot(TM) 64-Bit Server VM (build 24.71-b01, mixed mode)</p>
-<h1 id="section">1</h1>
-<p>GC相关的几个JVM启动参数：</p>
-<table>
-<thead>
-<tr class="header">
-<th align="left">参数</th>
-<th align="left">描述</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">-XX:+PrintGCDetails</td>
-<td align="left">Print more details at garbage collection. Manageable. (Introduced in 1.4.0.)</td>
-</tr>
-<tr class="even">
-<td align="left">-XX:+PrintGCDateStamps</td>
-<td align="left">Enables printing of a date stamp at every GC</td>
-</tr>
-<tr class="odd">
-<td align="left">-Xloggc::filename</td>
-<td align="left">Log GC verbose output to specified file. The verbose output is controlled by the normal verbose GC flags.</td>
-</tr>
-<tr class="even">
-<td align="left">-XX:+UseGCLogFileRotation</td>
-<td align="left">Enabled GC log rotation, requires -Xloggc.</td>
-</tr>
-<tr class="odd">
-<td align="left">-XX:NumberOfGCLogFiles=1</td>
-<td align="left">Set the number of files to use when rotating logs, must be &gt;= 1. The rotated log files will use the following naming scheme, filename.0, filename.1, …, filename.n-1.</td>
-</tr>
-<tr class="even">
-<td align="left">-XX:GCLogFileSize=8K</td>
-<td align="left">The size of the log file at which point the log will be rotated, must be &gt;= 8K.</td>
-</tr>
-<tr class="odd">
-<td align="left">-XX:+PrintTenuringDistribution</td>
-<td align="left">Print tenuring age information.</td>
-</tr>
-</tbody>
-</table>
-<p>其它参数，详见<a href="http://www.oracle.com/technetwork/java/javase/tech/vmoptions-jsp-140102.html" target="_blank" rel="external">Java HotSpot VM Options</a></p>
-<h1 id="section-1">2</h1>
-<p>一个Tomcat/7.0.26的例子：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#10;JAVA_OPTS=&#34;-server -Xms1500M -Xmx1500M -Xmn500M -Xss256k -XX:PermSize=256m -XX:MaxPermSize=256m -XX:+UseParNewGC -XX:ParallelGCThreads=8 -XX:SurvivorRatio=6 -XX:TargetSurvivorRatio=90 -XX:MaxTenuringThreshold=15 -XX:SoftRefLRUPolicyMSPerMB=0 -XX:+UseConcMarkSweepGC -XX:+CMSIncrementalMode -XX:+UseCMSCompactAtFullCollection -XX:CMSFullGCsBeforeCompaction=5 -XX:CMSInitiatingOccupancyFraction=55 -XX:CMSIncrementalSafetyFactor=20 -XX:+PrintGCDetails -XX:+PrintGCDateStamps -Xloggc:../logs/gc-$DATE.log -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=5 -XX:GCLogFileSize=128K -XX:+PrintTenuringDistribution &#34;</span><br></pre></td></tr></table></figure>
-<p>对于young generation，使用ParNew；对于Tenured generation，使用CMS。</p>
-<p>如何配置这些不同的算法，详见<a href="https://blogs.oracle.com/jonthecollector/entry/our_collectors" target="_blank" rel="external">Our Collectors</a></p>
-<p>一段GC日志：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#10;2015-02-05T19:27:34.537+0800: 3737.811: [Full GC2015-02-05T19:27:34.537+0800: 3737.812: [CMS: 68036K-&#62;71687K(1024000K), 0.3253180 secs] 228627K-&#62;71687K(1472000K), [CMS Perm : 58490K-&#62;58337K(262144K)] icms_dc=0 , 0.3257740 secs] [Times: user=0.33 sys=0.00, real=0.33 secs]&#10;2015-02-05T19:27:34.866+0800: 3738.141: [GC [1 CMS-initial-mark: 71687K(1024000K)] 71689K(1472000K), 0.0041430 secs] [Times: user=0.01 sys=0.00, real=0.01 secs]&#10;2015-02-05T19:27:34.871+0800: 3738.145: [CMS-concurrent-mark-start]&#10;2015-02-05T19:31:25.881+0800: 3969.156: [GC2015-02-05T19:31:25.881+0800: 3969.156: [ParNew&#10;Desired survivor size 58982400 bytes, new threshold 15 (max 15)&#10;- age   1:    8783432 bytes,    8783432 total&#10;: 384000K-&#62;13384K(448000K), 0.0148490 secs] 455687K-&#62;85071K(1472000K) icms_dc=0 , 0.0153590 secs] [Times: user=0.05 sys=0.00, real=0.02 secs]&#10;2015-02-05T19:33:50.170+0800: 4113.445: [GC2015-02-05T19:33:50.171+0800: 4113.445: [ParNew&#10;Desired survivor size 58982400 bytes, new threshold 15 (max 15)&#10;- age   1:    5015016 bytes,    5015016 total&#10;- age   2:    3093632 bytes,    8108648 total</span><br></pre></td></tr></table></figure>
-<p>我们仔细看看：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#10;2015-02-05T19:27:34.537+0800:(&#26085;&#26399;) 3737.811:(&#26102;&#38388;&#25139;) [Full GC(&#22403;&#22334;&#25910;&#38598;&#31867;&#22411;)2015-02-05T19:27:34.537+0800:(&#26085;&#26399;) 3737.812:(&#26102;&#38388;&#25139;) [CMS:(&#31639;&#27861;&#20197;&#21450;generation) 68036K-&#62;71687K(1024000K), 0.3253180 secs(Tenured generation&#30340;&#24773;&#20917;)] 228627K-&#62;71687K(1472000K)(&#25972;&#20010;&#22534;&#30340;&#24773;&#20917;), [CMS Perm : 58490K-&#62;58337K(262144K)(Perm&#30340;&#24773;&#20917;)] icms_dc=0 , 0.3257740 secs] [Times: user=0.33 sys=0.00, real=0.33 secs]&#10;&#10;2015-02-05T19:31:25.881+0800: 3969.156: [GC2015-02-05T19:31:25.881+0800: 3969.156: [ParNew&#10;Desired survivor size 58982400 bytes, new threshold 15 (max 15)&#10;- age   1:    8783432 bytes,    8783432 total&#10;: 384000K-&#62;13384K(448000K), 0.0148490 secs] 455687K-&#62;85071K(1472000K) icms_dc=0 , 0.0153590 secs] [Times: user=0.05 sys=0.00, real=0.02 secs]</span><br></pre></td></tr></table></figure>
-<p>更加详细的分析，参考<a href="https://blogs.oracle.com/poonam/entry/understanding_cms_gc_logs" target="_blank" rel="external">Understanding CMS GC Logs</a></p>
-<h1 id="section-2">3</h1>
-<p>如何可视化？</p>
-<p>使用<a href="https://github.com/chewiebug/GCViewer" target="_blank" rel="external">GCViewer</a></p>
-
-	
-	</div>
-	
-  
-</div>
-	<a type="button" href="/2015/02/16/gc_log_1/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
 
 		</div>
 
@@ -861,6 +832,10 @@
   <ul class="entry list-unstyled">
     
       <li>
+        <a href="/2015/08/26/RSA-PKCS1-V1-5-Padding/" ><i class="fa fa-file-o"></i>BigInteger#toByteArray引发的处理...</a>
+      </li>
+    
+      <li>
         <a href="/2015/08/13/slick-upsert/" ><i class="fa fa-file-o"></i>Slick中的upsert操作...</a>
       </li>
     
@@ -874,10 +849,6 @@
     
       <li>
         <a href="/2015/07/10/notes-pepfcp/" ><i class="fa fa-file-o"></i>Reading Notes - Prudent Eng...</a>
-      </li>
-    
-      <li>
-        <a href="/2015/06/30/weak-reference/" ><i class="fa fa-file-o"></i>weak reference...</a>
       </li>
     
   </ul>
