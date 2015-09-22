@@ -103,24 +103,14 @@
 <p>关于Java Object在内存中结构，笔者在<a href="http://docs.oracle.com/javase/specs/jvms/se7/jvms7.pdf" target="_blank" rel="external">JVMS</a>中没有找到详细的解释。而在一篇博客<a href="http://www.codeinstructions.com/2008/12/java-objects-memory-structure.html" target="_blank" rel="external">Java Objects Memory Structure</a>中找到了一些关于HotSpot JVM的相关内容。</p>
 <blockquote>
 <p>Rule 1: every object is aligned to an 8 bytes granularity.</p>
-</blockquote>
-<blockquote>
 <p>Rule 2: class attributes are ordered like this: first longs and doubles; then ints and floats; then chars and shorts; then bytes and booleans, and last the references. The attributes are aligned to their own granularity.</p>
-</blockquote>
-<blockquote>
 <p>Rule 3: Fields that belong to different classes of the hierarchy are NEVER mixed up together. Fields of the superclass come first, obeying rule 2, followed by the fields of the subclass.</p>
-</blockquote>
-<blockquote>
-<p>Rule 4: Between the last field of the superclass and the first field of the subclass there must be padding to align to a 4 bytes boundary.</p>
-</blockquote>
-<blockquote>
+<p>Rule 4: Between the last field of the superclass and the first field of the subclass there must be padding to align to a 4 bytes boundary. </p>
 <p>Rule 5: When the first field of a subclass is a double or long and the superclass doesn’t align to an 8 bytes boundary, JVM will break rule 2 and try to put an int, then shorts, then bytes, and then references at the beginning of the space reserved to the subclass until it fills the gap.</p>
 </blockquote>
 <p>这些Rules也解决不了笔者的困惑，不过另外几句话提供了一些线索。</p>
 <blockquote>
 <p>In the Sun JVM, every object (except arrays) has a 2 words header. The first word contains the object’s identity hash code plus some flags like lock state and age, and the second word contains a reference to the object’s class.</p>
-</blockquote>
-<blockquote>
 <p>Arrays have an extra header field that contain the value of the ‘length’ variable. The array elements follow, and the arrays, as any regular objects, are also aligned to an 8 bytes boundary.</p>
 </blockquote>
 <p>这篇博客的描述基于32bits HotSpot JVM，我们先写个程序验证一下。</p>

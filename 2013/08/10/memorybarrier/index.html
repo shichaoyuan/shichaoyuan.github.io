@@ -6,10 +6,9 @@
   <title>About Memory Barrier | Notes</title>
   <meta name="author" content="Shichao Yuan">
   
-  <meta name="description" content="引言
-什么是Memory Barrier？stackoverflow中有一个经典的回答：
+  <meta name="description" content="引言什么是Memory Barrier？stackoverflow中有一个经典的回答：
 
-For performance gains modern CPUs often execute instructions out of order to make maximum use of the ava">
+For performance gains modern CPUs often execute instructions out of order to make maximum use of the avai">
   
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -96,33 +95,24 @@ For performance gains modern CPUs often execute instructions out of order to mak
 
 	<!-- content -->
 	<div class="mypage">		
-	    <h2 id="引言">引言</h2>
-<p>什么是Memory Barrier？stackoverflow中有一个经典的<a href="http://stackoverflow.com/questions/286629/what-is-a-memory-fence" target="_blank" rel="external">回答</a>：</p>
+	    <h2 id="引言">引言</h2><p>什么是Memory Barrier？stackoverflow中有一个经典的<a href="http://stackoverflow.com/questions/286629/what-is-a-memory-fence" target="_blank" rel="external">回答</a>：</p>
 <blockquote>
 <p>For performance gains modern CPUs often execute instructions out of order to make maximum use of the available silicon (including memory read/writes). Because the hardware enforces instructions integrity you never notice this in a single thread of execution. However for multiple threads or environments with volatile memory (memory mapped I/O for example) this can lead to unpredictable behavior.</p>
-</blockquote>
-<blockquote>
 <p>A memory fence/barrier is a class of instructions that mean memory read/writes occur in the order you expect. For example a ‘full fence’ means all read/writes before the fence are comitted before those after the fence.</p>
-</blockquote>
-<blockquote>
 <p>Note memory fences are a hardware concept. In higher level languages we are used to dealing with mutexes and semaphores - these may well be implemented using memory fences at the low level and explicit use of memory barriers are not necessary. Use of memory barriers requires a careful study of the hardware architecture and more commonly found in device drivers than application code.</p>
-</blockquote>
-<blockquote>
-<p>The CPU reordering is different from compiler optimisations - although the artefacts can be similar. You need to take separate measures to stop the compiler reordering your instructions if that may cause undesirable behaviour (e.g. use of the volatile keyword in C).</p>
+<p>The CPU reordering is different from compiler optimisations - although the artefacts can be similar. You need to take separate measures to stop the compiler reordering your instructions if that may cause undesirable behaviour (e.g. use of the volatile keyword in C).</p>
 </blockquote>
 <p>从高级语言编程的角度，理解与掌握Memory Barrier是容易的，但是对于硬件角度的Memory Barrier却有很多疑惑。所有笔者尝试通过本文自上而下将整个story串起来。</p>
-<h2 id="幼稚的例子">幼稚的例子</h2>
-<p>这个例子的思路来在一个带有cancel功能的GUI程序。（这种方式绝对的幼稚，但是本文的目的不在于cancel功能的实现，所以在下文也不会完善该功能，所做的改动仅仅是为了展示memory barrier）</p>
+<h2 id="幼稚的例子">幼稚的例子</h2><p>这个例子的思路来在一个带有cancel功能的GUI程序。（这种方式绝对的幼稚，但是本文的目的不在于cancel功能的实现，所以在下文也不会完善该功能，所做的改动仅仅是为了展示memory barrier）</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MemoryBarrierDemo</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">volatile</span> <span class="keyword">boolean</span> cancel;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">                <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">                        <span class="annotation">@Override</span></span><br><span class="line">                        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                                <span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">                                <span class="keyword">while</span> (!cancel) &#123;</span><br><span class="line">                                        i++;</span><br><span class="line">                                &#125;</span><br><span class="line">                                System.out.println(<span class="string">"Done!"</span>);</span><br><span class="line">                        &#125;</span><br><span class="line"></span><br><span class="line">                &#125;).start();</span><br><span class="line"></span><br><span class="line">                System.out.println(<span class="string">"OS: "</span> + System.getProperty(<span class="string">"os.name"</span>) + <span class="string">" "</span> + System.getProperty(<span class="string">"os.arch"</span>) + <span class="string">"\n"</span></span><br><span class="line">                                + <span class="string">"JavaVersion: "</span> + System.getProperty(<span class="string">"java.version"</span>) + <span class="string">"\n"</span>);</span><br><span class="line">                Thread.sleep(<span class="number">2048</span>);</span><br><span class="line">                cancel = <span class="keyword">true</span>;</span><br><span class="line">                System.out.println(<span class="string">"flag cancel set to true"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>笔者只有一台古老的机器（Intel(R) Core(TM)2 Quad CPU Q6600 @ 2.40GHz），执行结果如下：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yuan@yuan-HP:~/learn$ jdk1.7.0_25/bin/java MemoryBarrierDemo&#10;OS: Linux amd64&#10;JavaVersion: 1.7.0_25&#10;&#10;flag cancel set to true</span><br></pre></td></tr></table></figure>
 <p>程序一直处于循环递增<code>i</code>的状态，没有退出。也就是说程序中启动的子线程“看不到”主线程对共享变量<code>cancel</code>的改动，这就是从高级语言层面所看到的memory barrier，想要让子线程“看到”改变，那么就得让改变“穿过”memory barrier。</p>
-<p>如何做？在_Java Concurrency in Practice_的3.1节介绍了两种方法——locking和volatile variable。在此我们试着用volatile关键字，将前面程序中的<code>private static boolean cancel;</code>改为<code>private static volatile boolean cancel;</code>。再次编译执行程序，结果如下：</p>
+<p>如何做？在<em>Java Concurrency in Practice</em>的3.1节介绍了两种方法——locking和volatile variable。在此我们试着用volatile关键字，将前面程序中的<code>private static boolean cancel;</code>改为<code>private static volatile boolean cancel;</code>。再次编译执行程序，结果如下：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yuan@yuan-HP:~/learn$ jdk1.7.0_25/bin/java MemoryBarrierDemo&#10;OS: Linux amd64&#10;JavaVersion: 1.7.0_25&#10;&#10;flag cancel set to true&#10;Done!&#10;yuan@yuan-HP:~/learn$</span><br></pre></td></tr></table></figure>
 <p>如此程序就可以按照设想的那像正常退出了，很简单吧。</p>
 <p>好的，下面就开始探索笔者困惑的部分了。</p>
-<h2 id="汇编代码">汇编代码</h2>
-<p>下面我们通过添加几个参数打印出反汇编的代码看看。</p>
+<h2 id="汇编代码">汇编代码</h2><p>下面我们通过添加几个参数打印出反汇编的代码看看。</p>
 <p>没有volatile的版本：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yuan@yuan-HP:~/learn$ jdk1.7.0_25/bin/java -XX:+UnlockDiagnosticVMOptions -XX:+PrintAssembly MemoryBarrierDemo&#10;Java HotSpot(TM) 64-Bit Server VM warning: PrintAssembly is enabled; turning on DebugNonSafepoints to gain additional output&#10;OS: Linux amd64&#10;JavaVersion: 1.7.0_25&#10;&#10;Loaded disassembler from /home/yuan/learn/jdk1.7.0_25/jre/lib/amd64/hsdis-amd64.so&#10;Decoding compiled method 0x00007fbe883df890:&#10;Code:&#10;[Disassembling for mach=&#39;i386:x86-64&#39;]&#10;[Entry Point]&#10;[Verified Entry Point]&#10;[Constants]&#10;  # &#123;method&#125; &#39;access$000&#39; &#39;()Z&#39; in &#39;MemoryBarrierDemo&#39;&#10;  #           [sp+0x20]  (sp of caller)&#10;  0x00007fbe883df9c0: sub    $0x18,%rsp&#10;  0x00007fbe883df9c7: mov    %rbp,0x10(%rsp)    ;*synchronization entry&#10;                                                ; - MemoryBarrierDemo::access$000@-1 (line 1)&#10;  0x00007fbe883df9cc: mov    $0xebcfc590,%r10   ;   &#123;oop(a &#39;java/lang/Class&#39; = &#39;MemoryBarrierDemo&#39;)&#125;&#10;  0x00007fbe883df9d6: movzbl 0x70(%r10),%eax    ;*getstatic cancel&#10;                                                ; - MemoryBarrierDemo::access$000@0 (line 1)&#10;  0x00007fbe883df9db: add    $0x10,%rsp&#10;  0x00007fbe883df9df: pop    %rbp&#10;  0x00007fbe883df9e0: test   %eax,0x9c6b61a(%rip)        # 0x00007fbe9204b000&#10;                                                ;   &#123;poll_return&#125;&#10;  0x00007fbe883df9e6: retq&#10;  0x00007fbe883df9e7: hlt&#10;  0x00007fbe883df9e8: hlt&#10;  0x00007fbe883df9e9: hlt&#10;  0x00007fbe883df9ea: hlt&#10;  0x00007fbe883df9eb: hlt&#10;  0x00007fbe883df9ec: hlt&#10;  0x00007fbe883df9ed: hlt&#10;  0x00007fbe883df9ee: hlt&#10;  0x00007fbe883df9ef: hlt&#10;  0x00007fbe883df9f0: hlt&#10;  0x00007fbe883df9f1: hlt&#10;  0x00007fbe883df9f2: hlt&#10;  0x00007fbe883df9f3: hlt&#10;  0x00007fbe883df9f4: hlt&#10;  0x00007fbe883df9f5: hlt&#10;  0x00007fbe883df9f6: hlt&#10;  0x00007fbe883df9f7: hlt&#10;  0x00007fbe883df9f8: hlt&#10;  0x00007fbe883df9f9: hlt&#10;  0x00007fbe883df9fa: hlt&#10;  0x00007fbe883df9fb: hlt&#10;  0x00007fbe883df9fc: hlt&#10;  0x00007fbe883df9fd: hlt&#10;  0x00007fbe883df9fe: hlt&#10;  0x00007fbe883df9ff: hlt&#10;[Exception Handler]&#10;[Stub Code]&#10;  0x00007fbe883dfa00: jmpq   0x00007fbe883dc860  ;   &#123;no_reloc&#125;&#10;[Deopt Handler Code]&#10;  0x00007fbe883dfa05: callq  0x00007fbe883dfa0a&#10;  0x00007fbe883dfa0a: subq   $0x5,(%rsp)&#10;  0x00007fbe883dfa0f: jmpq   0x00007fbe883b6c00  ;   &#123;runtime_call&#125;&#10;  0x00007fbe883dfa14: hlt&#10;  0x00007fbe883dfa15: hlt&#10;  0x00007fbe883dfa16: hlt&#10;  0x00007fbe883dfa17: hlt&#10;Decoding compiled method 0x00007fbe883ddcd0:&#10;Code:&#10;[Entry Point]&#10;[Verified Entry Point]&#10;[Constants]&#10;  # &#123;method&#125; &#39;run&#39; &#39;()V&#39; in &#39;MemoryBarrierDemo$1&#39;&#10;  0x00007fbe883dde20: callq  0x00007fbe90e52370  ;   &#123;runtime_call&#125;&#10;  0x00007fbe883dde25: nopw   0x0(%rax,%rax,1)&#10;  0x00007fbe883dde30: mov    %eax,-0x14000(%rsp)&#10;  0x00007fbe883dde37: push   %rbp&#10;  0x00007fbe883dde38: sub    $0x10,%rsp&#10;  0x00007fbe883dde3c: mov    (%rsi),%ebx&#10;  0x00007fbe883dde3e: mov    %rsi,%rdi&#10;  0x00007fbe883dde41: mov    $0x7fbe90edf400,%r10&#10;  0x00007fbe883dde4b: callq  *%r10              ;*invokestatic access$000&#10;                                                ; - MemoryBarrierDemo$1::run@2 (line 10)&#10;  0x00007fbe883dde4e: mov    $0xebcfc590,%r10   ;   &#123;oop(a &#39;java/lang/Class&#39; = &#39;MemoryBarrierDemo&#39;)&#125;&#10;  0x00007fbe883dde58: movzbl 0x70(%r10),%r11d&#10;  0x00007fbe883dde5d: test   %r11d,%r11d&#10;  0x00007fbe883dde60: jne    0x00007fbe883dde6c  ;*goto&#10;                                                ; - MemoryBarrierDemo$1::run@11 (line 11)&#10;  0x00007fbe883dde62: inc    %ebx               ; OopMap&#123;off=68&#125;&#10;                                                ;*goto&#10;                                                ; - MemoryBarrierDemo$1::run@11 (line 11)&#10;  0x00007fbe883dde64: test   %eax,0x9c6d196(%rip)        # 0x00007fbe9204b000&#10;                                                ;*goto&#10;                                                ; - MemoryBarrierDemo$1::run@11 (line 11)&#10;                                                ;   &#123;poll&#125;&#10;  0x00007fbe883dde6a: jmp    0x00007fbe883dde62&#10;  0x00007fbe883dde6c: mov    $0xebcb0d10,%r10   ;   &#123;oop(a &#39;java/lang/Class&#39; = &#39;java/lang/System&#39;)&#125;&#10;  0x00007fbe883dde76: mov    0x74(%r10),%r11d   ;*getstatic out&#10;                                                ; - MemoryBarrierDemo$1::run@14 (line 13)&#10;  0x00007fbe883dde7a: test   %r11d,%r11d&#10;  0x00007fbe883dde7d: je     0x00007fbe883ddea0  ;*ifne&#10;                                                ; - MemoryBarrierDemo$1::run@5 (line 10)&#10;  0x00007fbe883dde7f: mov    %r11,%rsi          ;*getstatic out&#10;                                                ; - MemoryBarrierDemo$1::run@14 (line 13)&#10;  0x00007fbe883dde82: mov    $0xebd4b960,%rdx   ;   &#123;oop(&#34;Done!&#34;)&#125;&#10;  0x00007fbe883dde8c: xchg   %ax,%ax&#10;  0x00007fbe883dde8f: callq  0x00007fbe883b5c60  ; OopMap&#123;off=116&#125;&#10;                                                ;*invokevirtual println&#10;                                                ; - MemoryBarrierDemo$1::run@19 (line 13)&#10;                                                ;   &#123;optimized virtual_call&#125;&#10;  0x00007fbe883dde94: add    $0x10,%rsp&#10;  0x00007fbe883dde98: pop    %rbp&#10;  0x00007fbe883dde99: test   %eax,0x9c6d161(%rip)        # 0x00007fbe9204b000&#10;                                                ;   &#123;poll_return&#125;&#10;  0x00007fbe883dde9f: retq&#10;  0x00007fbe883ddea0: mov    $0xfffffff6,%esi&#10;  0x00007fbe883ddea5: xchg   %ax,%ax&#10;  0x00007fbe883ddea7: callq  0x00007fbe883b7020  ; OopMap&#123;off=140&#125;&#10;                                                ;*invokevirtual println&#10;                                                ; - MemoryBarrierDemo$1::run@19 (line 13)&#10;                                                ;   &#123;runtime_call&#125;&#10;  0x00007fbe883ddeac: callq  0x00007fbe90e52370  ;*invokevirtual println&#10;                                                ; - MemoryBarrierDemo$1::run@19 (line 13)&#10;                                                ;   &#123;runtime_call&#125;&#10;  0x00007fbe883ddeb1: mov    %rax,%rsi&#10;  0x00007fbe883ddeb4: add    $0x10,%rsp&#10;  0x00007fbe883ddeb8: pop    %rbp&#10;  0x00007fbe883ddeb9: jmpq   0x00007fbe883df5e0  ;*iinc&#10;                                                ; - MemoryBarrierDemo$1::run@8 (line 11)&#10;                                                ;   &#123;runtime_call&#125;&#10;  0x00007fbe883ddebe: callq  0x00007fbe90e52370  ;   &#123;runtime_call&#125;&#10;  0x00007fbe883ddec3: hlt&#10;  0x00007fbe883ddec4: hlt&#10;  0x00007fbe883ddec5: hlt&#10;  0x00007fbe883ddec6: hlt&#10;  0x00007fbe883ddec7: hlt&#10;  0x00007fbe883ddec8: hlt&#10;  0x00007fbe883ddec9: hlt&#10;  0x00007fbe883ddeca: hlt&#10;  0x00007fbe883ddecb: hlt&#10;  0x00007fbe883ddecc: hlt&#10;  0x00007fbe883ddecd: hlt&#10;  0x00007fbe883ddece: hlt&#10;  0x00007fbe883ddecf: hlt&#10;  0x00007fbe883dded0: hlt&#10;  0x00007fbe883dded1: hlt&#10;  0x00007fbe883dded2: hlt&#10;  0x00007fbe883dded3: hlt&#10;  0x00007fbe883dded4: hlt&#10;  0x00007fbe883dded5: hlt&#10;  0x00007fbe883dded6: hlt&#10;  0x00007fbe883dded7: hlt&#10;  0x00007fbe883dded8: hlt&#10;  0x00007fbe883dded9: hlt&#10;  0x00007fbe883ddeda: hlt&#10;  0x00007fbe883ddedb: hlt&#10;  0x00007fbe883ddedc: hlt&#10;  0x00007fbe883ddedd: hlt&#10;  0x00007fbe883ddede: hlt&#10;  0x00007fbe883ddedf: hlt&#10;[Stub Code]&#10;  0x00007fbe883ddee0: mov    $0x0,%rbx          ;   &#123;no_reloc&#125;&#10;  0x00007fbe883ddeea: jmpq   0x00007fbe883ddeea  ;   &#123;runtime_call&#125;&#10;[Exception Handler]&#10;  0x00007fbe883ddeef: jmpq   0x00007fbe883dc860  ;   &#123;runtime_call&#125;&#10;[Deopt Handler Code]&#10;  0x00007fbe883ddef4: callq  0x00007fbe883ddef9&#10;  0x00007fbe883ddef9: subq   $0x5,(%rsp)&#10;  0x00007fbe883ddefe: jmpq   0x00007fbe883b6c00  ;   &#123;runtime_call&#125;&#10;  0x00007fbe883ddf03: hlt&#10;  0x00007fbe883ddf04: hlt&#10;  0x00007fbe883ddf05: hlt&#10;  0x00007fbe883ddf06: hlt&#10;  0x00007fbe883ddf07: hlt&#10;flag cancel set to true</span><br></pre></td></tr></table></figure>
 <p>带有volatile的版本：</p>
@@ -133,42 +123,33 @@ For performance gains modern CPUs often execute instructions out of order to mak
 <p>在带有volatile的版本中，循环递增部分的汇编代码如下：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0x00007fb86505fe18: movzbl 0x70(%r10),%r8d    ;*getstatic cancel&#10;                                              ; - MemoryBarrierDemo::access$000@0 (line 1)&#10;                                              ; - MemoryBarrierDemo$1::run@2 (line 10)&#10;0x00007fb86505fe1d: test   %r8d,%r8d&#10;0x00007fb86505fe20: jne    0x00007fb86505fe42  ;*ifne&#10;                                              ; - MemoryBarrierDemo$1::run@5 (line 10)&#10;0x00007fb86505fe22: nopw   0x0(%rax,%rax,1)&#10;0x00007fb86505fe2c: xchg   %ax,%ax            ;*iinc&#10;                                              ; - MemoryBarrierDemo$1::run@8 (line 11)&#10;0x00007fb86505fe30: movzbl 0x70(%r10),%r11d   ;*getstatic cancel&#10;                                              ; - MemoryBarrierDemo::access$000@0 (line 1)&#10;                                              ; - MemoryBarrierDemo$1::run@2 (line 10)&#10;0x00007fb86505fe35: inc    %ebp               ; OopMap&#123;r10=Oop off=87&#125;&#10;                                              ;*goto&#10;                                              ; - MemoryBarrierDemo$1::run@11 (line 11)&#10;0x00007fb86505fe37: test   %eax,0xb5601c3(%rip)        # 0x00007fb8705c0000&#10;                                              ;*getstatic cancel&#10;                                              ; - MemoryBarrierDemo::access$000@0 (line 1)&#10;                                              ; - MemoryBarrierDemo$1::run@2 (line 10)&#10;                                              ;   &#123;poll&#125;&#10;0x00007fb86505fe3d: test   %r11d,%r11d&#10;0x00007fb86505fe40: je     0x00007fb86505fe30  ;*ifne&#10;                                              ; - MemoryBarrierDemo$1::run@5 (line 10)&#10;0x00007fb86505fe42: mov    $0xebcb0d10,%r10   ;   &#123;oop(a &#39;java/lang/Class&#39; = &#39;java/lang/System&#39;)&#125;</span><br></pre></td></tr></table></figure>
 <p>该版本的主要不同是在于获取cacel前执行了<code>xchg   %ax,%ax</code>。</p>
-<p>xchg是什么东东？查_Intel 64 and IA-32 Architectures Software Developer’s Manual Combined Volumes 3A, 3B, and 3C: System Programming Guide_：</p>
+<p>xchg是什么东东？查<em>Intel 64 and IA-32 Architectures Software Developer’s Manual Combined Volumes 3A, 3B, and 3C: System Programming Guide</em>：</p>
 <p>8-3页：</p>
 <blockquote>
 <p>8.1.2 Bus Locking</p>
-</blockquote>
-<blockquote>
 <p>Intel 64 and IA-32 processors provide a LOCK# signal that is asserted automatically during certain critical memory operations to lock the system bus or equivalent link. While this output signal is asserted, requests from other processors or bus agents for control of the bus are blocked. Software can specify other occasions when the LOCK semantics are to be followed by prepending the LOCK prefix to an instruction.</p>
-</blockquote>
-<blockquote>
 <p>In the case of the Intel386, Intel486, and Pentium processors , explicitly locked instructions will result in the assertion of the LOCK# signal. It is the responsibility of the hardware designer to make the LOCK# signal available in system hardware to control memory accesses among processors.</p>
-</blockquote>
-<blockquote>
 <p>For the P6 and more recent processor families, if the memory area being accessed is cached internally in the processor, the LOCK# signal is generally not asserted; instead, locking is only applied to the processor’s caches (see Section 8.1.4, “Effects of a LOCK Operation on Internal Processor Caches”).</p>
-</blockquote>
-<blockquote>
-<p>8.1.2.1 Automatic Locking</p>
-</blockquote>
-<blockquote>
+<p>8.1.2.1   Automatic Locking</p>
 <p>The operations on which the processor automatically follows the LOCK semantics are as follows:</p>
-</blockquote>
-<blockquote>
 <p>• When executing an XCHG instruction that references memory.</p>
 </blockquote>
 <p>8-15页：</p>
 <blockquote>
-<p>Synchronization mechanisms in multiple-processor systems may depend upon a strong memory-ordering model. Here, a program can use a locking instruction such as the XCHG instruction or the LOCK prefix to ensure that a read-modify-write operation on memory is carried out atomically. Locking operations typically operate like I/O operations in that they wait for all previous instructions to complete and for all buffered writes to drain to memory (see Section 8.1.2, “Bus Locking”).</p>
+<p>Synchronization mechanisms in multiple-processor systems may depend upon a strong memory-ordering model. Here, a program can use a locking instruction such as the XCHG instruction or the LOCK  prefix to ensure that a read-modify-write operation on memory is carried out atomically. Locking operations typically operate like I/O operations in that they wait for all previous instructions  to complete and for all buffered writes to drain to memory (see Section 8.1.2, “Bus Locking”).</p>
 </blockquote>
 <p>8-16页：</p>
 <blockquote>
 <p>Intel recommends that software written to run on Intel Core 2 Duo, Intel Atom, Intel Core Duo, Pentium 4, Intel Xeon, and P6 family processors assume the processor-ordering model or a weaker memory-ordering model. The Intel Core 2 Duo, Intel Atom, Intel Core Duo, Pentium 4, Intel Xeon, and P6 family processors do not implement a strong memory-ordering model, except when using the UC memory type. Despite the fact that Pentium 4, Intel Xeon, and P6 family processors support processor ordering, Intel does not guarantee that future processors will support this model. To make software portable to futu re processors, it is recommended that operating systems provide critical region and resource control constructs and API’s (application program interfaces) based on I/O, locking, and/or serializing instructions be used to synchronize access to shared areas of memory in multiple-processor systems. Also, software should not depend on processor ordering in situations where the system hardware does not support this memory-ordering model.</p>
 </blockquote>
 <p>读完之后，笔者大致了解了三点：</p>
-<ol style="list-style-type: decimal">
-<li><p>执行XCHG指令会自动跟随LOCK语义；</p></li>
-<li><p>locking操作会等待前面所有的指令完成，并且将所有buffered writes写到内存；</p></li>
-<li><p>memory-ordering model的强度是变化的，软件不能依赖processor ordering。这就解释了第一个版本中的编译优化，编译器从高级语言中得不到显式的信息（比如Locking和volatile），所以就默认使用processor-ordering model，编译器就会尽可能的优化性能；而在第二个版本中，有显式的volatile关键字，所以编译器就会加入XCHG指令，以实现strong memory-ordering model。</p></li>
+<ol>
+<li><p>执行XCHG指令会自动跟随LOCK语义；</p>
+</li>
+<li><p>locking操作会等待前面所有的指令完成，并且将所有buffered writes写到内存；</p>
+</li>
+<li><p>memory-ordering model的强度是变化的，软件不能依赖processor ordering。这就解释了第一个版本中的编译优化，编译器从高级语言中得不到显式的信息（比如Locking和volatile），所以就默认使用processor-ordering model，编译器就会尽可能的优化性能；而在第二个版本中，有显式的volatile关键字，所以编译器就会加入XCHG指令，以实现strong memory-ordering model。</p>
+</li>
 </ol>
 <p>等一下，好像哪里有问题。就算<code>xchg</code>触发了<code>LOCK</code>语义，但是缓存中的<code>cancel</code>并没有改变，所以也不会触发cache coherency protocol；就算<code>cancel</code>所在的cache line由于别的原因被修改了，而此前主线程没有对<code>cancel</code>进行修改的话，也是没有用呀。再从头开始想想这个逻辑，如果让笔者设计编译器，笔者应该会在<code>cancel = true;</code>这行之后加上LOCK语义。再回过头看看汇编代码，竟然找不到对应的代码！</p>
 <p>经过笔者多次尝试，最后通过加入<code>-Xcomp</code>打印出了所需的信息，另外对Java代码也做了点儿改动。（笔者对此有蛮多疑惑，暂且存疑吧-_-）</p>
@@ -180,38 +161,32 @@ For performance gains modern CPUs often execute instructions out of order to mak
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0x00007fbaec896ccc: mov    $0xebd9deb8,%r10   ;...49bab8de d9eb00&#10;                                              ;...000000&#10;                                              ;   &#123;oop(a &#39;java/lang/Class&#39; = &#39;MemoryBarrierDemo&#39;)&#125;&#10;0x00007fbaec896cd6: movb   $0x1,0x70(%r10)    ;...41c64270 01&#10;0x00007fbaec896cdb: lock addl $0x0,(%rsp)     ;...f0830424 00</span><br></pre></td></tr></table></figure>
 <p>在<code>movb   $0x1,0x70(%r10)</code>将<code>cancel</code>设为<code>true</code>之后有一行带有LOCK语义的代码，这就与笔者推理的一致了^_^。</p>
 <p>（在这里还有一个让笔者困惑的地方：对于没有volatile的版本，如果执行的时候加了<code>-Xcomp</code>，程序同样可以正常退出，程序行为与加了volatile的版本一致，但是汇编代码中到LOCK。笔者对于JIT完全不懂，所以也只能暂且存疑啦。）</p>
-<p>再回过头来整理一下思路。在笔者提供的例子主要是因为没有遵守Java Memory Model，编译器为了性能而做出的优化造成程序无法终止。这其实也不是笔者想要看到的结果，但是通过读_Intel 64 and IA-32 Architectures Software Developer’s Manual Combined Volumes 3A, 3B, and 3C: System Programming Guide_解开了笔者心中的疑惑。</p>
+<p>再回过头来整理一下思路。在笔者提供的例子主要是因为没有遵守Java Memory Model，编译器为了性能而做出的优化造成程序无法终止。这其实也不是笔者想要看到的结果，但是通过读<em>Intel 64 and IA-32 Architectures Software Developer’s Manual Combined Volumes 3A, 3B, and 3C: System Programming Guide</em>解开了笔者心中的疑惑。</p>
 <p>让笔者产生困惑的地方是buffer。</p>
-<h2 id="buffer">Buffer</h2>
-<p>笔者之前头脑中的CPU模型大概是这样：</p>
+<h2 id="Buffer">Buffer</h2><p>笔者之前头脑中的CPU模型大概是这样：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">+-------------------+&#10;| Memory Controller |&#10;+-------------------+&#10;        |&#10;+---------------------------------------------------------------+&#10;| L3                                                            |&#10;+---------------------------------------------------------------+&#10;        |                        |&#10;+-----------------+      +-----------------+&#10;| L1 L2           |      | L1 L2           |    ...&#10;+-----------------+      +-----------------+&#10;        |                        |&#10;+-----------------+      +-----------------+&#10;| Execution Units |      | Execution Units |    ...&#10;+-----------------+      +-----------------+</span><br></pre></td></tr></table></figure>
 <p>从执行单元进入L1或L2 cache之后就是cache coherency protocol控制的“天下”了，其它的core肯定就会“看到”相应的改变，怎么还会“看不到”相应的改变呢？这就是让笔者一直困惑的地方。（关于cache coherency，请看<em>支撑处理器的技术</em>的第5.2节）</p>
 <p>实际上现代的CPU在执行单元与L1、L2之间还存在Load Buffer、Store Buffer和WCBuffers。它们存在的原因？可想而知是为了弥补执行单元与缓存之间的速度差异，比如<a href="http://mechanical-sympathy.blogspot.com/2011/07/write-combining.html" target="_blank" rel="external">Write Combining</a>技术。对于这三个buffer，x86指令集中有三个细粒度的指令LFENCE、SFENCE和MFENCE控制，在前面所看到的LOCK等同于MFENCE。</p>
 <p>在<em>Intel 64 and IA-32 Architectures Software Developer’s Manual Combined Volumes 3A, 3B, and 3C: System Programming Guide</em>的第8-16页：</p>
 <blockquote>
 <p>The SFENCE, LFENCE, and MFENCE instructions provide a performance-efficient way of ensuring load and store memory ordering between routines that produce weakly-ord ered results and routines that consume that data. The functions of these instructions are as follows:</p>
-</blockquote>
-<blockquote>
 <ul>
-<li>SFENCE — Serializes all store (write) operations that occu rred prior to the SFENCE instruction in the program instruction stream, but does not affect load operations.</li>
-</ul>
-</blockquote>
-<blockquote>
-<ul>
-<li>LFENCE — Serializes all load (read) operations that occurred prior to the LFENCE instruction in the program instruction stream, but does not affect store operations.</li>
-</ul>
-</blockquote>
-<blockquote>
-<ul>
-<li>MFENCE — Serializes all store and load operations that occurred prior to the MFENCE instruction in the program instruction stream.</li>
+<li><p>SFENCE — Serializes all store (write) operations that occu rred prior to the SFENCE instruction in the program instruction stream, but does not affect load operations.</p>
+</li>
+<li><p>LFENCE — Serializes all load (read) operations that occurred prior to the LFENCE instruction in the program instruction stream, but does not affect store operations.</p>
+</li>
+<li><p>MFENCE — Serializes all store and load operations that occurred prior to the MFENCE instruction in the program instruction stream.</p>
+</li>
 </ul>
 </blockquote>
 <p>关于这三个指令与Java语言的关系，请看<a href="http://mechanical-sympathy.blogspot.com/2011/07/memory-barriersfences.html" target="_blank" rel="external">Memory Barriers/Fences</a>。这篇文章中还提到了Out of Order的影响，所以本文就不再重复了。</p>
-<h2 id="总结">总结</h2>
-<ol style="list-style-type: decimal">
-<li><p>CPU的“人生价值”就是尽可能的快！为此可以不择手段，比如Write Combining和Out of Order；但是它也提供了LOCK、XCHG、LFENCE、SFENCE、MFENCE等指令满足上层软件同步的需求。</p></li>
-<li><p>同步要以牺牲性能为代价。JVM会尽可能优化性能，如果要实现必要的同步就得遵守Java Memory Model，在程序中显式的使用相关机制。</p></li>
-<li><p>“Shared mutability is pure evil”（引自_Programming Concurrency on the JVM_）。如果不是legacy系统，笔者肯定优先考虑Actor-based Model。</p></li>
+<h2 id="总结">总结</h2><ol>
+<li><p>CPU的“人生价值”就是尽可能的快！为此可以不择手段，比如Write Combining和Out of Order；但是它也提供了LOCK、XCHG、LFENCE、SFENCE、MFENCE等指令满足上层软件同步的需求。</p>
+</li>
+<li><p>同步要以牺牲性能为代价。JVM会尽可能优化性能，如果要实现必要的同步就得遵守Java Memory Model，在程序中显式的使用相关机制。</p>
+</li>
+<li><p>“Shared mutability is pure evil”（引自<em>Programming Concurrency on the JVM</em>）。如果不是legacy系统，笔者肯定优先考虑Actor-based Model。</p>
+</li>
 </ol>
 	  
 	</div>

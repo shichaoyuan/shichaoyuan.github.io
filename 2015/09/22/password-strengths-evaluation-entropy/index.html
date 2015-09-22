@@ -1,0 +1,273 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Password Strengths Evaluation 1 (Entropy) | Notes</title>
+  <meta name="author" content="Shichao Yuan">
+  
+  <meta name="description" content="1密码应该说是最普遍的身份认证的方式，对其的攻击也有很多种，比如：暴力破解、基于字典、甚至可以通过用户信息猜测、撞库，近年来又出现了基于机器学习的方法猜测密码的黑科技。
+所以就有一系列问题，哪种密码对上述攻击的抵抗性更高？如何评估密码的强度？如何引导用户选择高强度而且容易记忆的密码。
+关于这个几个问">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Password Strengths Evaluation 1 (Entropy)"/>
+  <meta property="og:site_name" content="Notes"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  
+  
+    <link href="/favicon.png" rel="icon">
+  
+  
+  <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/font-awesome.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/highlight.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/google-fonts.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+  <script src="/js/jquery-2.0.3.min.js"></script>
+
+  <!-- analytics -->
+  
+
+
+
+</head>
+
+ <body>  
+  <nav id="main-nav" class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <button type="button" class="navbar-header navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+		<span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+	  <a class="navbar-brand" href="/">Notes</a>
+      <div class="collapse navbar-collapse nav-menu">
+		<ul class="nav navbar-nav">
+		  
+		  <li>
+			<a href="/archives" title="All the articles.">
+			  <i class="fa fa-archive"></i>Archives
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/about" title="About me.">
+			  <i class="fa fa-user"></i>About
+			</a>
+		  </li>
+		  
+		</ul>
+      </div>
+    </div> <!-- container -->
+</nav>
+<div class="clearfix"></div>
+
+  <div class="container">
+  	<div class="content">
+    	 
+
+
+	
+		<div class="page-header">		
+			<h1> Password Strengths Evaluation 1 (Entropy)</h1>
+		</div>		
+	
+
+
+
+<div class="row post">
+	<!-- cols -->
+	
+	<div class="col-md-9">
+	
+
+			
+
+	<!-- content -->
+	<div class="mypage">		
+	    <h2 id="1">1</h2><p>密码应该说是最普遍的身份认证的方式，对其的攻击也有很多种，比如：暴力破解、基于字典、甚至可以通过用户信息猜测、撞库，近年来又出现了基于机器学习的方法猜测密码的黑科技。</p>
+<p>所以就有一系列问题，哪种密码对上述攻击的抵抗性更高？如何评估密码的强度？如何引导用户选择高强度而且容易记忆的密码。</p>
+<p>关于这个几个问题，最近也是在边学边做，所以顺便做一下笔记，这篇就谈一下目前使用最广泛的密码强度评估方法——Entropy。</p>
+<h2 id="2">2</h2><p>关于Entropy，Claude Shannon是这样解释的：</p>
+<blockquote>
+<p>The entropy is a statistical parameter which measures in a certain sense, how much information is produced on the average for each letter of a text in the language. If the language is translated into binary digits (0 or 1) in the most efficient way, the entropy H is the average number of binary digits required per letter of the original language.</p>
+</blockquote>
+<p>形式化为：</p>
+<p>$$ H(X)=-\sum\limits<em>{x}P(X=x)\log</em>{2}P(X=x) $$</p>
+<p>将自然语言中的entropy的概念迁移到密码中来，该值表征的就是密码的不确定程度，不确定程度越高，攻击者“猜”到密码的可能性越低。</p>
+<p>首先假设密码是随机生成的，长度固定为<em>l</em>，可选字符集大小为<em>b</em>，那么此时</p>
+<p>$$ H=log_{2}(b^{l}) $$</p>
+<p>entropy的值是最高的，也就是说该密码库理论上是最安全的，但是此时也就没有可用性了，因为用户根本记不住随机密码（如果没有辅助手段）。</p>
+<p>现实中的密码库远远不是随机的，Mark Burnett曾经搜集了6百万个密码，他发现其中有大量的重复密码，出现概率最高的1000个密码占总量的91%左右，而且很多密码符合一定的模式，比如qwerty、123456，或者再进行简单的l33t替换。</p>
+<h2 id="3">3</h2><p>对于现实中的密码不能仅仅用<em>l</em>和<em>b</em>来计算entropy（当然这两个值对entropy贡献最大），那么如何基于entropy计算未知密码的强度呢？</p>
+<p>dropbox开源了一个基于entropy的密码强度评估的类库——<a href="https://github.com/dropbox/zxcvbn" target="_blank" rel="external">zxcvbn</a>，我们看一下她是如何实现的。</p>
+<p>首先用一下：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#10140;  zxcvbn git:(master) &#10007; node&#10;&#62; var zxcvbn = require(&#39;./dist/zxcvbn.js&#39;)&#10;undefined&#10;&#62; zxcvbn(&#39;Yu@n1989shiChao&#39;)&#10;&#123; password: &#39;Yu@n1989shiChao&#39;,&#10;  entropy: 41.911,&#10;  match_sequence:&#10;   [ &#123; pattern: &#39;dictionary&#39;,&#10;       i: 0,&#10;       j: 3,&#10;       token: &#39;Yu@n&#39;,&#10;       matched_word: &#39;yuan&#39;,&#10;       rank: 1237,&#10;       dictionary_name: &#39;passwords&#39;,&#10;       reversed: false,&#10;       l33t: true,&#10;       sub: [Object],&#10;       sub_display: &#39;@ -&#62; a&#39;,&#10;       base_entropy: 10.27262978497637,&#10;       uppercase_entropy: 1,&#10;       reversed_entropy: 0,&#10;       l33t_entropy: 1,&#10;       entropy: 12.27262978497637 &#125;,&#10;     &#123; pattern: &#39;regex&#39;,&#10;       token: &#39;1989&#39;,&#10;       i: 4,&#10;       j: 7,&#10;       regex_name: &#39;recent_year&#39;,&#10;       regex_match: [Object],&#10;       entropy: 4.321928094887363 &#125;,&#10;     &#123; pattern: &#39;regex&#39;,&#10;       token: &#39;shi&#39;,&#10;       i: 8,&#10;       j: 10,&#10;       regex_name: &#39;alpha_lower&#39;,&#10;       regex_match: [Object],&#10;       entropy: 14.101319154423278 &#125;,&#10;     &#123; pattern: &#39;dictionary&#39;,&#10;       i: 11,&#10;       j: 14,&#10;       token: &#39;Chao&#39;,&#10;       matched_word: &#39;chao&#39;,&#10;       rank: 1189,&#10;       dictionary_name: &#39;passwords&#39;,&#10;       reversed: false,&#10;       base_entropy: 10.215532999745657,&#10;       uppercase_entropy: 1,&#10;       reversed_entropy: 0,&#10;       l33t_entropy: 0,&#10;       entropy: 11.215532999745657 &#125; ],&#10;  crack_time: 206805262.144,&#10;  crack_time_display: &#39;6 years&#39;,&#10;  score: 4,&#10;  calc_time: 13 &#125;&#10;&#62;</span><br></pre></td></tr></table></figure>
+<p>返回结果的字段的含义：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">password &#23494;&#30721;&#10;entropy &#10;match_sequence &#23494;&#30721;&#21305;&#37197;&#21040;&#30340;&#27169;&#24335;&#10;crack_time &#20272;&#31639;&#30340;&#30772;&#35299;&#26102;&#38388;&#65292;&#26681;&#25454;entropy&#35745;&#31639;&#10;crack_time_display&#10;score &#26681;&#25454;crack_time&#26144;&#23556;&#30340;&#20998;&#20540;&#10;calc_time &#35745;&#31639;&#32791;&#26102;</span><br></pre></td></tr></table></figure>
+<p>实际上zxcvbn累加了匹配到的模式的entropy值来评估密码强度，因为攻击者可以通过构建的字典和一些模式减小“猜”的范围。</p>
+<p><strong>这种从攻击者的角度评估密码强度的思路是很可取的。</strong></p>
+<p>抛开细枝末节看一下主流程：</p>
+<figure class="highlight coffee"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 对输入的密码进行模式匹配，也就是结果中的match_sequence</span></span><br><span class="line">matches = matching.omnimatch password</span><br><span class="line"><span class="comment"># 计算各种entropy</span></span><br><span class="line">result = scoring.minimum_entropy_match_sequence password, matches</span><br></pre></td></tr></table></figure>
+<p>zxcvbn考虑到的模式还是挺多的：</p>
+<figure class="highlight coffee"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="property">@dictionary_match</span> <span class="comment">#基于字典，也就是查看密码的子串是否出现在字典中，以及在字典中的位置</span></span><br><span class="line">  <span class="attribute">passwords</span>:    build_ranked_dict frequency_lists.passwords <span class="comment">#常见的密码，概率降序</span></span><br><span class="line">  <span class="attribute">english</span>:      build_ranked_dict frequency_lists.english</span><br><span class="line">  <span class="attribute">surnames</span>:     build_ranked_dict frequency_lists.surnames</span><br><span class="line">  <span class="attribute">male_names</span>:   build_ranked_dict frequency_lists.male_names</span><br><span class="line">  <span class="attribute">female_names</span>: build_ranked_dict frequency_lists.female_names</span><br><span class="line"><span class="property">@reverse_dictionary_match</span> <span class="comment">#翻转密码字符串</span></span><br><span class="line"><span class="property">@l33t_match</span> <span class="comment">#l33t逆回去之后再进行dictionary_match</span></span><br><span class="line"><span class="property">@spatial_match</span> <span class="comment">#qwerty这类键盘连续的字符串</span></span><br><span class="line"><span class="property">@repeat_match</span> <span class="comment">#aaa这类连续的串</span></span><br><span class="line"><span class="property">@sequence_match</span> <span class="comment">#abcd这类连续的串</span></span><br><span class="line"><span class="property">@regex_match</span> <span class="comment">#匹配连续的符号、数字、大写、小写 （3个以上）</span></span><br><span class="line"><span class="property">@date_match</span> <span class="comment">#匹配日期</span></span><br></pre></td></tr></table></figure>
+<p>得出一个匹配列表，然后按照i和j排个序，在列表中，ij区间是有重叠的，所以首先算出一个不重叠的子列表，并且要求entropy最小，这个过程可以理解为找最容易攻击的一组模式，所以就可以用这个最小的entropy做为密码强度的评估值。</p>
+<figure class="highlight coffee"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">minimum_entropy_match_sequence</span>: <span class="function"><span class="params">(password, matches)</span> -&gt;</span></span><br><span class="line">  <span class="comment"># 计算暴力破解的基数，也就是计算entropy公式中的(b**l)</span></span><br><span class="line">  bruteforce_cardinality = <span class="property">@calc_bruteforce_cardinality</span> password <span class="comment"># e.g. 26 for lowercase</span></span><br><span class="line">  <span class="comment"># 保存到位置k的最小entropy，就是个动态规划嘛</span></span><br><span class="line">  up_to_k = []      <span class="comment"># minimum entropy up to k.</span></span><br><span class="line">  <span class="comment"># for the optimal seq of matches up to k, backpointers holds the final match (match.j == k).</span></span><br><span class="line">  <span class="comment"># null means the sequence ends w/ a brute-force character.</span></span><br><span class="line">  backpointers = []</span><br><span class="line">  <span class="keyword">for</span> k <span class="keyword">in</span> [<span class="number">0.</span>..password.length]</span><br><span class="line">    <span class="comment"># starting scenario to try and beat:</span></span><br><span class="line">    <span class="comment"># adding a brute-force character to the minimum entropy sequence at k-1.</span></span><br><span class="line">    up_to_k[k] = (up_to_k[k-<span class="number">1</span>] <span class="keyword">or</span> <span class="number">0</span>) + <span class="property">@lg</span> bruteforce_cardinality</span><br><span class="line">    backpointers[k] = <span class="literal">null</span></span><br><span class="line">    <span class="keyword">for</span> match <span class="keyword">in</span> matches <span class="keyword">when</span> match.j == k</span><br><span class="line">      [i, j] = [match.i, match.j]</span><br><span class="line">      <span class="comment"># see if best entropy up to i-1 + entropy of this match is less than current minimum at j.</span></span><br><span class="line">      <span class="comment"># 在calc_entropy中，entropy的计算方法因“匹配类型”而异</span></span><br><span class="line">      candidate_entropy = (up_to_k[i-<span class="number">1</span>] <span class="keyword">or</span> <span class="number">0</span>) + <span class="property">@calc_entropy</span>(match)</span><br><span class="line">      <span class="keyword">if</span> candidate_entropy &lt; up_to_k[j]</span><br><span class="line">        up_to_k[j] = candidate_entropy</span><br><span class="line">        backpointers[j] = match</span><br><span class="line"></span><br><span class="line">  <span class="comment"># walk backwards and decode the best sequence</span></span><br><span class="line">  match_sequence = []</span><br><span class="line">  k = password.length - <span class="number">1</span></span><br><span class="line">  <span class="keyword">while</span> k &gt;= <span class="number">0</span></span><br><span class="line">    match = backpointers[k]</span><br><span class="line">    <span class="keyword">if</span> match</span><br><span class="line">      match_sequence.push match</span><br><span class="line">      k = match.i - <span class="number">1</span></span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">      k -= <span class="number">1</span></span><br><span class="line">  match_sequence.reverse()</span><br><span class="line">  <span class="comment">#match_sequence就是不重叠的匹配列表，但是中间可能有没有覆盖的字符串</span></span><br><span class="line"></span><br><span class="line">  <span class="comment"># fill in the blanks between pattern matches with bruteforce "matches"</span></span><br><span class="line">  <span class="comment"># that way the match sequence fully covers the password:</span></span><br><span class="line">  <span class="comment"># match1.j == match2.i - 1 for every adjacent match1, match2.</span></span><br><span class="line"><span class="function">  <span class="title">make_bruteforce_match</span> = <span class="params">(i, j)</span> =&gt;</span></span><br><span class="line">    <span class="attribute">pattern</span>: <span class="string">'bruteforce'</span></span><br><span class="line">    <span class="attribute">i</span>: i</span><br><span class="line">    <span class="attribute">j</span>: j</span><br><span class="line">    <span class="attribute">token</span>: password[i..j]</span><br><span class="line">    <span class="attribute">entropy</span>: <span class="property">@lg</span> Math.pow(bruteforce_cardinality, j - i + <span class="number">1</span>)</span><br><span class="line">    <span class="attribute">cardinality</span>: bruteforce_cardinality</span><br><span class="line">  <span class="comment"># 使用bruteforce计算其中没有覆盖到的字符的entropy</span></span><br><span class="line">  k = <span class="number">0</span></span><br><span class="line">  match_sequence_copy = []</span><br><span class="line">  <span class="keyword">for</span> match <span class="keyword">in</span> match_sequence</span><br><span class="line">    [i, j] = [match.i, match.j]</span><br><span class="line">    <span class="keyword">if</span> i - k &gt; <span class="number">0</span></span><br><span class="line">      match_sequence_copy.push make_bruteforce_match(k, i - <span class="number">1</span>)</span><br><span class="line">    k = j + <span class="number">1</span></span><br><span class="line">    match_sequence_copy.push match</span><br><span class="line">  <span class="keyword">if</span> k &lt; password.length</span><br><span class="line">    match_sequence_copy.push make_bruteforce_match(k, password.length - <span class="number">1</span>)</span><br><span class="line">  match_sequence = match_sequence_copy</span><br><span class="line"></span><br><span class="line">  min_entropy = up_to_k[password.length - <span class="number">1</span>] <span class="keyword">or</span> <span class="number">0</span>  <span class="comment"># or 0 corner case is for an empty password ''</span></span><br><span class="line">  crack_time = <span class="property">@entropy_to_crack_time</span> min_entropy</span><br><span class="line"></span><br><span class="line">  <span class="comment"># final result object</span></span><br><span class="line">  <span class="attribute">password</span>: password</span><br><span class="line">  <span class="attribute">entropy</span>: <span class="property">@round_to_x_digits</span>(min_entropy, <span class="number">3</span>)</span><br><span class="line">  <span class="attribute">match_sequence</span>: match_sequence</span><br><span class="line">  <span class="attribute">crack_time</span>: <span class="property">@round_to_x_digits</span>(crack_time, <span class="number">3</span>)</span><br><span class="line">  <span class="attribute">crack_time_display</span>: <span class="property">@display_time</span> crack_time</span><br><span class="line">  <span class="attribute">score</span>: <span class="property">@crack_time_to_score</span> crack_time</span><br></pre></td></tr></table></figure>
+<p>下面再看一下不同的匹配计算entropy的方式：</p>
+<figure class="highlight coffee"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">calc_entropy</span>: <span class="function"><span class="params">(match)</span> -&gt;</span></span><br><span class="line">  <span class="keyword">return</span> match.entropy <span class="keyword">if</span> match.entropy? <span class="comment"># a match's entropy doesn't change. cache it.</span></span><br><span class="line">  entropy_functions =</span><br><span class="line">    <span class="attribute">dictionary</span>: <span class="property">@dictionary_entropy</span></span><br><span class="line">    <span class="attribute">spatial</span>:    <span class="property">@spatial_entropy</span></span><br><span class="line">    <span class="attribute">repeat</span>:     <span class="property">@repeat_entropy</span></span><br><span class="line">    <span class="attribute">sequence</span>:   <span class="property">@sequence_entropy</span></span><br><span class="line">    <span class="attribute">regex</span>:      <span class="property">@regex_entropy</span></span><br><span class="line">    <span class="attribute">date</span>:       <span class="property">@date_entropy</span></span><br><span class="line">  match.entropy = entropy_functions[match.pattern].call <span class="keyword">this</span>, match</span><br><span class="line">  </span><br><span class="line"><span class="attribute">dictionary_entropy</span>: <span class="function"><span class="params">(match)</span> -&gt;</span></span><br><span class="line">  <span class="comment">## 依赖于字典中字段的排位</span></span><br><span class="line">  match.base_entropy = <span class="property">@lg</span> match.rank <span class="comment"># keep these as properties for display purposes</span></span><br><span class="line">  match.uppercase_entropy = <span class="property">@extra_uppercase_entropy</span> match</span><br><span class="line">  match.reversed_entropy = match.reversed <span class="keyword">and</span> <span class="number">1</span> <span class="keyword">or</span> <span class="number">0</span></span><br><span class="line">  match.l33t_entropy = <span class="property">@extra_l33t_entropy</span>(match)</span><br><span class="line">  match.base_entropy + match.uppercase_entropy + match.l33t_entropy + match.reversed_entropy</span><br><span class="line"></span><br><span class="line"><span class="attribute">START_UPPER</span>: <span class="regexp">/^[A-Z][^A-Z]+$/</span></span><br><span class="line"><span class="attribute">END_UPPER</span>: <span class="regexp">/^[^A-Z]+[A-Z]$/</span></span><br><span class="line"><span class="attribute">ALL_UPPER</span>: <span class="regexp">/^[^a-z]+$/</span></span><br><span class="line"><span class="attribute">ALL_LOWER</span>: <span class="regexp">/^[^A-Z]+$/</span></span><br><span class="line"></span><br><span class="line"><span class="attribute">extra_uppercase_entropy</span>: <span class="function"><span class="params">(match)</span> -&gt;</span></span><br><span class="line">  word = match.token</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span> <span class="keyword">if</span> word.match <span class="property">@ALL_LOWER</span></span><br><span class="line">  <span class="comment"># a capitalized word is the most common capitalization scheme,</span></span><br><span class="line">  <span class="comment"># so it only doubles the search space (uncapitalized + capitalized): 1 extra bit of entropy.</span></span><br><span class="line">  <span class="comment"># allcaps and end-capitalized are common enough too, underestimate as 1 extra bit to be safe.</span></span><br><span class="line">  <span class="keyword">for</span> regex <span class="keyword">in</span> [<span class="property">@START_UPPER</span>, <span class="property">@END_UPPER</span>, <span class="property">@ALL_UPPER</span>]</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span> <span class="keyword">if</span> word.match regex</span><br><span class="line">  <span class="comment"># otherwise calculate the number of ways to capitalize U+L uppercase+lowercase letters</span></span><br><span class="line">  <span class="comment"># with U uppercase letters or less. or, if there's more uppercase than lower (for eg. PASSwORD),</span></span><br><span class="line">  <span class="comment"># the number of ways to lowercase U+L letters with L lowercase letters or less.</span></span><br><span class="line">  U = (chr <span class="keyword">for</span> chr <span class="keyword">in</span> word.split(<span class="string">''</span>) <span class="keyword">when</span> chr.match <span class="regexp">/[A-Z]/</span>).length</span><br><span class="line">  L = (chr <span class="keyword">for</span> chr <span class="keyword">in</span> word.split(<span class="string">''</span>) <span class="keyword">when</span> chr.match <span class="regexp">/[a-z]/</span>).length</span><br><span class="line">  possibilities = <span class="number">0</span></span><br><span class="line">  possibilities += <span class="property">@nCk</span>(U + L, i) <span class="keyword">for</span> i <span class="keyword">in</span> [<span class="number">1.</span>.Math.min(U, L)]</span><br><span class="line">  <span class="property">@lg</span> possibilities</span><br><span class="line"></span><br><span class="line"><span class="attribute">extra_l33t_entropy</span>: <span class="function"><span class="params">(match)</span> -&gt;</span></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span> <span class="keyword">if</span> <span class="keyword">not</span> match.l33t</span><br><span class="line">  extra_entropy = <span class="number">0</span></span><br><span class="line">  <span class="keyword">for</span> subbed, unsubbed <span class="keyword">of</span> match.sub</span><br><span class="line">    <span class="comment"># lower-case match.token before calculating: capitalization shouldn't affect l33t calc.</span></span><br><span class="line">    chrs = match.token.toLowerCase().split(<span class="string">''</span>)</span><br><span class="line">    S = (chr <span class="keyword">for</span> chr <span class="keyword">in</span> chrs <span class="keyword">when</span> chr == subbed).length   <span class="comment"># num of subbed chars</span></span><br><span class="line">    U = (chr <span class="keyword">for</span> chr <span class="keyword">in</span> chrs <span class="keyword">when</span> chr == unsubbed).length <span class="comment"># num of unsubbed chars</span></span><br><span class="line">    <span class="keyword">if</span> S == <span class="number">0</span> <span class="keyword">or</span> U == <span class="number">0</span></span><br><span class="line">      <span class="comment"># for this sub, password is either fully subbed (444) or fully unsubbed (aaa)</span></span><br><span class="line">      <span class="comment"># treat that as doubling the space (attacker needs to try fully subbed chars in addition to</span></span><br><span class="line">      <span class="comment"># unsubbed.)</span></span><br><span class="line">      extra_entropy += <span class="number">1</span></span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">      <span class="comment"># this case is similar to capitalization:</span></span><br><span class="line">      <span class="comment"># with aa44a, U = 3, S = 2, attacker needs to try unsubbed + one sub + two subs</span></span><br><span class="line">      p = Math.min(U, S)</span><br><span class="line">      possibilities = <span class="number">0</span></span><br><span class="line">      possibilities += <span class="property">@nCk</span>(U + S, i) <span class="keyword">for</span> i <span class="keyword">in</span> [<span class="number">1.</span>.p]</span><br><span class="line">      extra_entropy += <span class="property">@lg</span> possibilities</span><br><span class="line">  extra_entropy</span><br></pre></td></tr></table></figure>
+<p>其他匹配的计算方法就不罗列了，根据entropy计算score仅仅是数值上的变换，所以这里也略去了。</p>
+<h2 id="4">4</h2><p>我们再看一下计算字典匹配entropy的函数，其中计算base_entroy的公式可以再讨论一下。这种密码的列表很容易从Mark Burnett的网站中找到，甚至也可以自己统计现有泄露的密码库，但是转成这种列表之后实际上丢失了概率信息，仅仅保留了一个排名信息。</p>
+<p>如果攻击者有几个完整的泄露密码库，他们还能从其中提取哪些有用的信息呢？我们如何利用这些信息评估未知密码的强度呢？</p>
+<p>下一篇再谈。</p>
+	  
+	</div>
+
+	<div>
+  	<center>
+	<div class="pagination">
+<ul class="pagination">
+	 
+		
+          <li class="prev disabled"><a><i class="fa fa-arrow-circle-o-left"></i>Prev</a></li>
+        
+
+        <li><a href="/archives"><i class="fa fa-archive"></i>Archive</a></li>
+
+		
+		   <li class="next"><a href="/2015/08/26/RSA-PKCS1-V1-5-Padding/" class="alignright next">Next<i class="fa fa-arrow-circle-o-right"></i></a></li>         
+        
+	
+</ul>
+</div>
+
+    </center>
+	</div>
+	
+	<!-- comment -->
+	
+<section id="comment">
+  <h2 class="title">Comments</h2>
+
+  
+</section>
+
+	
+	</div> <!-- col-md-9/col-md-12 -->
+	
+	
+		<div class="col-md-3"> 
+
+	<!-- date -->
+	
+	<div class="meta-widget">
+	<i class="fa fa-clock-o"></i>
+	2015-09-22 
+	</div>
+	
+
+	<!-- categories -->
+    
+	<div class="meta-widget">
+	<a data-toggle="collapse" data-target="#categorys"><i class="fa fa-folder"></i></a>	
+    <ul id="categorys" class="tag_box list-unstyled collapse in">
+          
+  <li>
+    <li><a href="/categories/security/">security<span>3</span></a></li> <li><a href="/categories/security/password/">password<span>1</span></a></li>
+  </li>
+
+    </ul>
+	</div>
+	
+
+	<!-- tags -->
+		
+
+	<!-- toc -->
+	<div class="meta-widget">
+	
+	</div>
+	
+    <hr>
+	
+</div><!-- col-md-3 -->
+
+	
+
+</div><!-- row -->
+
+	</div>
+  </div>
+  <div class="container-narrow">
+  <footer> <p>
+  &copy; 2015 Shichao Yuan
+  
+      with help from <a href="http://hexo.io/" target="_blank">Hexo</a> and <a href="http://getbootstrap.com/" target="_blank">Twitter Bootstrap</a>. Theme by <a href="http://github.com/wzpan/hexo-theme-freemind/">Freemind</a>.    
+</p> </footer>
+</div> <!-- container-narrow -->
+  
+<a id="gotop" href="#">   
+  <span>▲</span> 
+</a>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/main.js"></script>
+
+
+<!-- mathjax config similar to math.stackexchange -->
+ 
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+ 
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+ 
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+ 
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+
+</body>
+   </html>

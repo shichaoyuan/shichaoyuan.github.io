@@ -6,12 +6,10 @@
   <title>命令logrotate | Notes</title>
   <meta name="author" content="Shichao Yuan">
   
-  <meta name="description" content="1
-最近在做的项目中有个小问题：
+  <meta name="description" content="1最近在做的项目中有个小问题：
 nginx的log不支持自动分割（类似log4j的DailyRollingFileAppender）。
 查了一下，有个小命令logrotate可以很好的解决这个问题。
-2
-logrotate在笔者使用的服务器CentOS release 6.5上已经自带安装了，所以">
+2logrotate在笔者使用的服务器CentOS release 6.5上已经自带安装了，所以略过">
   
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -98,32 +96,25 @@ logrotate在笔者使用的服务器CentOS release 6.5上已经自带安装了�
 
 	<!-- content -->
 	<div class="mypage">		
-	    <h1 id="section">1</h1>
-<p>最近在做的项目中有个小问题：</p>
+	    <h1 id="1">1</h1><p>最近在做的项目中有个小问题：</p>
 <p>nginx的log不支持自动分割（类似log4j的<code>DailyRollingFileAppender</code>）。</p>
 <p>查了一下，有个小命令logrotate可以很好的解决这个问题。</p>
-<h1 id="section-1">2</h1>
-<p>logrotate在笔者使用的服务器<code>CentOS release 6.5</code>上已经自带安装了，所以略过安装的部分。</p>
+<h1 id="2">2</h1><p>logrotate在笔者使用的服务器<code>CentOS release 6.5</code>上已经自带安装了，所以略过安装的部分。</p>
 <p>首先，在<code>/etc/logrotate.d/nginx</code>中配置log文件的分割逻辑，</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">/home/xxx/nginx/logs/*.log &#123;</span><br><span class="line">    daily</span><br><span class="line">    dateext</span><br><span class="line">    compress</span><br><span class="line">    rotate <span class="number">30</span></span><br><span class="line">    create <span class="number">644</span> xxx xxx</span><br><span class="line">    delaycompress</span><br><span class="line">    notifempty</span><br><span class="line">    sharedscripts</span><br><span class="line">    postrotate</span><br><span class="line">        [ <span class="operator">-f</span> /usr/<span class="built_in">local</span>/nginx/logs/nginx.pid ] &amp;&amp; <span class="built_in">kill</span> -USR1 `cat /usr/<span class="built_in">local</span>/nginx/logs/nginx.pid`</span><br><span class="line">    endscript</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>具体的参数详见<a href="http://linuxcommand.org/man_pages/logrotate8.html" target="_blank" rel="external">logrotate8.html</a></p>
 <p>需要解释一下的是delaycompress和sharedscripts这两个参数。</p>
 <blockquote>
 <p>delaycompress</p>
+<p>Postpone  compression of the previous log file to the next rotation cycle. This has only effect when used in combination with compress. It can be used when some program can not be told to close its logfile and thus might continue writing to the previous log file for some time.</p>
 </blockquote>
-<blockquote>
-<p>Postpone compression of the previous log file to the next rotation cycle. This has only effect when used in combination with compress. It can be used when some program can not be told to close its logfile and thus might continue writing to the previous log file for some time.</p>
-</blockquote>
-<p>简而言之，20号执行命令，那么压缩19号的log文件。 如果马上压缩，那么就会使得分割之后（kill -USR1之前）的部分log丢失，如果隔一天再压缩就没有这个问题。</p>
+<p>简而言之，20号执行命令，那么压缩19号的log文件。<br>如果马上压缩，那么就会使得分割之后（kill -USR1之前）的部分log丢失，如果隔一天再压缩就没有这个问题。</p>
 <blockquote>
 <p>sharedscripts</p>
-</blockquote>
-<blockquote>
-<p>Normally, prescript and postscript scripts are run for each log which is rotated, meaning that a single script may be run multiple times for log file entries which match multiple files (such as the /var/log/news/* example). If sharedscript is specified, the scripts are only run once, no matter how many logs match the wildcarded pattern. However, if none of the logs in the pattern require rotating, the scripts will not be run at all. This option overrides the nosharedscripts option and implies create option.</p>
+<p>Normally, prescript and postscript scripts are run for each log which is rotated, meaning that a single script may be run multiple  times for log file entries which match multiple files (such as the /var/log/news/* example). If sharedscript is specified, the scripts are only run once, no matter how many logs match the wildcarded pattern. However, if none of the logs in the pattern require  rotating,  the  scripts  will  not  be run at all. This option overrides the nosharedscripts option and implies create option.</p>
 </blockquote>
 <p>因为用到了通配符，sharedscripts的作用就是在所有log文件都处理完后再执行下面的脚本，如果没有添加这个参数，那么每处理完一个文件就执行一次脚本。</p>
-<h1 id="section-2">3</h1>
-<p>好的，配置完了，那么logrotate是怎么执行的呢？</p>
+<h1 id="3">3</h1><p>好的，配置完了，那么logrotate是怎么执行的呢？</p>
 <p>很简单，基于CRON。</p>
 <p><code>/etc/logrotate.conf</code>是logrotate的配置文件，前面nginx中配置的参数，会覆盖其中的缺省参数。</p>
 <p>接着往上找，<code>/etc/cron.daily/logrotate</code></p>
@@ -132,15 +123,13 @@ logrotate在笔者使用的服务器CentOS release 6.5上已经自带安装了�
 <p>再接着往上找，<code>/etc/cron.d/0daily</code></p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">SHELL=/bin/bash</span><br><span class="line">PATH=/sbin:/bin:/usr/sbin:/usr/bin</span><br><span class="line">MAILTO=root</span><br><span class="line">HOME=/</span><br><span class="line"><span class="number">5</span> <span class="number">1</span> * * * root run-parts /etc/cron.daily</span><br></pre></td></tr></table></figure>
 <p>这里指定了<code>cron.daily</code>的执行时间。</p>
-<h1 id="section-3">4</h1>
-<p>如果不想等，想直接看效果，怎么办？</p>
+<h1 id="4">4</h1><p>如果不想等，想直接看效果，怎么办？</p>
 <p>执行<code>logrotate -f /etc/logrotate.d/nginx</code>。</p>
 <p>为什么执行第一次有效果，执行第二次就没有效果了？</p>
 <p>因为logrotate会记录执行的状态，默认保存在<code>/var/lib/logrotate.status</code>中。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">logrotate state -- version 2&#10;&#34;/home/xxx/nginx/logs/error.log&#34; 2015-1-29&#10;&#34;/home/xxx/nginx/logs/access.log&#34; 2015-1-29&#10;&#34;/home/xxx/nginx/logs/*.log&#34; 2015-1-12</span><br></pre></td></tr></table></figure>
 <p>如果想再次执行，那么修改一下日期，或者删掉改行就行。</p>
-<h1 id="section-4">5</h1>
-<p>还有一个比较容易忽略的问题，</p>
+<h1 id="5">5</h1><p>还有一个比较容易忽略的问题，</p>
 <p><code>/etc/logrotate.d/nginx</code>文件的mode建议为<code>644</code>，否则可能无法执行。</p>
 <p>具体的原因参见<a href="https://fedorahosted.org/logrotate/changeset/302" target="_blank" rel="external">Changeset 302</a></p>
 	  

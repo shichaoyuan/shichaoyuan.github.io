@@ -6,13 +6,11 @@
   <title>Link Prediction Problem | Notes</title>
   <meta name="author" content="Shichao Yuan">
   
-  <meta name="description" content="1
-最近在看一些好友推荐的东西，所以就多google了一下。
+  <meta name="description" content="1最近在看一些好友推荐的东西，所以就多google了一下。
 看到一篇论文《The Link Prediction Problem for Social Networks》，感觉写的很不错。
 （对这种形式化的描述没抵抗力 :-D）
 所以就是做个笔记吧。
-2
-首先social networks可以理解">
+2首先social networks可以理解为图">
   
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -99,18 +97,16 @@
 
 	<!-- content -->
 	<div class="mypage">		
-	    <h2 id="section">1</h2>
-<p>最近在看一些好友推荐的东西，所以就多google了一下。</p>
+	    <h2 id="1">1</h2><p>最近在看一些好友推荐的东西，所以就多google了一下。</p>
 <p>看到一篇论文<a href="http://www.cs.cornell.edu/home/kleinber/link-pred.pdf" target="_blank" rel="external">《The Link Prediction Problem for Social Networks》</a>，感觉写的很不错。</p>
 <p>（对这种形式化的描述没抵抗力 :-D）</p>
 <p>所以就是做个笔记吧。</p>
-<h2 id="section-1">2</h2>
-<p>首先<em>social networks</em>可以理解为图，其中<em>nodes</em>表示人或者其他实体，<em>edges</em>标示交互、协作或者关系。</p>
+<h2 id="2">2</h2><p>首先<em>social networks</em>可以理解为图，其中<em>nodes</em>表示人或者其他实体，<em>edges</em>标示交互、协作或者关系。</p>
 <p>那么好友推荐的问题就可以理解为基于原有的好友关系图结构，预测可能出现的新的关系。</p>
 <p>更一般的，可以理解为<em>link prediction problem</em>，基于原有的图结构，预测图的演化。</p>
 <blockquote>
 <p>the <em>link prediction problem</em>：</p>
-<p>Given a snapshot of a social network at time <em>t</em>, we seek to accurately predict the edges that will be added to the network during the interval from time <span class="math inline">\(t\)</span> to a given future time <span class="math inline">\(t&#39;\)</span>.</p>
+<p>Given a snapshot of a social network at time <em>t</em>, we seek to accurately predict the edges that will be added to the network during the interval from time $t$ to a given future time $t’$.</p>
 </blockquote>
 <p>当然现实中的交互和关系有很多原因，单单从图结构中是分析不出来的。</p>
 <p>但是</p>
@@ -118,89 +114,74 @@
 <p>We find that a number of proximity measures lead to predictions that outperform chance by factors of 40 to 50, indicating that the network topology does indeed contain latent information from which to infer future interactions.</p>
 </blockquote>
 <p>（是这样么？ 暂且相信一下吧，不然就没法继续读下去了 :-D）</p>
-<h2 id="section-2">3</h2>
-<p>形式化这个问题。</p>
-<p>social network: <span class="math inline">\(G = \langle V, E \rangle\)</span></p>
-<p>each edge: <span class="math inline">\(e = \langle u, v \rangle \in E\)</span></p>
-<p>表示<span class="math inline">\(u,v\)</span>在特定时间<span class="math inline">\(t(e)\)</span>发生交互，其中多次交互记录为并行的边。</p>
-<p><span class="math inline">\(G[t, t&#39;]\)</span>表示某时间段内<span class="math inline">\((t &lt; t&#39;)\)</span>的子图。</p>
+<h2 id="3">3</h2><p>形式化这个问题。</p>
+<p>social network: $G = \langle V, E \rangle$</p>
+<p>each edge: $e = \langle u, v \rangle \in E$</p>
+<p>表示$u,v$在特定时间$t(e)$发生交互，其中多次交互记录为并行的边。</p>
+<p>$G[t, t’]$表示某时间段内$(t &lt; t’)$的子图。</p>
 <p>另外这篇文章为了评估不同的算法还是定义训练和测试的方法：</p>
 <blockquote>
-<p>We choose four times <span class="math inline">\(t_0 &lt; t&#39;_0 &lt; t_1 &lt; t&#39;_1\)</span>, and give an algorithm access to the network <span class="math inline">\(G[t_0,t&#39;_0]\)</span>; it must then output a list of edges, not present in <span class="math inline">\(G[t_0,t&#39;_0]\)</span>, that are predicted to appear in the network <span class="math inline">\(G[t_1,t&#39;_1]\)</span>. We refer to <span class="math inline">\([t_0,t&#39;_0]\)</span> as the <em>training interval</em> and <span class="math inline">\([t_1,t&#39;_1]\)</span> as the <em>test interval</em>.</p>
-<p>Thus, in evaluating link prediction methods, we will generally use two parameters <span class="math inline">\(\mit{κ_{training}}\)</span> and <span class="math inline">\(\mit{κ_{test}}\)</span> (each set to 3 below), and define the set <strong>Core</strong> to be all nodes incident to at least <span class="math inline">\(\mit{κ_{training}}\)</span> edges in <span class="math inline">\(G[t_0, t&#39;_0]\)</span> and at least <span class="math inline">\(\mit{κ_{test}}\)</span> edges in <span class="math inline">\(G[t_1,t&#39;_1]\)</span>. We will then evaluate how accurately the new edges between elements of <strong>Core</strong> can be predicted.</p>
-<p>We define the training interval to be the three years <span class="math inline">\([1994, 1996]\)</span>, and the test interval to be <span class="math inline">\([1997, 1999]\)</span>. We denote the subgraph <span class="math inline">\(G[1994, 1996]\)</span> on the training interval by $G_{collab} := A, E_{old} $, and use <span class="math inline">\(E_{new}\)</span> to denote the set of edges <span class="math inline">\(\langle u, v \rangle\)</span> such that <span class="math inline">\(u, v \in A\)</span>, and <span class="math inline">\(u, v\)</span> co-author a paper during the test interval but not the training interval – these are the new interactions we are seeking to predict.</p>
+<p>We choose four times $t_0 &lt; t’_0 &lt; t_1 &lt; t’_1$, and give an algorithm access to the network $G[t_0,t’_0]$; it must then output a list of edges, not present in $G[t_0,t’_0]$, that are predicted to appear in the network $G[t_1,t’_1]$. We refer to $[t_0,t’_0]$ as the <em>training interval</em> and $[t_1,t’_1]$ as the <em>test interval</em>.</p>
+<p>Thus, in evaluating link prediction methods, we will generally use two parameters $\mit{κ<em>{training}}$ and $\mit{κ</em>{test}}$ (each set to 3 below), and define the set <strong>Core</strong> to be all nodes incident to at least $\mit{κ<em>{training}}$ edges in $G[t_0, t’_0]$ and at least $\mit{κ</em>{test}}$ edges in $G[t_1,t’_1]$. We will then evaluate how accurately the new edges between elements of <strong>Core</strong> can be predicted.</p>
+<p>We define the training interval to be the three years $[1994, 1996]$, and the test interval to be $[1997, 1999]$. We denote the subgraph $G[1994, 1996]$ on the training interval by $G<em>{collab} := \langle A, E</em>{old} \rangle $, and use $E_{new}$ to denote the set of edges $\langle u, v \rangle$ such that $u, v \in A$, and $u, v$ co-author a paper during the test interval but not the training interval — these are the new interactions we are seeking to predict.</p>
 </blockquote>
 <p>评估的方法如下：</p>
 <blockquote>
-<p>Each link predictor <span class="math inline">\(p\)</span> that we consider outputs a ranked list <span class="math inline">\(L_p\)</span> of pairs in <span class="math inline">\(A×A−E_{old}\)</span>; these are predicted new collaborations, in decreasing order of confidence. For our evaluation, we focus on the set <strong>Core</strong>, so we define <span class="math inline">\(E^∗_{new} := E_{new} \cap (Core \times Core)\)</span> and <span class="math inline">\(n := |E^∗_{new}|\)</span>. Our performance measure for predictor <span class="math inline">\(p\)</span> is then determined as follows: from the ranked list <span class="math inline">\(L_p\)</span>, we take the first <span class="math inline">\(n\)</span> pairs in <span class="math inline">\(Core \times Core\)</span>, and determine the size of the intersection of this set of pairs with the set <span class="math inline">\(E^∗_{new}\)</span>.</p>
+<p>Each link predictor $p$ that we consider outputs a ranked list $L<em>p$ of pairs in $A×A−E</em>{old}$; these are predicted new collaborations, in decreasing order of confidence. For our evaluation, we focus on the set <strong>Core</strong>, so we define $E^∗<em>{new} := E</em>{new} \cap (Core \times Core)$ and $n := |E^∗<em>{new}|$. Our performance measure for predictor $p$ is then determined as follows: from the ranked list $L_p$, we take the first $n$ pairs in $Core \times Core$, and determine the size of the intersection of this set of pairs with the set $E^∗</em>{new}$.</p>
 </blockquote>
-<h2 id="section-3">4</h2>
-<p>定义方法的输入输出。</p>
-<p>输入：<span class="math inline">\(G_{collab}\)</span></p>
-<p>输出：<span class="math inline">\(score(x, y)\)</span>降序的列表</p>
-<p>基本上可以理解为通过原有的图结构计算节点<span class="math inline">\(x,y\)</span>之间的proximity。</p>
-<p>最基本的方法就是计算<span class="math inline">\(G_{collab}\)</span>中<span class="math inline">\(x, y\)</span>的最短路径，为了保持结果降序排列，对路径长度取负值，其中等于1的路径属于训练图。</p>
-<h2 id="section-4">5</h2>
-<p>Methods based on node neighborhoods</p>
-<p><span class="math inline">\(\Gamma(x)\)</span>表示图<span class="math inline">\(G_{collab}\)</span>中节点<span class="math inline">\(x\)</span>的邻居的集合。</p>
+<h2 id="4">4</h2><p>定义方法的输入输出。</p>
+<p>输入：$G_{collab}$</p>
+<p>输出：$score(x, y)$降序的列表</p>
+<p>基本上可以理解为通过原有的图结构计算节点$x,y$之间的proximity。</p>
+<p>最基本的方法就是计算$G_{collab}$中$x, y$的最短路径，为了保持结果降序排列，对路径长度取负值，其中等于1的路径属于训练图。</p>
+<h2 id="5">5</h2><p>Methods based on node neighborhoods</p>
+<p>$\Gamma(x)$表示图$G_{collab}$中节点$x$的邻居的集合。</p>
 <p>直觉上来说，相同的邻居更多的连个节点更容易产生关系，这类方法就是基于这个假设。</p>
-<h3 id="common-neighbors">Common neighbors</h3>
-<p>$score(x, y) := (x)(y)$</p>
-<h3 id="jaccards-coefficient-and-adamicadar">Jaccard’s coefficient and Adamic/Adar</h3>
-<p>Jaccard’s coefficient通常用于信息检索中的相似度测量，</p>
-<p><span class="math inline">\(score(x, y) := \mid\Gamma(x)\cap\Gamma(y)\mid/\mid\Gamma(x)\cup\Gamma(y)\mid\)</span></p>
+<h3 id="Common_neighbors">Common neighbors</h3><p>$score(x, y) := \mid\Gamma(x)\cap\Gamma(y)\mid $</p>
+<h3 id="Jaccard’s_coefficient_and_Adamic/Adar">Jaccard’s coefficient and Adamic/Adar</h3><p>Jaccard’s coefficient通常用于信息检索中的相似度测量，</p>
+<p>$score(x, y) := \mid\Gamma(x)\cap\Gamma(y)\mid/\mid\Gamma(x)\cup\Gamma(y)\mid$</p>
 <p>Adamic/Adar加大了稀有特征的权重，</p>
-<p><span class="math inline">\(score(x,y) := \sum\nolimits_{z\in\Gamma(x)\cap\Gamma(y)}\frac{1}{\log\mid\Gamma(z)\mid}\)</span></p>
-<h3 id="preferential-attachment">Preferential attachment</h3>
-<p>该方法的基本的假设是节点涉及新边的概率与其邻居的数量成正比，</p>
-<p><span class="math inline">\(score(x,y) := \mid\Gamma(x)\mid\cdot\mid\Gamma(y)\mid\)</span></p>
-<h2 id="section-5">6</h2>
-<p>Methods based on the ensemble of all paths</p>
+<p>$score(x,y) := \sum\nolimits_{z\in\Gamma(x)\cap\Gamma(y)}\frac{1}{\log\mid\Gamma(z)\mid}$</p>
+<h3 id="Preferential_attachment">Preferential attachment</h3><p>该方法的基本的假设是节点涉及新边的概率与其邻居的数量成正比，</p>
+<p>$score(x,y) := \mid\Gamma(x)\mid\cdot\mid\Gamma(y)\mid$</p>
+<h2 id="6">6</h2><p>Methods based on the ensemble of all paths</p>
 <p>这类方法基于最短路径的思路，不过是考虑了两点之间所有路径。</p>
-<h3 id="katz">Katz</h3>
-<p><span class="math inline">\(score(x,y) := \sum\limits_{l=1}^{\infty}\beta^l\cdot\mid paths_{x,y}^{\langle l \rangle} \mid\)</span></p>
-<p><span class="math inline">\(paths_{x,y}^{\langle l \rangle} := \{paths\ of\ length\ exactly\ l\ from\ x\ to\ y\}\)</span></p>
-<p>当<span class="math inline">\(\beta\)</span>值比较小的时候，结果基本与common neighbors方法类似。</p>
+<h3 id="Katz">Katz</h3><p>$score(x,y) := \sum\limits<em>{l=1}^{\infty}\beta^l\cdot\mid paths</em>{x,y}^{\langle l \rangle} \mid$</p>
+<p>$paths_{x,y}^{\langle l \rangle} := {paths\ of\ length\ exactly\ l\ from\ x\ to\ y}$</p>
+<p>当$\beta$值比较小的时候，结果基本与common neighbors方法类似。</p>
 <p>此外该方法还分为加权、不加权两种：</p>
-<p>weighted: <span class="math inline">\(paths_{x,y}^{\langle 1 \rangle} := number\ of\ collaborations\ between\ x,y.\)</span></p>
-<p>unweighted: <span class="math inline">\(paths_{x,y}^{\langle 1 \rangle} := 1\ iff\ x\ and\ y\ collaborate.\)</span></p>
-<h3 id="hitting-times-pagerank-and-variants">Hitting times, PageRank, and variants</h3>
-<p>该方法的思想是在<span class="math inline">\(G_{collab}\)</span>上进行<em>random walk</em></p>
-<p><em>hitting time</em> <span class="math inline">\(H_{x,y}\)</span>标示从<span class="math inline">\(x\)</span>到<span class="math inline">\(y\)</span>的期望的步数</p>
-<p><em>commute time</em> <span class="math inline">\(C_{x,y} := H_{x,y} + H_{y,x}\)</span></p>
-<p>但是当<span class="math inline">\(y\)</span>的<em>stationary probability</em> <span class="math inline">\(\pi_y\)</span>比较大的时候，对于任意<span class="math inline">\(x\)</span>，<span class="math inline">\(H_{x,y}\)</span>的值都很小，所以做一点儿归一化。</p>
-<p><span class="math inline">\(score(x,y) := -H_{x,y}\cdot\pi_y\)</span></p>
-<p><span class="math inline">\(score(x,y) := -(H_{x,y}\cdot\pi_y + H_{y,x}\cdot\pi_x)\)</span></p>
-<p>但是这种测量方法还有一个问题，其测量值对图部分的结构更敏感，所以在<em>random walk</em>中加入固定的概率<span class="math inline">\(\alpha\)</span>退回。</p>
+<p>weighted: $paths_{x,y}^{\langle 1 \rangle} := number\ of\ collaborations\ between\ x,y.$</p>
+<p>unweighted: $paths_{x,y}^{\langle 1 \rangle} := 1\ iff\ x\ and\ y\ collaborate.$</p>
+<h3 id="Hitting_times,_PageRank,_and_variants">Hitting times, PageRank, and variants</h3><p>该方法的思想是在$G_{collab}$上进行<em>random walk</em></p>
+<p><em>hitting time</em> $H_{x,y}$标示从$x$到$y$的期望的步数</p>
+<p><em>commute time</em> $C<em>{x,y} := H</em>{x,y} + H_{y,x}$</p>
+<p>但是当$y$的<em>stationary probability</em> $\pi<em>y$比较大的时候，对于任意$x$，$H</em>{x,y}$的值都很小，所以做一点儿归一化。</p>
+<p>$score(x,y) := -H_{x,y}\cdot\pi_y$</p>
+<p>$score(x,y) := -(H<em>{x,y}\cdot\pi_y + H</em>{y,x}\cdot\pi_x)$</p>
+<p>但是这种测量方法还有一个问题，其测量值对图部分的结构更敏感，所以在<em>random walk</em>中加入固定的概率$\alpha$退回。</p>
 <blockquote>
 <p>rooted PageRank</p>
-<p>stationary distribution weight of <span class="math inline">\(y\)</span> under the following random walk:</p>
-<p>with probability <span class="math inline">\(\alpha\)</span>, jump to <span class="math inline">\(x\)</span>.</p>
-<p>with probability <span class="math inline">\(1-\alpha\)</span>, go to random neighbor of current node.</p>
+<p>stationary distribution weight of $y$ under the following random walk:</p>
+<p>with probability $\alpha$, jump to $x$.</p>
+<p>with probability $1-\alpha$, go to random neighbor of current node.</p>
 </blockquote>
-<h3 id="simrank">SimRank</h3>
-<p><span class="math inline">\(score(x,y) := \begin{equation}\left \{\begin{array}\\\gamma\cdot\frac{\sum\nolimits_{a\in\Gamma(x)}\sum\nolimits_{b\in\Gamma(y)}score(a,b)}{\mid\Gamma(x)\mid\cdot\mid\Gamma(y)\mid} &amp; otherwise \\1 &amp; if\ x = y\end{array}\right.\end{equation}\)</span></p>
-<p><span class="math inline">\(\gamma\in[0,1]\)</span></p>
+<h3 id="SimRank">SimRank</h3><p>$score(x,y) := \begin{equation}\left {\begin{array}\\gamma\cdot\frac{\sum\nolimits<em>{a\in\Gamma(x)}\sum\nolimits</em>{b\in\Gamma(y)}score(a,b)}{\mid\Gamma(x)\mid\cdot\mid\Gamma(y)\mid} &amp; otherwise \1 &amp; if\ x = y\end{array}\right.\end{equation}$</p>
+<p>$\gamma\in[0,1]$</p>
 <blockquote>
-<p>SimRank can also be interpreted in terms of a random walk on the collaboration graph: it is the expected value of <span class="math inline">\(\gamma^l\)</span>, where <span class="math inline">\(l\)</span> is a random variable giving the time at which random walks started from <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span> first meet.</p>
+<p>SimRank can also be interpreted in terms of a random walk on the collaboration graph: it is the expected value of $\gamma^l$, where $l$ is a random variable giving the time at which random walks started from $x$ and $y$ first meet.</p>
 </blockquote>
-<h2 id="section-6">7</h2>
-<p>Higher-level approaches</p>
+<h2 id="7">7</h2><p>Higher-level approaches</p>
 <p>三个meta-approaches，可以结合任一上述方法。</p>
-<h3 id="low-rank-approximation">Low-rank approximation</h3>
-<p>上述算法都可以转换为矩阵运算，那么就可以用SVD降秩，这也可以看做为一种noise-reduction的方法。</p>
-<h3 id="unseen-bigrams">Unseen bigrams</h3>
-<blockquote>
+<h3 id="Low-rank_approximation">Low-rank approximation</h3><p>上述算法都可以转换为矩阵运算，那么就可以用SVD降秩，这也可以看做为一种noise-reduction的方法。</p>
+<h3 id="Unseen_bigrams">Unseen bigrams</h3><blockquote>
 <p>Link prediction is akin to the problem of estimating frequencies for unseen bigrams in language modeling—pairs of words that co-occur in a test corpus, but not in the corresponding training corpus.</p>
-<p>we can augment our estimates for <span class="math inline">\(score(x, y)\)</span> using values of <span class="math inline">\(score(z, y)\)</span> for nodes <span class="math inline">\(z\)</span> that are “similar” to <span class="math inline">\(x\)</span>.</p>
+<p>we can augment our estimates for $score(x, y)$ using values of $score(z, y)$ for nodes $z$ that are “similar” to $x$.</p>
 </blockquote>
-<p><span class="math inline">\(score_{unweighted}^*(x,y) := \mid\{z:z\in\Gamma(y)\cap S_x^{\langle\delta\rangle}\}\mid\)</span></p>
-<p><span class="math inline">\(score_{weighted}^*(x,y) := \sum\nolimits_{z\in\Gamma(y)\cap S_x^{\langle\delta\rangle}}score(x,z)\)</span></p>
-<p><span class="math inline">\(S_x^{\langle\delta\rangle}\)</span>表示基于<span class="math inline">\(score(x,\cdot)\)</span>与<span class="math inline">\(x\)</span>最相关的<span class="math inline">\(\delta\)</span>个节点。</p>
-<h3 id="clustering">Clustering</h3>
-<p>通过聚类删除一些tenuous的边，然后在cleaned-up的子图上进行计算。</p>
-<h2 id="section-7">8</h2>
-<p>一些结论</p>
+<p>$score_{unweighted}^*(x,y) := \mid{z:z\in\Gamma(y)\cap S_x^{\langle\delta\rangle}}\mid$</p>
+<p>$score<em>{weighted}^*(x,y) := \sum\nolimits</em>{z\in\Gamma(y)\cap S_x^{\langle\delta\rangle}}score(x,z)$</p>
+<p>$S_x^{\langle\delta\rangle}$表示基于$score(x,\cdot)$与$x$最相关的$\delta$个节点。</p>
+<h3 id="Clustering">Clustering</h3><p>通过聚类删除一些tenuous的边，然后在cleaned-up的子图上进行计算。</p>
+<h2 id="8">8</h2><p>一些结论</p>
 <blockquote>
 <p>the small world problem is really a problem. The shortest path between two scientists in wholly unrelated disciplines is often very short (and very tenuous).</p>
 <p>Overall, the basic graph distance predictor is not competitive with most of the other approaches studied; our most successful link predictors can be viewed as using measures of proximity that are robust to the few edges that result from rare collaborations between fields.</p>

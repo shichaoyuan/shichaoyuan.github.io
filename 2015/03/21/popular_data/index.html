@@ -6,15 +6,13 @@
   <title>思考热门发现Tab的内容配置 | Notes</title>
   <meta name="author" content="Shichao Yuan">
   
-  <meta name="description" content="1
-之前有篇文章是介绍如何山寨Instagram的热门发现Tab
+  <meta name="description" content="1之前有篇文章是介绍如何山寨Instagram的热门发现Tab
 其中留了一个坑，如何配置不同类型的数据。
 近来跟PM讨论的比较多，所以记一下。
-2
-首先交代一下背景，
+2首先交代一下背景，
 小项目、刚起步，
 没有什么数据，直接通过data mining的方法不太合适，
-所以运营人员会维护一个热门内容库，并且会对热门内容">
+所以运营人员会维护一个热门内容库，并且会对热门内容打t">
   
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -101,31 +99,23 @@
 
 	<!-- content -->
 	<div class="mypage">		
-	    <h1 id="section">1</h1>
-<p>之前有篇文章是介绍<a href="http://shichaoyuan.github.io/engineering/2015/02/12/copy_ins_popular_tab.html">如何山寨Instagram的热门发现Tab</a></p>
+	    <h1 id="1">1</h1><p>之前有篇文章是介绍<a href="http://shichaoyuan.github.io/engineering/2015/02/12/copy_ins_popular_tab.html">如何山寨Instagram的热门发现Tab</a></p>
 <p>其中留了一个坑，如何配置不同类型的数据。</p>
 <p>近来跟PM讨论的比较多，所以记一下。</p>
-<h1 id="section-1">2</h1>
-<p>首先交代一下背景，</p>
+<h1 id="2">2</h1><p>首先交代一下背景，</p>
 <p>小项目、刚起步，</p>
 <p>没有什么数据，直接通过data mining的方法不太合适，</p>
 <p>所以运营人员会维护一个热门内容库，并且会对热门内容打tag，包括feed和user。</p>
 <p>然后是对于发现页的定位，</p>
 <p>帮助用户发现自己感兴趣的东西，引导用户关注这些内容。</p>
-<h1 id="section-2">3</h1>
-<h2 id="第一个想法-直接random">第一个想法 —— 直接Random</h2>
-<p>直接对热门内容库随机选择，这个想法最直观，</p>
+<h1 id="3">3</h1><h2 id="第一个想法_——_直接Random">第一个想法 —— 直接Random</h2><p>直接对热门内容库随机选择，这个想法最直观，</p>
 <p>而且毕竟是经过运营人员筛选出来的，质量通常相当的高。</p>
 <p>简单、直接。</p>
-<h2 id="第二个想法-以时间做为权重random">第二个想法 —— 以时间做为权重Random</h2>
-<p>这是一个很直观的优化，新feed感觉上应该更容易引起支持，特别是某些热门一时的话题。</p>
+<h2 id="第二个想法_——_以时间做为权重Random">第二个想法 —— 以时间做为权重Random</h2><p>这是一个很直观的优化，新feed感觉上应该更容易引起支持，特别是某些热门一时的话题。</p>
 <p>可以简单这样来算：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">double</span> <span class="title">calculateWeightByTime</span><span class="params">(Date date)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">double</span> weight = <span class="number">1.0</span>;</span><br><span class="line">    <span class="keyword">double</span> deltaDay = ((<span class="keyword">double</span>)(System.currentTimeMillis() - date.getTime())) / <span class="number">1000.0</span> / <span class="number">60.0</span> / <span class="number">60.0</span> / <span class="number">24.0</span>;</span><br><span class="line">    <span class="keyword">if</span> (deltaDay &lt; <span class="number">99.0</span>) &#123;</span><br><span class="line">        weight = <span class="number">100</span> - deltaDay;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> weight;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>目前线上的算法就是这个，按照友盟的统计，在热门发现页40%左右的点击会进入feed终端页。</p>
-<h1 id="section-3">4</h1>
-<h2 id="第三个想法">第三个想法</h2>
-<h3 id="问题">问题：</h3>
-<p>用户（我们）到底想看到什么内容？</p>
+<h1 id="4">4</h1><h2 id="第三个想法">第三个想法</h2><h3 id="问题：">问题：</h3><p>用户（我们）到底想看到什么内容？</p>
 <p>感兴趣的呗。</p>
 <p>什么是感兴趣的？</p>
 <p>给用户一个列表，让其选择。</p>
@@ -133,26 +123,23 @@
 <p>为什么？</p>
 <p>因为很多时候并不知道自己喜欢什么，所以通常都是随便选几个。</p>
 <p>那么现在的问题就是如何获取用户的兴趣。</p>
-<h3 id="判断用户的兴趣">判断用户的兴趣</h3>
-<p>因为目前有运营的支持，对于优质用户会对其打tag，那么我们可以这样理解用户的兴趣。</p>
+<h3 id="判断用户的兴趣">判断用户的兴趣</h3><p>因为目前有运营的支持，对于优质用户会对其打tag，那么我们可以这样理解用户的兴趣。</p>
 <p>用户A关注了用户B，那么用户A的兴趣可以理解为用户B的tags。</p>
 <p>这个逻辑总体来说是说的通的，除了礼貌性的互粉，但是身上有tag的用户都是运营筛选出来的，所以这种情况相对不会太多。</p>
 <p>另外用户的兴趣也是会变化的，所以基于关注行为判断用户当前的兴趣是一个相对可取的方法。</p>
 <p>在于数据量比较少，运营顶得住的情况下，这是一个不错的策略。</p>
 <p>当然也可以通过用户点赞和评论的行为，判断用户当前的兴趣。</p>
 <p>当数据量上来之后，就可以改为通过协同过滤推荐计算用户当前感兴趣的内容。</p>
-<h3 id="问题-1">问题</h3>
-<p>既然想出了一种判断用户当前兴趣的方法，那么是否狂推这些内容就行了？</p>
+<h3 id="问题">问题</h3><p>既然想出了一种判断用户当前兴趣的方法，那么是否狂推这些内容就行了？</p>
 <p>看多了也就看厌了，所以还是想看到一些未知的。</p>
 <p>那么现在的问题就是怎么配置已经感兴趣的内容与未知的内容。</p>
-<h3 id="配置内容">配置内容</h3>
-<p>目前有两个来源：</p>
-<ol style="list-style-type: decimal">
+<h3 id="配置内容">配置内容</h3><p>目前有两个来源：</p>
+<ol>
 <li>运营筛选的。这些内容和用户都会被打tag。</li>
 <li>算法计算的。目前是协同过滤推荐，目前来说只是为了丰富一下内容源。</li>
 </ol>
 <p>基于用户的兴趣，运营筛选的内容可以分为动态的分为两类：</p>
-<ol style="list-style-type: decimal">
+<ol>
 <li>用户目前感兴趣的内容</li>
 <li>未知内容</li>
 </ol>
@@ -160,9 +147,7 @@
 <p>拍脑袋，第一类80%，第二类20%。</p>
 <p>然后根据用户的刷新的次数，依次衰减第一类的比例。</p>
 <p>大致的思路就是这样。</p>
-<h1 id="section-4">5</h1>
-<h2 id="怎么实现">怎么实现</h2>
-<p>逻辑比较复杂，怎么兼顾响应时间呢？</p>
+<h1 id="5">5</h1><h2 id="怎么实现">怎么实现</h2><p>逻辑比较复杂，怎么兼顾响应时间呢？</p>
 <p>大致的实现思路如下：</p>
 <p>根据用户的兴趣，将运营筛选的内容分为两类，放到redis中，</p>
 <p>当有新的关注行为，也就是新的兴趣时，异步更新redis。</p>
