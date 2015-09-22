@@ -6,10 +6,12 @@
   <title>Slick中的upsert操作 | Notes</title>
   <meta name="author" content="Shichao Yuan">
   
-  <meta name="description" content="1在做一个Single Page Application，然后使用三方登陆，不维护账号信息，每次登陆拉一次最新的三方账户信息。
+  <meta name="description" content="1
+在做一个Single Page Application，然后使用三方登陆，不维护账号信息，每次登陆拉一次最新的三方账户信息。
 所以数据库操作就有个问题，没有注册，insert，老用户，update，俗称upsert。
-2使用mysql直接写SQL语句很简单：
-INSERT ... ON DUPLI">
+2
+使用mysql直接写SQL语句很简单：
+INSERT ... ON DUP">
   
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -96,14 +98,18 @@ INSERT ... ON DUPLI">
 
 	<!-- content -->
 	<div class="mypage">		
-	    <h2 id="1">1</h2><p>在做一个Single Page Application，然后使用三方登陆，不维护账号信息，每次登陆拉一次最新的三方账户信息。</p>
+	    <h2 id="section">1</h2>
+<p>在做一个Single Page Application，然后使用三方登陆，不维护账号信息，每次登陆拉一次最新的三方账户信息。</p>
 <p>所以数据库操作就有个问题，没有注册，insert，老用户，update，俗称upsert。</p>
-<h2 id="2">2</h2><p>使用mysql直接写SQL语句很简单：</p>
+<h2 id="section-1">2</h2>
+<p>使用mysql直接写SQL语句很简单：</p>
 <p><a href="http://dev.mysql.com/doc/refman/5.6/en/insert-on-duplicate.html" target="_blank" rel="external"><code>INSERT ... ON DUPLICATE KEY UPDATE</code></a></p>
-<h2 id="3">3</h2><p>但是这个小项目使用<a href="https://www.playframework.com/documentation/2.4.x/PlaySlick" target="_blank" rel="external"><code>play-slick 1.0.1</code></a></p>
+<h2 id="section-2">3</h2>
+<p>但是这个小项目使用<a href="https://www.playframework.com/documentation/2.4.x/PlaySlick" target="_blank" rel="external"><code>play-slick 1.0.1</code></a></p>
 <p>刚开始学着用，就捣鼓出了这样一段逻辑</p>
 <figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">insert</span>(</span>user: <span class="type">User</span>): <span class="type">Future</span>[<span class="type">Int</span>] = db.run(<span class="type">Users</span> += user)</span><br><span class="line">  </span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">update</span>(</span>user: <span class="type">User</span>): <span class="type">Future</span>[<span class="type">Int</span>] = &#123;</span><br><span class="line">  db.run(<span class="type">Users</span>.filter(_.id === user.id.get).update(user))</span><br><span class="line">&#125;</span><br><span class="line">  </span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">selectByQQOpenID</span>(</span>qqOpenID: <span class="type">String</span>): <span class="type">Future</span>[<span class="type">Option</span>[<span class="type">User</span>]] = db.run( <span class="type">Users</span>.filter(_.qqOpenID === qqOpenID).result.headOption )</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">createOrUpdateUserByOpenID</span>(</span>openID: <span class="type">String</span>, userInfo: <span class="type">UserInfo</span>): <span class="type">Future</span>[<span class="type">Int</span>] = &#123;</span><br><span class="line">	<span class="function"><span class="keyword">val</span> <span class="title">user</span> =</span> userDAO.selectByQQOpenID(openID)</span><br><span class="line">	user.flatMap &#123; </span><br><span class="line">		<span class="keyword">case</span> <span class="type">Some</span>(u) =&gt; userDAO.update(u.copy(name = userInfo.name, headURL = userInfo.headURL))</span><br><span class="line">		<span class="keyword">case</span> <span class="type">None</span> =&gt; userDAO.insert(<span class="type">User</span>(<span class="type">None</span>, userInfo.name, userInfo.headURL, openID))</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="4">4</h2><p>感觉不漂亮，搜了一下，原来还挺多研究这个问题的……</p>
+<h2 id="section-3">4</h2>
+<p>感觉不漂亮，搜了一下，原来还挺多研究这个问题的……</p>
 <p>比如：<a href="http://underscore.io/blog/posts/2015/07/14/upsert.html" target="_blank" rel="external">Upsert in Slick 3</a></p>
 <p>原来有个内建的<code>insertOrUpdate</code>，代码提示居然没让我看到……</p>
 <p>所以对于单主键</p>

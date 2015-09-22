@@ -94,27 +94,29 @@
 	<!-- content -->
 	<div class="mypage">		
 	    <blockquote>
-<p>Producers claim entries in sequence via a <em>ProducerBarrier</em>, write their changes into the claimed entry, then commit that entry back via the <em>ProducerBarrier</em> making them available for consumption.  As a consumer all one needs do is provide a <em>BatchHandler</em> implementation that receives call backs when a new entry is available.</p>
+<p>Producers claim entries in sequence via a <em>ProducerBarrier</em>, write their changes into the claimed entry, then commit that entry back via the <em>ProducerBarrier</em> making them available for consumption. As a consumer all one needs do is provide a <em>BatchHandler</em> implementation that receives call backs when a new entry is available.</p>
+</blockquote>
+<blockquote>
 <p>A <em>RingBuffer</em> exists at the core of the Disruptor pattern providing storage for data exchange without contention. The concurrency concerns are separated out for the producers and consumers interacting with the <em>RingBuffer</em>. The <em>ProducerBarrier</em> manages any concurrency concerns associated with claiming slots in the ring buffer, while tracking dependant consumers to prevent the ring from wrapping. The <em>ConsumerBarrier</em> notifies consumers when new entries are available, and <em>Consumers</em> can be constructed into a graph of dependencies representing multiple stages in a processing pipeline.</p>
 </blockquote>
 <p>以上文字来自LMAX的官方文档，通过这些文字我们可以大致了解Disruptor的工作流程。下面我们再仔细看看各部分。</p>
-<h2 id="RingBuffer">RingBuffer</h2><p>其构造方法定义为缺省的，创建RingBuffer实例是通过静态工厂方法。</p>
+<h2 id="ringbuffer">RingBuffer</h2>
+<p>其构造方法定义为缺省的，创建RingBuffer实例是通过静态工厂方法。</p>
 <ul>
 <li><code>public static &lt;E&gt; RingBuffer&lt;E&gt; createMultiProducer(EventFactory&lt;E&gt; factory, int bufferSize, WaitStrategy waitStrategy)</code></li>
 <li><code>public static &lt;E&gt; RingBuffer&lt;E&gt; createSingleProducer(EventFactory&lt;E&gt; factory, int bufferSize, WaitStrategy waitStrategy)</code></li>
 </ul>
 <p>静态工厂方法的第一个参数<code>EventFactory&lt;E&gt; factory</code>用于初始化<code>private final Object[] entries</code>；第二个参数<code>bufferSize</code>用于指定<code>SingleProducerSequencer</code>或<code>MultiProducerSequencer</code>中sequence的长度，也用于指定<code>private final Object[] entries</code>的长度。但三个参数waitStrategy指定<code>EventProcessor</code>的等待策略。</p>
 <p><code>RingBuffer</code>中的<code>public SequenceBarrier newBarrier(Sequence... sequencesToTrack)</code>用于生成<code>SequenceBarrier</code>，合适地组合这些Barrier可以构建特定的Dependency Graphs。</p>
-<h2 id="ProducerBarrier">ProducerBarrier</h2><ol>
-<li><p>生产者向RingBuffer中发布数据，首先通过<code>long sequence = ringBuffer.next()</code>获取数据环中下一个可以可用实体的序列号，该方法将会调用到<code>SingleProducerSequencer</code>或<code>MultiProducerSequencer</code>中的<code>public long next(int n)</code>方法。</p>
+<h2 id="producerbarrier">ProducerBarrier</h2>
+<ol style="list-style-type: decimal">
+<li>生产者向RingBuffer中发布数据，首先通过<code>long sequence = ringBuffer.next()</code>获取数据环中下一个可以可用实体的序列号，该方法将会调用到<code>SingleProducerSequencer</code>或<code>MultiProducerSequencer</code>中的<code>public long next(int n)</code>方法。</li>
+</ol>
 <p>对于<code>SingleProducerSequencer</code>不存在竞争，唯一需要考虑的是生产者是否会覆盖未消费的数据，在运行系统之前通过RingBuffer的<code>public void addGatingSequences(Sequence... gatingSequences)</code>方法设置ProducerSequencer需要跟踪的最后一个或几个消费者的sequence，这样就可以防止覆盖未消费的数据。</p>
 <p>在<code>SingleProducerSequencer</code>中定义了一个内部类Padding记录下一个可获得的序列号和消费者消费到的序列号。</p>
-<p>对于<code>MultiProducerSequencer</code>，除了要防止覆盖未消费的数据，还有解决竞争写的问题，笔者可能会直接使用AtomicLong，而在Disruptor中是用Unsafe实现的，在原理上都是用CAS。</p>
-</li>
-<li>然后通过<code>ringBuffer.get(sequence).setValue(i)</code>获取对应的实体，并且设置好数据。</li>
-<li>最后通过<code>ringBuffer.publish(sequence)</code>安全发布数据，所谓安全就是要让发布的数据对所有的线程都是可见的。在<code>SingleProducerSequencer</code>和<code>MultiProducerSequencer</code>中都是通过调用<code>UNSAFE.putOrderedLong(...)</code>完成安全发布，该方法可以使写操作穿过memory barrier。成功发布数据后还需要根据不同的WaitStrategy执行不同的操作，比如BusySpinWaitStrategy不会做任何事情，而BlockingWaitStrategy将会signalAll。</li>
-</ol>
-<h2 id="ConsumerBarrier">ConsumerBarrier</h2><p>对于消费者这边，需要有一个或多个<code>EventProcessor</code>做为消费者，具体的处理逻辑通过实现<code>EventHandler</code>或<code>WorkHandler</code>中的<code>onEvent</code>方法定义，从使用者的角度来说是非常清晰的。</p>
+<p>对于<code>MultiProducerSequencer</code>，除了要防止覆盖未消费的数据，还有解决竞争写的问题，笔者可能会直接使用AtomicLong，而在Disruptor中是用Unsafe实现的，在原理上都是用CAS。 2. 然后通过<code>ringBuffer.get(sequence).setValue(i)</code>获取对应的实体，并且设置好数据。 3. 最后通过<code>ringBuffer.publish(sequence)</code>安全发布数据，所谓安全就是要让发布的数据对所有的线程都是可见的。在<code>SingleProducerSequencer</code>和<code>MultiProducerSequencer</code>中都是通过调用<code>UNSAFE.putOrderedLong(...)</code>完成安全发布，该方法可以使写操作穿过memory barrier。成功发布数据后还需要根据不同的WaitStrategy执行不同的操作，比如BusySpinWaitStrategy不会做任何事情，而BlockingWaitStrategy将会signalAll。</p>
+<h2 id="consumerbarrier">ConsumerBarrier</h2>
+<p>对于消费者这边，需要有一个或多个<code>EventProcessor</code>做为消费者，具体的处理逻辑通过实现<code>EventHandler</code>或<code>WorkHandler</code>中的<code>onEvent</code>方法定义，从使用者的角度来说是非常清晰的。</p>
 <p>对于<code>BatchEventProcessor</code>和<code>WorkProcessor</code>的构造方法都需要传入一个<code>SequenceBarrier</code>，使得消费者可以跟踪生产者的状态，以及有依赖关系的其它消费者的状态。这里传入的<code>SequenceBarrier</code>是通过<code>RingBuffer</code>中的<code>newBarrier(Sequence... sequencesToTrack)</code>方法生成的<code>ProcessingSequenceBarrier</code>。</p>
 <p><code>BatchEventProcessor</code>线程起动后就调用<code>ProcessingSequenceBarrier</code>的<code>public long waitFor(final long sequence)</code>方法等待发布的数据，具体的等待策略又因WaitStrategy而不同，等到有新发布的数据就调用重载的<code>onEvent</code>方法执行客户逻辑。</p>
 	  

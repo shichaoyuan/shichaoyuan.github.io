@@ -6,11 +6,12 @@
   <title>如何高仿Instagram的热门发现Tab | Notes</title>
   <meta name="author" content="Shichao Yuan">
   
-  <meta name="description" content="1最近在做的项目类似Instagram，其中第二个Tab基本上完全一致……
+  <meta name="description" content="1
+最近在做的项目类似Instagram，其中第二个Tab基本上完全一致……
 如何做呢？
 首先看看INS是如何做的。
 狂刷INS的第二个Tab，发现其中的feed分了两类：“全球热门项目”和“根据你关注的用户”；点击进入feed终端页，感觉内容你预先加载完的（除了照片）。
-申请一个开发者账号，调用一下">
+申请一个开发者账号，调用一">
   
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -97,39 +98,46 @@
 
 	<!-- content -->
 	<div class="mypage">		
-	    <h1 id="1">1</h1><p>最近在做的项目类似Instagram，其中第二个Tab基本上完全一致……</p>
+	    <h1 id="section">1</h1>
+<p>最近在做的项目类似Instagram，其中第二个Tab基本上完全一致……</p>
 <p>如何做呢？</p>
 <p>首先看看INS是如何做的。</p>
 <p>狂刷INS的第二个Tab，发现其中的feed分了两类：“全球热门项目”和“根据你关注的用户”；点击进入feed终端页，感觉内容你预先加载完的（除了照片）。</p>
-<p>申请一个开发者账号，调用一下<a href="https://api.instagram.com/v1/media/popular?access_token=ACCESS-TOKEN" target="_blank" rel="external">https://api.instagram.com/v1/media/popular?access_token=ACCESS-TOKEN</a></p>
+<p>申请一个开发者账号，调用一下https://api.instagram.com/v1/media/popular?access_token=ACCESS-TOKEN</p>
 <p>发现其返回的json包含feed的完整信息。</p>
-<h1 id="2">2</h1><p>我们的需求：</p>
-<ol>
+<h1 id="section-1">2</h1>
+<p>我们的需求：</p>
+<ol style="list-style-type: decimal">
 <li>下拉刷新，根据权重随机呈现；</li>
 <li>上滑翻页，分页读取；</li>
 <li>多个内容源，比如：运营筛选、算法推荐、地理位置；</li>
 <li>可以很用容易改变不同内容源的配比。</li>
 </ol>
 <p>还有不要太慢 嘻嘻</p>
-<h1 id="3">3</h1><p>总体设计：</p>
-<ol>
+<h1 id="section-2">3</h1>
+<p>总体设计：</p>
+<ol style="list-style-type: decimal">
 <li>生产内容源；</li>
 <li>配比内容源，更新线上内容库；</li>
 <li>读取线上内容库，根据权重随机呈现。</li>
 </ol>
 <p>其中使用Redis做为线上内容库。</p>
-<h1 id="4">4</h1><p>生产内容源</p>
+<h1 id="section-3">4</h1>
+<p>生产内容源</p>
 <p>目前有两个：一个mahout的协同过滤推荐算法，一个运营人员筛选。</p>
 <p>没什么需要解释的。</p>
-<h1 id="5">5</h1><p>配比内容源，更新线上内容库；</p>
+<h1 id="section-4">5</h1>
+<p>配比内容源，更新线上内容库；</p>
 <p>一个定时任务，从不同的内容源中选择不同的配备的内容，然后推送到Redis中。</p>
 <p>其中如何设定权重是一个比较有趣的问题，先留坑。</p>
-<h1 id="6">6</h1><p>读取线上内容库，根据权重随机呈现</p>
+<h1 id="section-5">6</h1>
+<p>读取线上内容库，根据权重随机呈现</p>
 <p>Redis中数据的组织形式是，userId对应一个redisList，redisList中数据项的序列化和反序列化使用protobuf。</p>
 <p>目前设想单个user对应feed的数量为一万左右，如果一次全部读取，并发量较高的时候，程序GC的负担会比较重，所以使用了分段读取的方法——<a href="https://github.com/shichaoyuan/snippets/blob/master/RedisListIterator.java" target="_blank" rel="external">RedisListIterator.java</a>。</p>
 <p>如何根据权重随机选择，参考之前的文章——<a href="http://shichaoyuan.github.io/algorithm/2014/12/28/sample_algorithm.html">关于sample算法</a>。</p>
 <p>至于分页，用Reids的List也很容易解决。</p>
-<h1 id="7">7</h1><p>该接口的性能基本上严重依赖Redis的性能；</p>
+<h1 id="section-6">7</h1>
+<p>该接口的性能基本上严重依赖Redis的性能；</p>
 <p>随着用户的增加，Reids集群的容量也得成正比增加。</p>
 	  
 	</div>

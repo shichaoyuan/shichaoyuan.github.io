@@ -6,13 +6,15 @@
   <title>关于附近的XXX | Notes</title>
   <meta name="author" content="Shichao Yuan">
   
-  <meta name="description" content="1近来的一个需求——附近的XXX。
+  <meta name="description" content="1
+近来的一个需求——附近的XXX。
 google一下，
 最方便的解决方案是MongoDB的geoNear命令。
 无奈我司的DBA属于老成持重型的，所以只能使用MySQL……
-怎么办呢？ 
-2假设表：
-1234567+-------------+------------+------+-----+--">
+怎么办呢？
+2
+假设表：
+1234567+-------------+------------+------+-----+-">
   
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -99,12 +101,14 @@ google一下，
 
 	<!-- content -->
 	<div class="mypage">		
-	    <h1 id="1">1</h1><p>近来的一个需求——附近的XXX。</p>
+	    <h1 id="section">1</h1>
+<p>近来的一个需求——附近的XXX。</p>
 <p>google一下，</p>
 <p>最方便的解决方案是MongoDB的<a href="http://docs.mongodb.org/manual/reference/command/geoNear/" target="_blank" rel="external">geoNear</a>命令。</p>
 <p>无奈我司的DBA属于老成持重型的，所以只能使用MySQL……</p>
-<p>怎么办呢？ </p>
-<h1 id="2">2</h1><p>假设表：</p>
+<p>怎么办呢？</p>
+<h1 id="section-1">2</h1>
+<p>假设表：</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">+<span class="comment">-------------+------------+------+-----+---------+-------+</span></span><br><span class="line">| Field       | Type       | Null | Key | Default | Extra |</span><br><span class="line">+<span class="comment">-------------+------------+------+-----+---------+-------+</span></span><br><span class="line">| xxx_id      | bigint(20) | NO   | PRI | NULL    |       |</span><br><span class="line">| lat         | double     | NO   |     | NULL    |       |</span><br><span class="line">| lon         | double     | NO   |     | NULL    |       |</span><br><span class="line">+<span class="comment">-------------+------------+------+-----+---------+-------+</span></span><br></pre></td></tr></table></figure>
 <p>想找某半径范围内，按照距离远近排序的xxx_id列表，如何写SQL语句呢?</p>
 <p>其实我也不会写…… （笑）</p>
@@ -116,7 +120,8 @@ google一下，
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1&#176; of latitude ~= 69 miles&#10;1&#176; of longitude ~= cos(latitude)*69&#10;To calculate lon and lat for the rectangle:</span><br></pre></td></tr></table></figure>
 <p>当然这个PPT是某个DBA写的……</p>
 <p>我们通常不会把这么多计算的逻辑放在mysql上。</p>
-<h1 id="3">3</h1><p>沿着上述缩小探索范围的思路，就很容易想到一个叫做<a href="http://en.wikipedia.org/wiki/Geohash" target="_blank" rel="external">Geohash</a>的算法。</p>
+<h1 id="section-2">3</h1>
+<p>沿着上述缩小探索范围的思路，就很容易想到一个叫做<a href="http://en.wikipedia.org/wiki/Geohash" target="_blank" rel="external">Geohash</a>的算法。</p>
 <p>该算法简而言之就是将地图一半一半地切分成一个个小区域，每个小区域计算出一个一维的编码。</p>
 <p>Github上有个很不错的项目——<a href="https://github.com/kungfoo/geohash-java" target="_blank" rel="external">geohash-java</a>——可以直接拿来用。</p>
 <p>计算Geohash的核心算法如下：</p>
@@ -125,12 +130,14 @@ google一下，
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">+<span class="comment">-------------+------------+------+-----+---------+-------+</span></span><br><span class="line">| geo_hash_32 | bigint(20) | NO   | MUL | NULL    |       |</span><br><span class="line">+<span class="comment">-------------+------------+------+-----+---------+-------+</span></span><br></pre></td></tr></table></figure>
 <p>32表示geohash的bit长度，也就是维度之间大约300米的范围。</p>
 <p>另外这还有个好处，如果数据量上来了还可以通过geo_hash_32字段散表。</p>
-<h1 id="4">4</h1><p>最后串一下整个流程：</p>
+<h1 id="section-3">4</h1>
+<p>最后串一下整个流程：</p>
 <p>某用户在A点，半径m米，</p>
 <p>首先计算出覆盖这个半径的geo_hash_32列表，</p>
 <p>然后从数据库中查询出数据，</p>
 <p>最后计算距离、排序</p>
-<h1 id="5">5</h1><p>记得之前看过一篇介绍uber架构的文章——<a href="http://www.infoq.com/news/2015/03/uber-realtime-market-platform" target="_blank" rel="external">Uber Unveils its Realtime Market Platform</a>，</p>
+<h1 id="section-4">5</h1>
+<p>记得之前看过一篇介绍uber架构的文章——<a href="http://www.infoq.com/news/2015/03/uber-realtime-market-platform" target="_blank" rel="external">Uber Unveils its Realtime Market Platform</a>，</p>
 <p>其中提到了一个称为<a href="https://code.google.com/p/s2-geometry-library/" target="_blank" rel="external">s2-geometry-library</a>的类库。</p>
 <blockquote>
 <p>The S2 Geometry Library is a spherical geometry library, very useful for manipulating regions on the sphere (commonly on Earth) and indexing geographic data.</p>
