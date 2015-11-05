@@ -24,6 +24,7 @@
   <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/font-awesome.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/responsive.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/highlight.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/google-fonts.css" media="screen" type="text/css">
   <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
@@ -84,10 +85,206 @@
       <i class="fa fa-heart"></i>
       Stay Hungry, Stay Foolish.
 </div>    
-
+		<div id="top_search"></div>
 		<div class="mypage">
 		
 		<!-- title and entry -->
+		
+			
+	
+	<!-- display as entry -->	
+		<h3 class="title">
+			<div class="date"> 2015-06-15 </div>
+			<div class="article-title"><a href="/2015/06/15/link_prediction_problem/" >Link Prediction Problem</a></div>						
+		</h3>
+	
+
+
+			<div class="entry">
+  <div class="row">
+	
+	
+		
+		<!-- <h2 id="section">1</h2>
+<p>最近在看一些好友推荐的东西，所以就多google了一下。</p>
+<p>看到一篇论文<a href="http://www.cs.cornell.edu/home/kleinber/link-pred.pdf" target="_blank" rel="external">《The Link Prediction Problem for Social Networks》</a>，感觉写的很不错。</p>
+<p>（对这种形式化的描述没抵抗力 :-D）</p>
+<p>所以就是做个笔记吧。</p>
+<h2 id="section-1">2</h2>
+<p>首先<em>social networks</em>可以理解为图，其中<em>nodes</em>表示人或者其他实体，<em>edges</em>标示交互、协作或者关系。</p>
+<p>那么好友推荐的问题就可以理解为基于原有的好友关系图结构，预测可能出现的新的关系。</p>
+<p>更一般的，可以理解为<em>link prediction problem</em>，基于原有的图结构，预测图的演化。</p>
+<blockquote>
+<p>the <em>link prediction problem</em>：</p>
+<p>Given a snapshot of a social network at time <em>t</em>, we seek to accurately predict the edges that will be added to the network during the interval from time <span class="math inline">\(t\)</span> to a given future time <span class="math inline">\(t&#39;\)</span>.</p>
+</blockquote>
+<p>当然现实中的交互和关系有很多原因，单单从图结构中是分析不出来的。</p>
+<p>但是</p>
+<blockquote>
+<p>We find that a number of proximity measures lead to predictions that outperform chance by factors of 40 to 50, indicating that the network topology does indeed contain latent information from which to infer future interactions.</p>
+</blockquote>
+<p>（是这样么？ 暂且相信一下吧，不然就没法继续读下去了 :-D）</p>
+<h2 id="section-2">3</h2>
+<p>形式化这个问题。</p>
+<p>social network: <span class="math inline">\(G = \langle V, E \rangle\)</span></p>
+<p>each edge: <span class="math inline">\(e = \langle u, v \rangle \in E\)</span></p>
+<p>表示<span class="math inline">\(u,v\)</span>在特定时间<span class="math inline">\(t(e)\)</span>发生交互，其中多次交互记录为并行的边。</p>
+<p><span class="math inline">\(G[t, t&#39;]\)</span>表示某时间段内<span class="math inline">\((t &lt; t&#39;)\)</span>的子图。</p>
+<p>另外这篇文章为了评估不同的算法还是定义训练和测试的方法：</p>
+<blockquote>
+<p>We choose four times <span class="math inline">\(t_0 &lt; t&#39;_0 &lt; t_1 &lt; t&#39;_1\)</span>, and give an algorithm access to the network <span class="math inline">\(G[t_0,t&#39;_0]\)</span>; it must then output a list of edges, not present in <span class="math inline">\(G[t_0,t&#39;_0]\)</span>, that are predicted to appear in the network <span class="math inline">\(G[t_1,t&#39;_1]\)</span>. We refer to <span class="math inline">\([t_0,t&#39;_0]\)</span> as the <em>training interval</em> and <span class="math inline">\([t_1,t&#39;_1]\)</span> as the <em>test interval</em>.</p>
+<p>Thus, in evaluating link prediction methods, we will generally use two parameters <span class="math inline">\(\mit{κ_{training}}\)</span> and <span class="math inline">\(\mit{κ_{test}}\)</span> (each set to 3 below), and define the set <strong>Core</strong> to be all nodes incident to at least <span class="math inline">\(\mit{κ_{training}}\)</span> edges in <span class="math inline">\(G[t_0, t&#39;_0]\)</span> and at least <span class="math inline">\(\mit{κ_{test}}\)</span> edges in <span class="math inline">\(G[t_1,t&#39;_1]\)</span>. We will then evaluate how accurately the new edges between elements of <strong>Core</strong> can be predicted.</p>
+<p>We define the training interval to be the three years <span class="math inline">\([1994, 1996]\)</span>, and the test interval to be <span class="math inline">\([1997, 1999]\)</span>. We denote the subgraph <span class="math inline">\(G[1994, 1996]\)</span> on the training interval by $G_{collab} := A, E_{old} $, and use <span class="math inline">\(E_{new}\)</span> to denote the set of edges <span class="math inline">\(\langle u, v \rangle\)</span> such that <span class="math inline">\(u, v \in A\)</span>, and <span class="math inline">\(u, v\)</span> co-author a paper during the test interval but not the training interval – these are the new interactions we are seeking to predict.</p>
+</blockquote>
+<p>评估的方法如下：</p>
+<blockquote>
+<p>Each link predictor <span class="math inline">\(p\)</span> that we consider outputs a ranked list <span class="math inline">\(L_p\)</span> of pairs in <span class="math inline">\(A×A−E_{old}\)</span>; these are predicted new collaborations, in decreasing order of confidence. For our evaluation, we focus on the set <strong>Core</strong>, so we define <span class="math inline">\(E^∗_{new} := E_{new} \cap (Core \times Core)\)</span> and <span class="math inline">\(n := |E^∗_{new}|\)</span>. Our performance measure for predictor <span class="math inline">\(p\)</span> is then determined as follows: from the ranked list <span class="math inline">\(L_p\)</span>, we take the first <span class="math inline">\(n\)</span> pairs in <span class="math inline">\(Core \times Core\)</span>, and determine the size of the intersection of this set of pairs with the set <span class="math inline">\(E^∗_{new}\)</span>.</p>
+</blockquote>
+<h2 id="section-3">4</h2>
+<p>定义方法的输入输出。</p>
+<p>输入：<span class="math inline">\(G_{collab}\)</span></p>
+<p>输出：<span class="math inline">\(score(x, y)\)</span>降序的列表</p>
+<p>基本上可以理解为通过原有的图结构计算节点<span class="math inline">\(x,y\)</span>之间的proximity。</p>
+<p>最基本的方法就是计算<span class="math inline">\(G_{collab}\)</span>中<span class="math inline">\(x, y\)</span>的最短路径，为了保持结果降序排列，对路径长度取负值，其中等于1的路径属于训练图。</p>
+<h2 id="section-4">5</h2>
+<p>Methods based on node neighborhoods</p>
+<p><span class="math inline">\(\Gamma(x)\)</span>表示图<span class="math inline">\(G_{collab}\)</span>中节点<span class="math inline">\(x\)</span>的邻居的集合。</p>
+<p>直觉上来说，相同的邻居更多的连个节点更容易产生关系，这类方法就是基于这个假设。</p>
+<h3 id="common-neighbors">Common neighbors</h3>
+<p>$score(x, y) := (x)(y)$</p>
+<h3 id="jaccards-coefficient-and-adamicadar">Jaccard’s coefficient and Adamic/Adar</h3>
+<p>Jaccard’s coefficient通常用于信息检索中的相似度测量，</p>
+<p><span class="math inline">\(score(x, y) := \mid\Gamma(x)\cap\Gamma(y)\mid/\mid\Gamma(x)\cup\Gamma(y)\mid\)</span></p>
+<p>Adamic/Adar加大了稀有特征的权重，</p>
+<p><span class="math inline">\(score(x,y) := \sum\nolimits_{z\in\Gamma(x)\cap\Gamma(y)}\frac{1}{\log\mid\Gamma(z)\mid}\)</span></p>
+<h3 id="preferential-attachment">Preferential attachment</h3>
+<p>该方法的基本的假设是节点涉及新边的概率与其邻居的数量成正比，</p>
+<p><span class="math inline">\(score(x,y) := \mid\Gamma(x)\mid\cdot\mid\Gamma(y)\mid\)</span></p>
+<h2 id="section-5">6</h2>
+<p>Methods based on the ensemble of all paths</p>
+<p>这类方法基于最短路径的思路，不过是考虑了两点之间所有路径。</p>
+<h3 id="katz">Katz</h3>
+<p><span class="math inline">\(score(x,y) := \sum\limits_{l=1}^{\infty}\beta^l\cdot\mid paths_{x,y}^{\langle l \rangle} \mid\)</span></p>
+<p><span class="math inline">\(paths_{x,y}^{\langle l \rangle} := \{paths\ of\ length\ exactly\ l\ from\ x\ to\ y\}\)</span></p>
+<p>当<span class="math inline">\(\beta\)</span>值比较小的时候，结果基本与common neighbors方法类似。</p>
+<p>此外该方法还分为加权、不加权两种：</p>
+<p>weighted: <span class="math inline">\(paths_{x,y}^{\langle 1 \rangle} := number\ of\ collaborations\ between\ x,y.\)</span></p>
+<p>unweighted: <span class="math inline">\(paths_{x,y}^{\langle 1 \rangle} := 1\ iff\ x\ and\ y\ collaborate.\)</span></p>
+<h3 id="hitting-times-pagerank-and-variants">Hitting times, PageRank, and variants</h3>
+<p>该方法的思想是在<span class="math inline">\(G_{collab}\)</span>上进行<em>random walk</em></p>
+<p><em>hitting time</em> <span class="math inline">\(H_{x,y}\)</span>标示从<span class="math inline">\(x\)</span>到<span class="math inline">\(y\)</span>的期望的步数</p>
+<p><em>commute time</em> <span class="math inline">\(C_{x,y} := H_{x,y} + H_{y,x}\)</span></p>
+<p>但是当<span class="math inline">\(y\)</span>的<em>stationary probability</em> <span class="math inline">\(\pi_y\)</span>比较大的时候，对于任意<span class="math inline">\(x\)</span>，<span class="math inline">\(H_{x,y}\)</span>的值都很小，所以做一点儿归一化。</p>
+<p><span class="math inline">\(score(x,y) := -H_{x,y}\cdot\pi_y\)</span></p>
+<p><span class="math inline">\(score(x,y) := -(H_{x,y}\cdot\pi_y + H_{y,x}\cdot\pi_x)\)</span></p>
+<p>但是这种测量方法还有一个问题，其测量值对图部分的结构更敏感，所以在<em>random walk</em>中加入固定的概率<span class="math inline">\(\alpha\)</span>退回。</p>
+<blockquote>
+<p>rooted PageRank</p>
+<p>stationary distribution weight of <span class="math inline">\(y\)</span> under the following random walk:</p>
+<p>with probability <span class="math inline">\(\alpha\)</span>, jump to <span class="math inline">\(x\)</span>.</p>
+<p>with probability <span class="math inline">\(1-\alpha\)</span>, go to random neighbor of current node.</p>
+</blockquote>
+<h3 id="simrank">SimRank</h3>
+<p><span class="math inline">\(score(x,y) := \begin{equation}\left \{\begin{array}\\\gamma\cdot\frac{\sum\nolimits_{a\in\Gamma(x)}\sum\nolimits_{b\in\Gamma(y)}score(a,b)}{\mid\Gamma(x)\mid\cdot\mid\Gamma(y)\mid} &amp; otherwise \\1 &amp; if\ x = y\end{array}\right.\end{equation}\)</span></p>
+<p><span class="math inline">\(\gamma\in[0,1]\)</span></p>
+<blockquote>
+<p>SimRank can also be interpreted in terms of a random walk on the collaboration graph: it is the expected value of <span class="math inline">\(\gamma^l\)</span>, where <span class="math inline">\(l\)</span> is a random variable giving the time at which random walks started from <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span> first meet.</p>
+</blockquote>
+<h2 id="section-6">7</h2>
+<p>Higher-level approaches</p>
+<p>三个meta-approaches，可以结合任一上述方法。</p>
+<h3 id="low-rank-approximation">Low-rank approximation</h3>
+<p>上述算法都可以转换为矩阵运算，那么就可以用SVD降秩，这也可以看做为一种noise-reduction的方法。</p>
+<h3 id="unseen-bigrams">Unseen bigrams</h3>
+<blockquote>
+<p>Link prediction is akin to the problem of estimating frequencies for unseen bigrams in language modeling—pairs of words that co-occur in a test corpus, but not in the corresponding training corpus.</p>
+<p>we can augment our estimates for <span class="math inline">\(score(x, y)\)</span> using values of <span class="math inline">\(score(z, y)\)</span> for nodes <span class="math inline">\(z\)</span> that are “similar” to <span class="math inline">\(x\)</span>.</p>
+</blockquote>
+<p><span class="math inline">\(score_{unweighted}^*(x,y) := \mid\{z:z\in\Gamma(y)\cap S_x^{\langle\delta\rangle}\}\mid\)</span></p>
+<p><span class="math inline">\(score_{weighted}^*(x,y) := \sum\nolimits_{z\in\Gamma(y)\cap S_x^{\langle\delta\rangle}}score(x,z)\)</span></p>
+<p><span class="math inline">\(S_x^{\langle\delta\rangle}\)</span>表示基于<span class="math inline">\(score(x,\cdot)\)</span>与<span class="math inline">\(x\)</span>最相关的<span class="math inline">\(\delta\)</span>个节点。</p>
+<h3 id="clustering">Clustering</h3>
+<p>通过聚类删除一些tenuous的边，然后在cleaned-up的子图上进行计算。</p>
+<h2 id="section-7">8</h2>
+<p>一些结论</p>
+<blockquote>
+<p>the small world problem is really a problem. The shortest path between two scientists in wholly unrelated disciplines is often very short (and very tenuous).</p>
+<p>Overall, the basic graph distance predictor is not competitive with most of the other approaches studied; our most successful link predictors can be viewed as using measures of proximity that are robust to the few edges that result from rare collaborations between fields.</p>
+</blockquote>
+<p>AA还是不错的。</p>
+<blockquote>
+<p>The small world problem suggests that there are many pairs with graph distance two that will not collaborate, but we also observe the dual problem: many pairs that collaborate are at distance larger than two.</p>
+</blockquote>
+ -->
+	
+	</div>
+  <a type="button" href="/2015/06/15/link_prediction_problem/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+	
+	<!-- display as entry -->	
+		<h3 class="title">
+			<div class="date"> 2015-05-26 </div>
+			<div class="article-title"><a href="/2015/05/26/geonear/" >关于附近的XXX</a></div>						
+		</h3>
+	
+
+
+			<div class="entry">
+  <div class="row">
+	
+	
+		
+		<!-- <h1 id="section">1</h1>
+<p>近来的一个需求——附近的XXX。</p>
+<p>google一下，</p>
+<p>最方便的解决方案是MongoDB的<a href="http://docs.mongodb.org/manual/reference/command/geoNear/" target="_blank" rel="external">geoNear</a>命令。</p>
+<p>无奈我司的DBA属于老成持重型的，所以只能使用MySQL……</p>
+<p>怎么办呢？</p>
+<h1 id="section-1">2</h1>
+<p>假设表：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">+<span class="comment">-------------+------------+------+-----+---------+-------+</span></span><br><span class="line">| Field       | Type       | Null | Key | Default | Extra |</span><br><span class="line">+<span class="comment">-------------+------------+------+-----+---------+-------+</span></span><br><span class="line">| xxx_id      | bigint(20) | NO   | PRI | NULL    |       |</span><br><span class="line">| lat         | double     | NO   |     | NULL    |       |</span><br><span class="line">| lon         | double     | NO   |     | NULL    |       |</span><br><span class="line">+<span class="comment">-------------+------------+------+-----+---------+-------+</span></span><br></pre></td></tr></table></figure>
+<p>想找某半径范围内，按照距离远近排序的xxx_id列表，如何写SQL语句呢?</p>
+<p>其实我也不会写…… （笑）</p>
+<p>不过找到了一个相关的PPT <a href="http://www.notaires.fr/sites/default/files/geo_searchjkkjkj_0.pdf" target="_blank" rel="external">Geo (proximity) Search with MySQL</a></p>
+<p>其中给出了SQL语句：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator"><span class="keyword">set</span> @orig_lat=<span class="number">121.9763</span>;</span> <span class="operator"><span class="keyword">set</span> @orig_lon=<span class="number">37.40445</span>;</span></span><br><span class="line"><span class="operator"><span class="keyword">set</span> @dist=<span class="number">10</span>;</span></span><br><span class="line"><span class="operator"><span class="keyword">SELECT</span> *, <span class="number">3956</span> * <span class="number">2</span> * <span class="keyword">ASIN</span>(<span class="keyword">SQRT</span>(</span><br><span class="line"><span class="keyword">POWER</span>(<span class="keyword">SIN</span>((@orig_lat - <span class="keyword">abs</span>(dest.lat)) * <span class="keyword">pi</span>()/<span class="number">180</span> / <span class="number">2</span>),</span><br><span class="line"><span class="number">2</span>) + <span class="keyword">COS</span>(@orig_lat * <span class="keyword">pi</span>()/<span class="number">180</span> ) * <span class="keyword">COS</span>(<span class="keyword">abs</span>(dest.lat) *</span><br><span class="line"><span class="keyword">pi</span>()/<span class="number">180</span>) * <span class="keyword">POWER</span>(<span class="keyword">SIN</span>((@orig_lon - dest.lon) *</span><br><span class="line"><span class="keyword">pi</span>()/<span class="number">180</span> / <span class="number">2</span>), <span class="number">2</span>) )) <span class="keyword">as</span> distance</span><br><span class="line"><span class="keyword">FROM</span> hotels dest</span><br><span class="line"><span class="keyword">having</span> distance &lt; @dist</span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> distance <span class="keyword">limit</span> <span class="number">10</span>\G</span></span><br></pre></td></tr></table></figure>
+<p>这么复杂…… 数据量大的话肯定性能低下。</p>
+<p>其中给出了一个解决方案，就是通过计算距离缩小探索空间：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1&#176; of latitude ~= 69 miles&#10;1&#176; of longitude ~= cos(latitude)*69&#10;To calculate lon and lat for the rectangle:</span><br></pre></td></tr></table></figure>
+<p>当然这个PPT是某个DBA写的……</p>
+<p>我们通常不会把这么多计算的逻辑放在mysql上。</p>
+<h1 id="section-2">3</h1>
+<p>沿着上述缩小探索范围的思路，就很容易想到一个叫做<a href="http://en.wikipedia.org/wiki/Geohash" target="_blank" rel="external">Geohash</a>的算法。</p>
+<p>该算法简而言之就是将地图一半一半地切分成一个个小区域，每个小区域计算出一个一维的编码。</p>
+<p>Github上有个很不错的项目——<a href="https://github.com/kungfoo/geohash-java" target="_blank" rel="external">geohash-java</a>——可以直接拿来用。</p>
+<p>计算Geohash的核心算法如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="title">GeoHash</span><span class="params">(<span class="keyword">double</span> latitude, <span class="keyword">double</span> longitude, <span class="keyword">int</span> desiredPrecision)</span> </span>&#123;</span><br><span class="line">	point = <span class="keyword">new</span> WGS84Point(latitude, longitude);</span><br><span class="line">	desiredPrecision = Math.min(desiredPrecision, <span class="number">64</span>);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">boolean</span> isEvenBit = <span class="keyword">true</span>;</span><br><span class="line">	<span class="keyword">double</span>[] latitudeRange = &#123; -<span class="number">90</span>, <span class="number">90</span> &#125;;</span><br><span class="line">	<span class="keyword">double</span>[] longitudeRange = &#123; -<span class="number">180</span>, <span class="number">180</span> &#125;;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">while</span> (significantBits &lt; desiredPrecision) &#123;</span><br><span class="line">		<span class="keyword">if</span> (isEvenBit) &#123;</span><br><span class="line">			divideRangeEncode(longitude, longitudeRange);</span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			divideRangeEncode(latitude, latitudeRange);</span><br><span class="line">		&#125;</span><br><span class="line">		isEvenBit = !isEvenBit;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	setBoundingBox(<span class="keyword">this</span>, latitudeRange, longitudeRange);</span><br><span class="line">	bits &lt;&lt;= (<span class="number">64</span> - desiredPrecision);</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">divideRangeEncode</span><span class="params">(<span class="keyword">double</span> value, <span class="keyword">double</span>[] range)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">double</span> mid = (range[<span class="number">0</span>] + range[<span class="number">1</span>]) / <span class="number">2</span>;</span><br><span class="line">	<span class="keyword">if</span> (value &gt;= mid) &#123;</span><br><span class="line">		addOnBitToEnd();</span><br><span class="line">		range[<span class="number">0</span>] = mid;</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		addOffBitToEnd();</span><br><span class="line">		range[<span class="number">1</span>] = mid;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>所以就在表中多个一个字段：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">+<span class="comment">-------------+------------+------+-----+---------+-------+</span></span><br><span class="line">| geo_hash_32 | bigint(20) | NO   | MUL | NULL    |       |</span><br><span class="line">+<span class="comment">-------------+------------+------+-----+---------+-------+</span></span><br></pre></td></tr></table></figure>
+<p>32表示geohash的bit长度，也就是维度之间大约300米的范围。</p>
+<p>另外这还有个好处，如果数据量上来了还可以通过geo_hash_32字段散表。</p>
+<h1 id="section-3">4</h1>
+<p>最后串一下整个流程：</p>
+<p>某用户在A点，半径m米，</p>
+<p>首先计算出覆盖这个半径的geo_hash_32列表，</p>
+<p>然后从数据库中查询出数据，</p>
+<p>最后计算距离、排序</p>
+<h1 id="section-4">5</h1>
+<p>记得之前看过一篇介绍uber架构的文章——<a href="http://www.infoq.com/news/2015/03/uber-realtime-market-platform" target="_blank" rel="external">Uber Unveils its Realtime Market Platform</a>，</p>
+<p>其中提到了一个称为<a href="https://code.google.com/p/s2-geometry-library/" target="_blank" rel="external">s2-geometry-library</a>的类库。</p>
+<blockquote>
+<p>The S2 Geometry Library is a spherical geometry library, very useful for manipulating regions on the sphere (commonly on Earth) and indexing geographic data.</p>
+</blockquote>
+<p>具体细节、暂且留坑。</p>
+ -->
+	
+	</div>
+  <a type="button" href="/2015/05/26/geonear/#more" class="btn btn-default more">Read More</a>
+</div>
+
 		
 			
 	
@@ -101,11 +298,10 @@
 
 			<div class="entry">
   <div class="row">
-  
-	<div class="col-md-12">
-	  
 	
-	  <h1 id="section">1</h1>
+	
+		
+		<!-- <h1 id="section">1</h1>
 <p>抓取墙外的内容，</p>
 <p>翻墙，</p>
 <p>VPN，在程序中调用不方便；代理，比较方便。</p>
@@ -138,13 +334,10 @@
 <p>减过滤，也就是允许访问<code>instagram.com</code></p>
 <p>在<code>config</code>添加两行</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">actionsfile blacklist.action&#10;actionsfile whitelist.action</span><br></pre></td></tr></table></figure>
-
+ -->
 	
 	</div>
-	
-  
-</div>
-	<a type="button" href="/2015/04/09/privoxy/#more" class="btn btn-default more">Read More</a>
+  <a type="button" href="/2015/04/09/privoxy/#more" class="btn btn-default more">Read More</a>
 </div>
 
 		
@@ -160,11 +353,10 @@
 
 			<div class="entry">
   <div class="row">
-  
-	<div class="col-md-12">
-	  
 	
-	  <h1 id="section">1</h1>
+	
+		
+		<!-- <h1 id="section">1</h1>
 <p>之前有篇文章是介绍<a href="http://shichaoyuan.github.io/engineering/2015/02/12/copy_ins_popular_tab.html">如何山寨Instagram的热门发现Tab</a></p>
 <p>其中留了一个坑，如何配置不同类型的数据。</p>
 <p>近来跟PM讨论的比较多，所以记一下。</p>
@@ -234,13 +426,10 @@
 <p>根据时间权重随机选择。</p>
 <p>如果内容太少，使用协同过滤推荐计算的内容补全。</p>
 <p>最后shuffle一下，搞定。</p>
-
+ -->
 	
 	</div>
-	
-  
-</div>
-	<a type="button" href="/2015/03/21/popular_data/#more" class="btn btn-default more">Read More</a>
+  <a type="button" href="/2015/03/21/popular_data/#more" class="btn btn-default more">Read More</a>
 </div>
 
 		
@@ -256,11 +445,10 @@
 
 			<div class="entry">
   <div class="row">
-  
-	<div class="col-md-12">
-	  
 	
-	  <p>本文基于Java HotSpot(TM) 64-Bit Server VM (build 24.71-b01, mixed mode)</p>
+	
+		
+		<!-- <p>本文基于Java HotSpot(TM) 64-Bit Server VM (build 24.71-b01, mixed mode)</p>
 <h1 id="section">1</h1>
 <p>GC相关的几个JVM启动参数：</p>
 <table>
@@ -315,13 +503,10 @@
 <h1 id="section-2">3</h1>
 <p>如何可视化？</p>
 <p>使用<a href="https://github.com/chewiebug/GCViewer" target="_blank" rel="external">GCViewer</a></p>
-
+ -->
 	
 	</div>
-	
-  
-</div>
-	<a type="button" href="/2015/02/16/gc_log_1/#more" class="btn btn-default more">Read More</a>
+  <a type="button" href="/2015/02/16/gc_log_1/#more" class="btn btn-default more">Read More</a>
 </div>
 
 		
@@ -337,11 +522,10 @@
 
 			<div class="entry">
   <div class="row">
-  
-	<div class="col-md-12">
-	  
 	
-	  <h1 id="section">1</h1>
+	
+		
+		<!-- <h1 id="section">1</h1>
 <p>最近在做的项目类似Instagram，其中第二个Tab基本上完全一致……</p>
 <p>如何做呢？</p>
 <p>首先看看INS是如何做的。</p>
@@ -382,13 +566,10 @@
 <h1 id="section-6">7</h1>
 <p>该接口的性能基本上严重依赖Redis的性能；</p>
 <p>随着用户的增加，Reids集群的容量也得成正比增加。</p>
-
+ -->
 	
 	</div>
-	
-  
-</div>
-	<a type="button" href="/2015/02/12/copy_ins_popular_tab/#more" class="btn btn-default more">Read More</a>
+  <a type="button" href="/2015/02/12/copy_ins_popular_tab/#more" class="btn btn-default more">Read More</a>
 </div>
 
 		
@@ -404,11 +585,10 @@
 
 			<div class="entry">
   <div class="row">
-  
-	<div class="col-md-12">
-	  
 	
-	  <h1 id="section">1</h1>
+	
+		
+		<!-- <h1 id="section">1</h1>
 <p>最近在做的项目中有个小问题：</p>
 <p>nginx的log不支持自动分割（类似log4j的<code>DailyRollingFileAppender</code>）。</p>
 <p>查了一下，有个小命令logrotate可以很好的解决这个问题。</p>
@@ -453,13 +633,10 @@
 <p>还有一个比较容易忽略的问题，</p>
 <p><code>/etc/logrotate.d/nginx</code>文件的mode建议为<code>644</code>，否则可能无法执行。</p>
 <p>具体的原因参见<a href="https://fedorahosted.org/logrotate/changeset/302" target="_blank" rel="external">Changeset 302</a></p>
-
+ -->
 	
 	</div>
-	
-  
-</div>
-	<a type="button" href="/2015/01/29/logrotate/#more" class="btn btn-default more">Read More</a>
+  <a type="button" href="/2015/01/29/logrotate/#more" class="btn btn-default more">Read More</a>
 </div>
 
 		
@@ -475,11 +652,10 @@
 
 			<div class="entry">
   <div class="row">
-  
-	<div class="col-md-12">
-	  
 	
-	  <h1 id="section">1</h1>
+	
+		
+		<!-- <h1 id="section">1</h1>
 <p>最近在做的项目中有个需求，就是从热门内容库中，随机地吐出少量的热门内容。</p>
 <p>笔者首先想到的是洗牌算法——<a href="http://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle" target="_blank" rel="external">Fisher–Yates shuffle</a>。</p>
 <p>洗牌算法顾名思义，等洗完牌后，选择前几个或者后几个就行，</p>
@@ -515,13 +691,10 @@
 <p>论文的作者提供了算法的java代码，笔者也简单实现了一下A-ES算法：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WeightedItem</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> T value;</span><br><span class="line">    <span class="keyword">private</span> Double weight;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> T <span class="title">getValue</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> value;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setValue</span><span class="params">(T value)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.value = value;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Double <span class="title">getWeight</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> weight;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setWeight</span><span class="params">(Double weight)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.weight = weight;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SampledItem</span>&lt;<span class="title">T</span>&gt; <span class="keyword">implements</span> <span class="title">Comparable</span>&lt;<span class="title">SampledItem</span>&lt;<span class="title">T</span>&gt;&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> T value;</span><br><span class="line">    <span class="keyword">private</span> Double key;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> T <span class="title">getValue</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> value;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setValue</span><span class="params">(T value)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.value = value;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Double <span class="title">getKey</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> key;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setKey</span><span class="params">(Double key)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.key = key;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="annotation">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compareTo</span><span class="params">(SampledItem&lt;T&gt; that)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.getKey().compareTo(that.getKey());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> &lt;T&gt; List&lt;SampledItem&lt;T&gt;&gt; sampleAES(List&lt;WeightedItem&lt;T&gt;&gt; population, <span class="keyword">int</span> k) &#123;</span><br><span class="line">    <span class="keyword">if</span> (population == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (k &lt;= <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    Queue&lt;SampledItem&lt;T&gt;&gt; result = <span class="keyword">new</span> PriorityQueue&lt;SampledItem&lt;T&gt;&gt;(k);</span><br><span class="line">    </span><br><span class="line">    Random random = <span class="keyword">new</span> Random();</span><br><span class="line">    Iterator&lt;WeightedItem&lt;T&gt;&gt; iter = population.iterator();</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; k; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span> (iter.hasNext()) &#123;</span><br><span class="line">            WeightedItem&lt;T&gt; weightedItem = iter.next();</span><br><span class="line">            SampledItem&lt;T&gt; sampledItem = <span class="keyword">new</span> SampledItem&lt;T&gt;();</span><br><span class="line">            sampledItem.setKey(genKey(random, weightedItem.getWeight()));</span><br><span class="line">            sampledItem.setValue(weightedItem.getValue());</span><br><span class="line">            result.add(sampledItem);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (iter.hasNext()) &#123;</span><br><span class="line">        WeightedItem&lt;T&gt; weightedItem = iter.next();</span><br><span class="line">        <span class="keyword">double</span> key = genKey(random, weightedItem.getWeight());</span><br><span class="line">        SampledItem&lt;T&gt; minItem = result.peek();</span><br><span class="line">        <span class="keyword">if</span> (key &gt; minItem.getKey()) &#123;</span><br><span class="line">            result.poll();</span><br><span class="line">            SampledItem&lt;T&gt; sampledItem = <span class="keyword">new</span> SampledItem&lt;T&gt;();</span><br><span class="line">            sampledItem.setKey(key);</span><br><span class="line">            sampledItem.setValue(weightedItem.getValue());</span><br><span class="line">            result.add(sampledItem);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> ArrayList&lt;SampledItem&lt;T&gt;&gt;(result);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p><a href="https://github.com/shichaoyuan/snippets/blob/master/SampleUtil.java" target="_blank" rel="external">SampleUtil.java</a></p>
-
+ -->
 	
 	</div>
-	
-  
-</div>
-	<a type="button" href="/2014/12/28/sample_algorithm/#more" class="btn btn-default more">Read More</a>
+  <a type="button" href="/2014/12/28/sample_algorithm/#more" class="btn btn-default more">Read More</a>
 </div>
 
 		
@@ -537,11 +710,10 @@
 
 			<div class="entry">
   <div class="row">
-  
-	<div class="col-md-12">
-	  
 	
-	  <p>RPC部分的代码位于工程hadoop-common中，有三个主要的类。</p>
+	
+		
+		<!-- <p>RPC部分的代码位于工程hadoop-common中，有三个主要的类。</p>
 <p>1 org.apache.hadoop.ipc.Server</p>
 <p>该类秉承了reactive programming的思想，结合了Java NIO，是一个高性能的服务器端实现，总的来说可以分为四部分。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">Listener:</span><br><span class="line"><span class="keyword">private</span> Listener listener = <span class="keyword">null</span>;</span><br><span class="line"><span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">Listener</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 非阻塞同步I/O</span></span><br><span class="line">  <span class="keyword">private</span> ServerSocketChannel acceptChannel = <span class="keyword">null</span>;</span><br><span class="line">  <span class="keyword">private</span> Selector selector = <span class="keyword">null</span>;</span><br><span class="line">  <span class="comment">// 读进程</span></span><br><span class="line">  <span class="keyword">private</span> Reader[] readers = <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Queue:</span><br><span class="line"><span class="keyword">private</span> BlockingQueue&lt;Call&gt; callQueue;</span><br><span class="line"></span><br><span class="line">Handler:</span><br><span class="line"><span class="keyword">private</span> Handler[] handlers = <span class="keyword">null</span>;</span><br><span class="line"><span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">Handler</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</span><br><span class="line">  <span class="annotation">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">while</span> (running) &#123;</span><br><span class="line">      <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="comment">//不断从队列中读取Call处理</span></span><br><span class="line">      <span class="keyword">final</span> Call call = callQueue.take();</span><br><span class="line">      <span class="comment">// call是一个抽象方法，选择合适的rpcInvoker，执行远程调用方法</span></span><br><span class="line">      value = call(...);</span><br><span class="line">      <span class="comment">//通过responder返回消息</span></span><br><span class="line">      responder.doRespond(call);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Responder:</span><br><span class="line"><span class="keyword">private</span> Responder responder = <span class="keyword">null</span>;</span><br></pre></td></tr></table></figure>
@@ -551,13 +723,10 @@
 <p>3 org.apache.hadoop.ipc.RPC</p>
 <p>RPC类主要是对底层网络进行了封装，提供统一的编程接口，使用动态代理完成远程方法调用。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RPC</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 封装方法调用的接口</span></span><br><span class="line">  <span class="comment">// 在WritableRpcEngine和ProtobufRpcEngine中有具体的实现</span></span><br><span class="line">  <span class="class"><span class="keyword">interface</span> <span class="title">RpcInvoker</span> </span>&#123;&#125;</span><br><span class="line">  <span class="comment">// 设置不同的序列化和反序列化引擎：WritableRpcEngine和ProtobufRpcEngine</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">setProtocolEngine</span><span class="params">(...)</span> </span>&#123;&#125;</span><br><span class="line">  <span class="comment">// 构建客户端的代理对象</span></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; <span class="function">T <span class="title">getProxy</span><span class="params">()</span> </span>&#123;&#125;</span><br><span class="line">  <span class="comment">// 构建RPC服务器的辅助类</span></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Builder</span> </span>&#123;&#125;</span><br><span class="line">  <span class="comment">// 对Server的再封装</span></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Server</span> <span class="keyword">extends</span> <span class="title">org</span>.<span class="title">apache</span>.<span class="title">hadoop</span>.<span class="title">ipc</span>.<span class="title">Server</span> </span>&#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
+ -->
 	
 	</div>
-	
-  
-</div>
-	<a type="button" href="/2014/04/03/hadoop1/#more" class="btn btn-default more">Read More</a>
+  <a type="button" href="/2014/04/03/hadoop1/#more" class="btn btn-default more">Read More</a>
 </div>
 
 		
@@ -573,11 +742,10 @@
 
 			<div class="entry">
   <div class="row">
-  
-	<div class="col-md-12">
-	  
 	
-	  <p><a href="http://sigops.org/sosp/sosp13/papers/p33-david.pdf" target="_blank" rel="external">Everything You Always Wanted to Know About Synchronization but Were Afraid to Ask</a>，SOSP’13上的一篇文章，如果对concurrent感兴趣，那么推荐读一下。</p>
+	
+		
+		<!-- <p><a href="http://sigops.org/sosp/sosp13/papers/p33-david.pdf" target="_blank" rel="external">Everything You Always Wanted to Know About Synchronization but Were Afraid to Ask</a>，SOSP’13上的一篇文章，如果对concurrent感兴趣，那么推荐读一下。</p>
 <p>扩展软件系统到多核很难很重要，关键在于synchronization。</p>
 <blockquote>
 <p>From the Greek “syn”, i.e., <em>with</em>, and “khronos”, i.e., <em>time</em>, synchronization denotes the act of coordinating the timeline of a set of processes. (供扯淡使用)</p>
@@ -594,229 +762,10 @@
 <li><p>implementing multi-socket coherence using broadcast or an incomplete directory (as on the Opteron) is not favorable to synchronization.</p></li>
 </ol>
 <p>另外本文还贡献了一个跨平台的同步工具包<a href="http://lpd.epfl.ch/site/ssync" target="_blank" rel="external">SSYNC</a>。</p>
-
+ -->
 	
 	</div>
-	
-  
-</div>
-	<a type="button" href="/2013/11/05/notes_eyawtkasbwata/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
-			
-	
-	<!-- display as entry -->	
-		<h3 class="title">
-			<div class="date"> 2013-09-19 </div>
-			<div class="article-title"><a href="/2013/09/19/java_object_in_memory/" >Java Object in Memory</a></div>						
-		</h3>
-	
-
-
-			<div class="entry">
-  <div class="row">
-  
-	<div class="col-md-12">
-	  
-	
-	  <p>在一些高性能的Java代码中，经常会看到padding，其作用是避免false sharing。</p>
-<p>例如Disruptor中的Sequencer：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public class Sequence&#10;&#123;&#10;    static final long INITIAL_VALUE = -1L;&#10;    private static final Unsafe UNSAFE;&#10;    private static final long VALUE_OFFSET;&#10;&#10;    static&#10;    &#123;&#10;        UNSAFE = Util.getUnsafe();&#10;        final int base = UNSAFE.arrayBaseOffset(long[].class);&#10;        final int scale = UNSAFE.arrayIndexScale(long[].class);&#10;        VALUE_OFFSET = base + (scale * 7);&#10;    &#125;&#10;&#10;    private final long[] paddedValue = new long[15];&#10;&#9;&#10;......</span><br></pre></td></tr></table></figure>
-<p>其中的paddedValue从功能上来说只用到了第8个long值，而为了避免false sharing初始化15个long。</p>
-<p>false sharing很容易理解，cache line嘛，通常是64byte或者128byte。这里让笔者困惑的是——为什么是15而不是16？</p>
-<p>关于Java Object在内存中结构，笔者在<a href="http://docs.oracle.com/javase/specs/jvms/se7/jvms7.pdf" target="_blank" rel="external">JVMS</a>中没有找到详细的解释。而在一篇博客<a href="http://www.codeinstructions.com/2008/12/java-objects-memory-structure.html" target="_blank" rel="external">Java Objects Memory Structure</a>中找到了一些关于HotSpot JVM的相关内容。</p>
-<blockquote>
-<p>Rule 1: every object is aligned to an 8 bytes granularity.</p>
-</blockquote>
-<blockquote>
-<p>Rule 2: class attributes are ordered like this: first longs and doubles; then ints and floats; then chars and shorts; then bytes and booleans, and last the references. The attributes are aligned to their own granularity.</p>
-</blockquote>
-<blockquote>
-<p>Rule 3: Fields that belong to different classes of the hierarchy are NEVER mixed up together. Fields of the superclass come first, obeying rule 2, followed by the fields of the subclass.</p>
-</blockquote>
-<blockquote>
-<p>Rule 4: Between the last field of the superclass and the first field of the subclass there must be padding to align to a 4 bytes boundary.</p>
-</blockquote>
-<blockquote>
-<p>Rule 5: When the first field of a subclass is a double or long and the superclass doesn’t align to an 8 bytes boundary, JVM will break rule 2 and try to put an int, then shorts, then bytes, and then references at the beginning of the space reserved to the subclass until it fills the gap.</p>
-</blockquote>
-<p>这些Rules也解决不了笔者的困惑，不过另外几句话提供了一些线索。</p>
-<blockquote>
-<p>In the Sun JVM, every object (except arrays) has a 2 words header. The first word contains the object’s identity hash code plus some flags like lock state and age, and the second word contains a reference to the object’s class.</p>
-</blockquote>
-<blockquote>
-<p>Arrays have an extra header field that contain the value of the ‘length’ variable. The array elements follow, and the arrays, as any regular objects, are also aligned to an 8 bytes boundary.</p>
-</blockquote>
-<p>这篇博客的描述基于32bits HotSpot JVM，我们先写个程序验证一下。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.lang.reflect.Field;</span><br><span class="line"><span class="keyword">import</span> java.security.AccessController;</span><br><span class="line"><span class="keyword">import</span> java.security.PrivilegedExceptionAction;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> sun.misc.Unsafe;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ObjectsMemoryStructure</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">long</span>[] paddedValue = <span class="keyword">new</span> <span class="keyword">long</span>[<span class="number">15</span>];</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Unsafe UNSAFE;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">static</span> &#123;</span><br><span class="line">		<span class="keyword">try</span> &#123;</span><br><span class="line">			<span class="keyword">final</span> PrivilegedExceptionAction&lt;Unsafe&gt; action = <span class="keyword">new</span> PrivilegedExceptionAction&lt;Unsafe&gt;() &#123;</span><br><span class="line">				<span class="annotation">@Override</span></span><br><span class="line">				<span class="function"><span class="keyword">public</span> Unsafe <span class="title">run</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">					Field theUnsafe = Unsafe.class</span><br><span class="line">							.getDeclaredField(<span class="string">"theUnsafe"</span>);</span><br><span class="line">					theUnsafe.setAccessible(<span class="keyword">true</span>);</span><br><span class="line">					<span class="keyword">return</span> (Unsafe) theUnsafe.get(<span class="keyword">null</span>);</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;;</span><br><span class="line">			UNSAFE = AccessController.doPrivileged(action);</span><br><span class="line">		&#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">			<span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"Unable to load unsafe"</span>, e);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">		</span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; paddedValue.length; i++) &#123;</span><br><span class="line">			paddedValue[i] = i+<span class="number">1</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">long</span> i = <span class="number">0</span>; i &lt; <span class="number">160</span>; i++) &#123;</span><br><span class="line">			System.out.print(String.format(<span class="string">"%02x "</span>, UNSAFE.getByte(paddedValue, i) &amp; <span class="number">0xFF</span>));</span><br><span class="line">			<span class="keyword">if</span> (((i+<span class="number">1</span>) % <span class="number">8</span>) == <span class="number">0</span>)</span><br><span class="line">				System.out.println();</span><br><span class="line">		&#125;</span><br><span class="line">		System.out.println();</span><br><span class="line">		</span><br><span class="line">		VolatileLong vlong = <span class="keyword">new</span> VolatileLong();</span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">long</span> i = <span class="number">0</span>; i &lt; <span class="number">88</span>; i++) &#123;</span><br><span class="line">			System.out.print(String.format(<span class="string">"%02x "</span>, UNSAFE.getByte(vlong, i) &amp; <span class="number">0xFF</span>));</span><br><span class="line">			<span class="keyword">if</span> (((i+<span class="number">1</span>) % <span class="number">8</span>) == <span class="number">0</span>)</span><br><span class="line">				System.out.println();</span><br><span class="line">		&#125;</span><br><span class="line">		System.out.println();</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">VolatileLong</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">volatile</span> <span class="keyword">long</span> value = <span class="number">0L</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">long</span> p1=<span class="number">1</span>, p2=<span class="number">2</span>, p3=<span class="number">3</span>, p4=<span class="number">4</span>, p5=<span class="number">5</span>, p6=<span class="number">6</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>在32bits HotSpot JVM下执行输出如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">D:\springsource\workspace-sts-3.2.0.RELEASE\test\bin&#62;&#34;C:\Program Files (x86)\Jav&#10;a\jre7\bin\java.exe&#34; ObjectsMemoryStructure&#10;01 00 00 00 a0 46 04 3c&#10;0f 00 00 00 00 00 00 00&#10;01 00 00 00 00 00 00 00&#10;02 00 00 00 00 00 00 00&#10;03 00 00 00 00 00 00 00&#10;04 00 00 00 00 00 00 00&#10;05 00 00 00 00 00 00 00&#10;06 00 00 00 00 00 00 00&#10;07 00 00 00 00 00 00 00&#10;08 00 00 00 00 00 00 00&#10;09 00 00 00 00 00 00 00&#10;0a 00 00 00 00 00 00 00&#10;0b 00 00 00 00 00 00 00&#10;0c 00 00 00 00 00 00 00&#10;0d 00 00 00 00 00 00 00&#10;0e 00 00 00 00 00 00 00&#10;0f 00 00 00 00 00 00 00&#10;01 00 00 00 a8 09 a1 3b&#10;a8 b2 09 27 eb fa 7e ef&#10;00 00 00 00 00 00 00 00&#10;&#10;01 00 00 00 70 6e 05 37&#10;00 00 00 00 00 00 00 00&#10;01 00 00 00 00 00 00 00&#10;02 00 00 00 00 00 00 00&#10;03 00 00 00 00 00 00 00&#10;04 00 00 00 00 00 00 00&#10;05 00 00 00 00 00 00 00&#10;06 00 00 00 00 00 00 00&#10;01 00 00 00 40 17 05 3c&#10;01 00 00 00 e8 f0 09 27&#10;01 00 00 00 38 d2 03 37</span><br></pre></td></tr></table></figure>
-<p>可见上文的描述与实现相符。<code>private final long[] paddedValue = new long[15];</code>在内存中占用了136byte，不是完美的128byte。按照paddedValue的使用方式，无论136还是128没有太大的区别，但是笔者还是有点儿小小的疑问。</p>
-<p>在64bits HotSpot JVM下执行输出如下（UseCompressedOops默认是为true）：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">proxynode@proxynode0:~/shichaoyuan$ jdk1.7.0_25/bin/java ObjectsMemoryStructure&#10;01 00 00 00 00 00 00 00&#10;7a 02 e8 e7 0f 00 00 00&#10;01 00 00 00 00 00 00 00&#10;02 00 00 00 00 00 00 00&#10;03 00 00 00 00 00 00 00&#10;04 00 00 00 00 00 00 00&#10;05 00 00 00 00 00 00 00&#10;06 00 00 00 00 00 00 00&#10;07 00 00 00 00 00 00 00&#10;08 00 00 00 00 00 00 00&#10;09 00 00 00 00 00 00 00&#10;0a 00 00 00 00 00 00 00&#10;0b 00 00 00 00 00 00 00&#10;0c 00 00 00 00 00 00 00&#10;0d 00 00 00 00 00 00 00&#10;0e 00 00 00 00 00 00 00&#10;0f 00 00 00 00 00 00 00&#10;01 00 00 00 00 00 00 00&#10;d8 16 e8 e7 0b 5e 2f f8&#10;eb fa 7e ef 00 00 00 00&#10;&#10;01 00 00 00 00 00 00 00&#10;cc 3c ed e7 00 00 00 00&#10;00 00 00 00 00 00 00 00&#10;01 00 00 00 00 00 00 00&#10;02 00 00 00 00 00 00 00&#10;03 00 00 00 00 00 00 00&#10;04 00 00 00 00 00 00 00&#10;05 00 00 00 00 00 00 00&#10;06 00 00 00 00 00 00 00&#10;01 00 00 00 00 00 00 00&#10;5c 56 e9 e7 01 00 00 00</span><br></pre></td></tr></table></figure>
-<p>header的格式与长度发生了变化，非arrays的object的header也变成了16byte。</p>
-<p>在64bits HotSpot JVM下执行输出如下（将UseCompressedOops设置为false）：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">proxynode@proxynode0:~/shichaoyuan$ jdk1.7.0_25/bin/java -XX:-UseCompressedOops ObjectsMemoryStructure&#10;01 00 00 00 00 00 00 00&#10;d0 13 40 a4 41 7f 00 00&#10;0f 00 00 00 00 00 00 00&#10;01 00 00 00 00 00 00 00&#10;02 00 00 00 00 00 00 00&#10;03 00 00 00 00 00 00 00&#10;04 00 00 00 00 00 00 00&#10;05 00 00 00 00 00 00 00&#10;06 00 00 00 00 00 00 00&#10;07 00 00 00 00 00 00 00&#10;08 00 00 00 00 00 00 00&#10;09 00 00 00 00 00 00 00&#10;0a 00 00 00 00 00 00 00&#10;0b 00 00 00 00 00 00 00&#10;0c 00 00 00 00 00 00 00&#10;0d 00 00 00 00 00 00 00&#10;0e 00 00 00 00 00 00 00&#10;0f 00 00 00 00 00 00 00&#10;01 00 00 00 00 00 00 00&#10;c8 ba 40 a4 41 7f 00 00&#10;&#10;01 00 00 00 00 00 00 00&#10;38 9c 6a a4 41 7f 00 00&#10;00 00 00 00 00 00 00 00&#10;01 00 00 00 00 00 00 00&#10;02 00 00 00 00 00 00 00&#10;03 00 00 00 00 00 00 00&#10;04 00 00 00 00 00 00 00&#10;05 00 00 00 00 00 00 00&#10;06 00 00 00 00 00 00 00&#10;01 00 00 00 00 00 00 00&#10;c0 e9 4a a4 41 7f 00 00</span><br></pre></td></tr></table></figure>
-<p>header的格式与长度又发生了变化，arrays的header变成了24byte。</p>
-<p>看来这个没有被规范的地方，不同的硬件和平台存在着些许的不同。15或许在某些JVM实现中是完美的，所以笔者也不打算深究这个疑问了。</p>
-<p>下面我们来看看header里存储了那些内容。</p>
-<p>笔者查看了<a href="http://hg.openjdk.java.net/jdk7u/jdk7u" target="_blank" rel="external">openjdk7u</a>项目中hotspot的源代码，在<code>oop.hpp</code>和<code>markOop.hpp</code>中找到了一些相关的代码和注释。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> oopDesc &#123;</span><br><span class="line">  <span class="keyword">friend</span> <span class="keyword">class</span> VMStructs;</span><br><span class="line"> <span class="keyword">private</span>:</span><br><span class="line">  <span class="keyword">volatile</span> markOop  _mark;</span><br><span class="line">  <span class="keyword">union</span> _metadata &#123;</span><br><span class="line">    wideKlassOop    _klass;</span><br><span class="line">    narrowOop       _compressed_klass;</span><br><span class="line">  &#125; _metadata;</span><br></pre></td></tr></table></figure>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// The markOop describes the header of an object.</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">// Note that the mark is not a real oop but just a word.</span></span><br><span class="line"><span class="comment">// It is placed in the oop hierarchy for historical reasons.</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">// Bit-format of an object header (most significant first, big endian layout below):</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//  32 bits:</span></span><br><span class="line"><span class="comment">//  --------</span></span><br><span class="line"><span class="comment">//             hash:25 ------------&gt;| age:4    biased_lock:1 lock:2 (normal object)</span></span><br><span class="line"><span class="comment">//             JavaThread*:23 epoch:2 age:4    biased_lock:1 lock:2 (biased object)</span></span><br><span class="line"><span class="comment">//             size:32 ------------------------------------------&gt;| (CMS free block)</span></span><br><span class="line"><span class="comment">//             PromotedObject*:29 ----------&gt;| promo_bits:3 -----&gt;| (CMS promoted object)</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//  64 bits:</span></span><br><span class="line"><span class="comment">//  --------</span></span><br><span class="line"><span class="comment">//  unused:25 hash:31 --&gt;| unused:1   age:4    biased_lock:1 lock:2 (normal object)</span></span><br><span class="line"><span class="comment">//  JavaThread*:54 epoch:2 unused:1   age:4    biased_lock:1 lock:2 (biased object)</span></span><br><span class="line"><span class="comment">//  PromotedObject*:61 ---------------------&gt;| promo_bits:3 -----&gt;| (CMS promoted object)</span></span><br><span class="line"><span class="comment">//  size:64 -----------------------------------------------------&gt;| (CMS free block)</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//  unused:25 hash:31 --&gt;| cms_free:1 age:4    biased_lock:1 lock:2 (COOPs &amp;&amp; normal object)</span></span><br><span class="line"><span class="comment">//  JavaThread*:54 epoch:2 cms_free:1 age:4    biased_lock:1 lock:2 (COOPs &amp;&amp; biased object)</span></span><br><span class="line"><span class="comment">//  narrowOop:32 unused:24 cms_free:1 unused:4 promo_bits:3 -----&gt;| (COOPs &amp;&amp; CMS promoted object)</span></span><br><span class="line"><span class="comment">//  unused:21 size:35 --&gt;| cms_free:1 unused:7 ------------------&gt;| (COOPs &amp;&amp; CMS free block)</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//  - hash contains the identity hash value: largest value is</span></span><br><span class="line"><span class="comment">//    31 bits, see os::random().  Also, 64-bit vm's require</span></span><br><span class="line"><span class="comment">//    a hash value no bigger than 32 bits because they will not</span></span><br><span class="line"><span class="comment">//    properly generate a mask larger than that: see library_call.cpp</span></span><br><span class="line"><span class="comment">//    and c1_CodePatterns_sparc.cpp.</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//  - the biased lock pattern is used to bias a lock toward a given</span></span><br><span class="line"><span class="comment">//    thread. When this pattern is set in the low three bits, the lock</span></span><br><span class="line"><span class="comment">//    is either biased toward a given thread or "anonymously" biased,</span></span><br><span class="line"><span class="comment">//    indicating that it is possible for it to be biased. When the</span></span><br><span class="line"><span class="comment">//    lock is biased toward a given thread, locking and unlocking can</span></span><br><span class="line"><span class="comment">//    be performed by that thread without using atomic operations.</span></span><br><span class="line"><span class="comment">//    When a lock's bias is revoked, it reverts back to the normal</span></span><br><span class="line"><span class="comment">//    locking scheme described below.</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//    Note that we are overloading the meaning of the "unlocked" state</span></span><br><span class="line"><span class="comment">//    of the header. Because we steal a bit from the age we can</span></span><br><span class="line"><span class="comment">//    guarantee that the bias pattern will never be seen for a truly</span></span><br><span class="line"><span class="comment">//    unlocked object.</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//    Note also that the biased state contains the age bits normally</span></span><br><span class="line"><span class="comment">//    contained in the object header. Large increases in scavenge</span></span><br><span class="line"><span class="comment">//    times were seen when these bits were absent and an arbitrary age</span></span><br><span class="line"><span class="comment">//    assigned to all biased objects, because they tended to consume a</span></span><br><span class="line"><span class="comment">//    significant fraction of the eden semispaces and were not</span></span><br><span class="line"><span class="comment">//    promoted promptly, causing an increase in the amount of copying</span></span><br><span class="line"><span class="comment">//    performed. The runtime system aligns all JavaThread* pointers to</span></span><br><span class="line"><span class="comment">//    a very large value (currently 128 bytes (32bVM) or 256 bytes (64bVM))</span></span><br><span class="line"><span class="comment">//    to make room for the age bits &amp; the epoch bits (used in support of</span></span><br><span class="line"><span class="comment">//    biased locking), and for the CMS "freeness" bit in the 64bVM (+COOPs).</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//    [JavaThread* | epoch | age | 1 | 01]       lock is biased toward given thread</span></span><br><span class="line"><span class="comment">//    [0           | epoch | age | 1 | 01]       lock is anonymously biased</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//  - the two lock bits are used to describe three states: locked/unlocked and monitor.</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//    [ptr             | 00]  locked             ptr points to real header on stack</span></span><br><span class="line"><span class="comment">//    [header      | 0 | 01]  unlocked           regular object header</span></span><br><span class="line"><span class="comment">//    [ptr             | 10]  monitor            inflated lock (header is wapped out)</span></span><br><span class="line"><span class="comment">//    [ptr             | 11]  marked             used by markSweep to mark an object</span></span><br><span class="line"><span class="comment">//                                               not valid at any other time</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//    We assume that stack/thread pointers have the lowest two bits cleared.</span></span><br></pre></td></tr></table></figure>
-<p>在32bits的情况下，前32bits包含hash值以及锁信息，后32bit包含指向类的指针。</p>
-<p>在64bits的情况下，前32bits包含hash值以及锁信息，后64bit包含指向类的指针，如果没有UseCompressedOops，那么长度为64bit；如果使用了UseCompressedOops，那么长度为32bit。这也就解释了第二个测试中，array的长度仍为16byte的原因，因为表示长度的32bit藏在了压缩后的指针后面。</p>
-<p>坦白说，显式使用padding的方式很不优雅，如果能实现在JIT中对Java程序员来说绝对是福音啊。</p>
-
-	
-	</div>
-	
-  
-</div>
-	<a type="button" href="/2013/09/19/java_object_in_memory/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
-			
-	
-	<!-- display as entry -->	
-		<h3 class="title">
-			<div class="date"> 2013-08-10 </div>
-			<div class="article-title"><a href="/2013/08/10/memorybarrier/" >About Memory Barrier</a></div>						
-		</h3>
-	
-
-
-			<div class="entry">
-  <div class="row">
-  
-	<div class="col-md-12">
-	  
-	
-	  <h2 id="引言">引言</h2>
-<p>什么是Memory Barrier？stackoverflow中有一个经典的<a href="http://stackoverflow.com/questions/286629/what-is-a-memory-fence" target="_blank" rel="external">回答</a>：</p>
-<blockquote>
-<p>For performance gains modern CPUs often execute instructions out of order to make maximum use of the available silicon (including memory read/writes). Because the hardware enforces instructions integrity you never notice this in a single thread of execution. However for multiple threads or environments with volatile memory (memory mapped I/O for example) this can lead to unpredictable behavior.</p>
-</blockquote>
-<blockquote>
-<p>A memory fence/barrier is a class of instructions that mean memory read/writes occur in the order you expect. For example a ‘full fence’ means all read/writes before the fence are comitted before those after the fence.</p>
-</blockquote>
-<blockquote>
-<p>Note memory fences are a hardware concept. In higher level languages we are used to dealing with mutexes and semaphores - these may well be implemented using memory fences at the low level and explicit use of memory barriers are not necessary. Use of memory barriers requires a careful study of the hardware architecture and more commonly found in device drivers than application code.</p>
-</blockquote>
-<blockquote>
-<p>The CPU reordering is different from compiler optimisations - although the artefacts can be similar. You need to take separate measures to stop the compiler reordering your instructions if that may cause undesirable behaviour (e.g. use of the volatile keyword in C).</p>
-</blockquote>
-<p>从高级语言编程的角度，理解与掌握Memory Barrier是容易的，但是对于硬件角度的Memory Barrier却有很多疑惑。所有笔者尝试通过本文自上而下将整个story串起来。</p>
-<h2 id="幼稚的例子">幼稚的例子</h2>
-<p>这个例子的思路来在一个带有cancel功能的GUI程序。（这种方式绝对的幼稚，但是本文的目的不在于cancel功能的实现，所以在下文也不会完善该功能，所做的改动仅仅是为了展示memory barrier）</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MemoryBarrierDemo</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">volatile</span> <span class="keyword">boolean</span> cancel;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">                <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">                        <span class="annotation">@Override</span></span><br><span class="line">                        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                                <span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">                                <span class="keyword">while</span> (!cancel) &#123;</span><br><span class="line">                                        i++;</span><br><span class="line">                                &#125;</span><br><span class="line">                                System.out.println(<span class="string">"Done!"</span>);</span><br><span class="line">                        &#125;</span><br><span class="line"></span><br><span class="line">                &#125;).start();</span><br><span class="line"></span><br><span class="line">                System.out.println(<span class="string">"OS: "</span> + System.getProperty(<span class="string">"os.name"</span>) + <span class="string">" "</span> + System.getProperty(<span class="string">"os.arch"</span>) + <span class="string">"\n"</span></span><br><span class="line">                                + <span class="string">"JavaVersion: "</span> + System.getProperty(<span class="string">"java.version"</span>) + <span class="string">"\n"</span>);</span><br><span class="line">                Thread.sleep(<span class="number">2048</span>);</span><br><span class="line">                cancel = <span class="keyword">true</span>;</span><br><span class="line">                System.out.println(<span class="string">"flag cancel set to true"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>笔者只有一台古老的机器（Intel(R) Core(TM)2 Quad CPU Q6600 @ 2.40GHz），执行结果如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yuan@yuan-HP:~/learn$ jdk1.7.0_25/bin/java MemoryBarrierDemo&#10;OS: Linux amd64&#10;JavaVersion: 1.7.0_25&#10;&#10;flag cancel set to true</span><br></pre></td></tr></table></figure>
-<p>程序一直处于循环递增<code>i</code>的状态，没有退出。也就是说程序中启动的子线程“看不到”主线程对共享变量<code>cancel</code>的改动，这就是从高级语言层面所看到的memory barrier，想要让子线程“看到”改变，那么就得让改变“穿过”memory barrier。</p>
-<p>如何做？在_Java Concurrency in Practice_的3.1节介绍了两种方法——locking和volatile variable。在此我们试着用volatile关键字，将前面程序中的<code>private static boolean cancel;</code>改为<code>private static volatile boolean cancel;</code>。再次编译执行程序，结果如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yuan@yuan-HP:~/learn$ jdk1.7.0_25/bin/java MemoryBarrierDemo&#10;OS: Linux amd64&#10;JavaVersion: 1.7.0_25&#10;&#10;flag cancel set to true&#10;Done!&#10;yuan@yuan-HP:~/learn$</span><br></pre></td></tr></table></figure>
-<p>如此程序就可以按照设想的那像正常退出了，很简单吧。</p>
-<p>好的，下面就开始探索笔者困惑的部分了。</p>
-<h2 id="汇编代码">汇编代码</h2>
-<p>下面我们通过添加几个参数打印出反汇编的代码看看。</p>
-<p>没有volatile的版本：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yuan@yuan-HP:~/learn$ jdk1.7.0_25/bin/java -XX:+UnlockDiagnosticVMOptions -XX:+PrintAssembly MemoryBarrierDemo&#10;Java HotSpot(TM) 64-Bit Server VM warning: PrintAssembly is enabled; turning on DebugNonSafepoints to gain additional output&#10;OS: Linux amd64&#10;JavaVersion: 1.7.0_25&#10;&#10;Loaded disassembler from /home/yuan/learn/jdk1.7.0_25/jre/lib/amd64/hsdis-amd64.so&#10;Decoding compiled method 0x00007fbe883df890:&#10;Code:&#10;[Disassembling for mach=&#39;i386:x86-64&#39;]&#10;[Entry Point]&#10;[Verified Entry Point]&#10;[Constants]&#10;  # &#123;method&#125; &#39;access$000&#39; &#39;()Z&#39; in &#39;MemoryBarrierDemo&#39;&#10;  #           [sp+0x20]  (sp of caller)&#10;  0x00007fbe883df9c0: sub    $0x18,%rsp&#10;  0x00007fbe883df9c7: mov    %rbp,0x10(%rsp)    ;*synchronization entry&#10;                                                ; - MemoryBarrierDemo::access$000@-1 (line 1)&#10;  0x00007fbe883df9cc: mov    $0xebcfc590,%r10   ;   &#123;oop(a &#39;java/lang/Class&#39; = &#39;MemoryBarrierDemo&#39;)&#125;&#10;  0x00007fbe883df9d6: movzbl 0x70(%r10),%eax    ;*getstatic cancel&#10;                                                ; - MemoryBarrierDemo::access$000@0 (line 1)&#10;  0x00007fbe883df9db: add    $0x10,%rsp&#10;  0x00007fbe883df9df: pop    %rbp&#10;  0x00007fbe883df9e0: test   %eax,0x9c6b61a(%rip)        # 0x00007fbe9204b000&#10;                                                ;   &#123;poll_return&#125;&#10;  0x00007fbe883df9e6: retq&#10;  0x00007fbe883df9e7: hlt&#10;  0x00007fbe883df9e8: hlt&#10;  0x00007fbe883df9e9: hlt&#10;  0x00007fbe883df9ea: hlt&#10;  0x00007fbe883df9eb: hlt&#10;  0x00007fbe883df9ec: hlt&#10;  0x00007fbe883df9ed: hlt&#10;  0x00007fbe883df9ee: hlt&#10;  0x00007fbe883df9ef: hlt&#10;  0x00007fbe883df9f0: hlt&#10;  0x00007fbe883df9f1: hlt&#10;  0x00007fbe883df9f2: hlt&#10;  0x00007fbe883df9f3: hlt&#10;  0x00007fbe883df9f4: hlt&#10;  0x00007fbe883df9f5: hlt&#10;  0x00007fbe883df9f6: hlt&#10;  0x00007fbe883df9f7: hlt&#10;  0x00007fbe883df9f8: hlt&#10;  0x00007fbe883df9f9: hlt&#10;  0x00007fbe883df9fa: hlt&#10;  0x00007fbe883df9fb: hlt&#10;  0x00007fbe883df9fc: hlt&#10;  0x00007fbe883df9fd: hlt&#10;  0x00007fbe883df9fe: hlt&#10;  0x00007fbe883df9ff: hlt&#10;[Exception Handler]&#10;[Stub Code]&#10;  0x00007fbe883dfa00: jmpq   0x00007fbe883dc860  ;   &#123;no_reloc&#125;&#10;[Deopt Handler Code]&#10;  0x00007fbe883dfa05: callq  0x00007fbe883dfa0a&#10;  0x00007fbe883dfa0a: subq   $0x5,(%rsp)&#10;  0x00007fbe883dfa0f: jmpq   0x00007fbe883b6c00  ;   &#123;runtime_call&#125;&#10;  0x00007fbe883dfa14: hlt&#10;  0x00007fbe883dfa15: hlt&#10;  0x00007fbe883dfa16: hlt&#10;  0x00007fbe883dfa17: hlt&#10;Decoding compiled method 0x00007fbe883ddcd0:&#10;Code:&#10;[Entry Point]&#10;[Verified Entry Point]&#10;[Constants]&#10;  # &#123;method&#125; &#39;run&#39; &#39;()V&#39; in &#39;MemoryBarrierDemo$1&#39;&#10;  0x00007fbe883dde20: callq  0x00007fbe90e52370  ;   &#123;runtime_call&#125;&#10;  0x00007fbe883dde25: nopw   0x0(%rax,%rax,1)&#10;  0x00007fbe883dde30: mov    %eax,-0x14000(%rsp)&#10;  0x00007fbe883dde37: push   %rbp&#10;  0x00007fbe883dde38: sub    $0x10,%rsp&#10;  0x00007fbe883dde3c: mov    (%rsi),%ebx&#10;  0x00007fbe883dde3e: mov    %rsi,%rdi&#10;  0x00007fbe883dde41: mov    $0x7fbe90edf400,%r10&#10;  0x00007fbe883dde4b: callq  *%r10              ;*invokestatic access$000&#10;                                                ; - MemoryBarrierDemo$1::run@2 (line 10)&#10;  0x00007fbe883dde4e: mov    $0xebcfc590,%r10   ;   &#123;oop(a &#39;java/lang/Class&#39; = &#39;MemoryBarrierDemo&#39;)&#125;&#10;  0x00007fbe883dde58: movzbl 0x70(%r10),%r11d&#10;  0x00007fbe883dde5d: test   %r11d,%r11d&#10;  0x00007fbe883dde60: jne    0x00007fbe883dde6c  ;*goto&#10;                                                ; - MemoryBarrierDemo$1::run@11 (line 11)&#10;  0x00007fbe883dde62: inc    %ebx               ; OopMap&#123;off=68&#125;&#10;                                                ;*goto&#10;                                                ; - MemoryBarrierDemo$1::run@11 (line 11)&#10;  0x00007fbe883dde64: test   %eax,0x9c6d196(%rip)        # 0x00007fbe9204b000&#10;                                                ;*goto&#10;                                                ; - MemoryBarrierDemo$1::run@11 (line 11)&#10;                                                ;   &#123;poll&#125;&#10;  0x00007fbe883dde6a: jmp    0x00007fbe883dde62&#10;  0x00007fbe883dde6c: mov    $0xebcb0d10,%r10   ;   &#123;oop(a &#39;java/lang/Class&#39; = &#39;java/lang/System&#39;)&#125;&#10;  0x00007fbe883dde76: mov    0x74(%r10),%r11d   ;*getstatic out&#10;                                                ; - MemoryBarrierDemo$1::run@14 (line 13)&#10;  0x00007fbe883dde7a: test   %r11d,%r11d&#10;  0x00007fbe883dde7d: je     0x00007fbe883ddea0  ;*ifne&#10;                                                ; - MemoryBarrierDemo$1::run@5 (line 10)&#10;  0x00007fbe883dde7f: mov    %r11,%rsi          ;*getstatic out&#10;                                                ; - MemoryBarrierDemo$1::run@14 (line 13)&#10;  0x00007fbe883dde82: mov    $0xebd4b960,%rdx   ;   &#123;oop(&#34;Done!&#34;)&#125;&#10;  0x00007fbe883dde8c: xchg   %ax,%ax&#10;  0x00007fbe883dde8f: callq  0x00007fbe883b5c60  ; OopMap&#123;off=116&#125;&#10;                                                ;*invokevirtual println&#10;                                                ; - MemoryBarrierDemo$1::run@19 (line 13)&#10;                                                ;   &#123;optimized virtual_call&#125;&#10;  0x00007fbe883dde94: add    $0x10,%rsp&#10;  0x00007fbe883dde98: pop    %rbp&#10;  0x00007fbe883dde99: test   %eax,0x9c6d161(%rip)        # 0x00007fbe9204b000&#10;                                                ;   &#123;poll_return&#125;&#10;  0x00007fbe883dde9f: retq&#10;  0x00007fbe883ddea0: mov    $0xfffffff6,%esi&#10;  0x00007fbe883ddea5: xchg   %ax,%ax&#10;  0x00007fbe883ddea7: callq  0x00007fbe883b7020  ; OopMap&#123;off=140&#125;&#10;                                                ;*invokevirtual println&#10;                                                ; - MemoryBarrierDemo$1::run@19 (line 13)&#10;                                                ;   &#123;runtime_call&#125;&#10;  0x00007fbe883ddeac: callq  0x00007fbe90e52370  ;*invokevirtual println&#10;                                                ; - MemoryBarrierDemo$1::run@19 (line 13)&#10;                                                ;   &#123;runtime_call&#125;&#10;  0x00007fbe883ddeb1: mov    %rax,%rsi&#10;  0x00007fbe883ddeb4: add    $0x10,%rsp&#10;  0x00007fbe883ddeb8: pop    %rbp&#10;  0x00007fbe883ddeb9: jmpq   0x00007fbe883df5e0  ;*iinc&#10;                                                ; - MemoryBarrierDemo$1::run@8 (line 11)&#10;                                                ;   &#123;runtime_call&#125;&#10;  0x00007fbe883ddebe: callq  0x00007fbe90e52370  ;   &#123;runtime_call&#125;&#10;  0x00007fbe883ddec3: hlt&#10;  0x00007fbe883ddec4: hlt&#10;  0x00007fbe883ddec5: hlt&#10;  0x00007fbe883ddec6: hlt&#10;  0x00007fbe883ddec7: hlt&#10;  0x00007fbe883ddec8: hlt&#10;  0x00007fbe883ddec9: hlt&#10;  0x00007fbe883ddeca: hlt&#10;  0x00007fbe883ddecb: hlt&#10;  0x00007fbe883ddecc: hlt&#10;  0x00007fbe883ddecd: hlt&#10;  0x00007fbe883ddece: hlt&#10;  0x00007fbe883ddecf: hlt&#10;  0x00007fbe883dded0: hlt&#10;  0x00007fbe883dded1: hlt&#10;  0x00007fbe883dded2: hlt&#10;  0x00007fbe883dded3: hlt&#10;  0x00007fbe883dded4: hlt&#10;  0x00007fbe883dded5: hlt&#10;  0x00007fbe883dded6: hlt&#10;  0x00007fbe883dded7: hlt&#10;  0x00007fbe883dded8: hlt&#10;  0x00007fbe883dded9: hlt&#10;  0x00007fbe883ddeda: hlt&#10;  0x00007fbe883ddedb: hlt&#10;  0x00007fbe883ddedc: hlt&#10;  0x00007fbe883ddedd: hlt&#10;  0x00007fbe883ddede: hlt&#10;  0x00007fbe883ddedf: hlt&#10;[Stub Code]&#10;  0x00007fbe883ddee0: mov    $0x0,%rbx          ;   &#123;no_reloc&#125;&#10;  0x00007fbe883ddeea: jmpq   0x00007fbe883ddeea  ;   &#123;runtime_call&#125;&#10;[Exception Handler]&#10;  0x00007fbe883ddeef: jmpq   0x00007fbe883dc860  ;   &#123;runtime_call&#125;&#10;[Deopt Handler Code]&#10;  0x00007fbe883ddef4: callq  0x00007fbe883ddef9&#10;  0x00007fbe883ddef9: subq   $0x5,(%rsp)&#10;  0x00007fbe883ddefe: jmpq   0x00007fbe883b6c00  ;   &#123;runtime_call&#125;&#10;  0x00007fbe883ddf03: hlt&#10;  0x00007fbe883ddf04: hlt&#10;  0x00007fbe883ddf05: hlt&#10;  0x00007fbe883ddf06: hlt&#10;  0x00007fbe883ddf07: hlt&#10;flag cancel set to true</span><br></pre></td></tr></table></figure>
-<p>带有volatile的版本：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yuan@yuan-HP:~/learn$ jdk1.7.0_25/bin/java -XX:+UnlockDiagnosticVMOptions -XX:+PrintAssembly MemoryBarrierDemo&#10;Java HotSpot(TM) 64-Bit Server VM warning: PrintAssembly is enabled; turning on DebugNonSafepoints to gain additional output&#10;OS: Linux amd64&#10;JavaVersion: 1.7.0_25&#10;&#10;Loaded disassembler from /home/yuan/learn/jdk1.7.0_25/jre/lib/amd64/hsdis-amd64.so&#10;Decoding compiled method 0x00007fb865061890:&#10;Code:&#10;[Disassembling for mach=&#39;i386:x86-64&#39;]&#10;[Entry Point]&#10;[Verified Entry Point]&#10;[Constants]&#10;  # &#123;method&#125; &#39;access$000&#39; &#39;()Z&#39; in &#39;MemoryBarrierDemo&#39;&#10;  #           [sp+0x20]  (sp of caller)&#10;  0x00007fb8650619c0: sub    $0x18,%rsp&#10;  0x00007fb8650619c7: mov    %rbp,0x10(%rsp)    ;*synchronization entry&#10;                                                ; - MemoryBarrierDemo::access$000@-1 (line 1)&#10;  0x00007fb8650619cc: mov    $0xebcfc590,%r10   ;   &#123;oop(a &#39;java/lang/Class&#39; = &#39;MemoryBarrierDemo&#39;)&#125;&#10;  0x00007fb8650619d6: movzbl 0x70(%r10),%eax    ;*getstatic cancel&#10;                                                ; - MemoryBarrierDemo::access$000@0 (line 1)&#10;  0x00007fb8650619db: add    $0x10,%rsp&#10;  0x00007fb8650619df: pop    %rbp&#10;  0x00007fb8650619e0: test   %eax,0xb55e61a(%rip)        # 0x00007fb8705c0000&#10;                                                ;   &#123;poll_return&#125;&#10;  0x00007fb8650619e6: retq&#10;  0x00007fb8650619e7: hlt&#10;  0x00007fb8650619e8: hlt&#10;  0x00007fb8650619e9: hlt&#10;  0x00007fb8650619ea: hlt&#10;  0x00007fb8650619eb: hlt&#10;  0x00007fb8650619ec: hlt&#10;  0x00007fb8650619ed: hlt&#10;  0x00007fb8650619ee: hlt&#10;  0x00007fb8650619ef: hlt&#10;  0x00007fb8650619f0: hlt&#10;  0x00007fb8650619f1: hlt&#10;  0x00007fb8650619f2: hlt&#10;  0x00007fb8650619f3: hlt&#10;  0x00007fb8650619f4: hlt&#10;  0x00007fb8650619f5: hlt&#10;  0x00007fb8650619f6: hlt&#10;  0x00007fb8650619f7: hlt&#10;  0x00007fb8650619f8: hlt&#10;  0x00007fb8650619f9: hlt&#10;  0x00007fb8650619fa: hlt&#10;  0x00007fb8650619fb: hlt&#10;  0x00007fb8650619fc: hlt&#10;  0x00007fb8650619fd: hlt&#10;  0x00007fb8650619fe: hlt&#10;  0x00007fb8650619ff: hlt&#10;[Exception Handler]&#10;[Stub Code]&#10;  0x00007fb865061a00: jmpq   0x00007fb86505e860  ;   &#123;no_reloc&#125;&#10;[Deopt Handler Code]&#10;  0x00007fb865061a05: callq  0x00007fb865061a0a&#10;  0x00007fb865061a0a: subq   $0x5,(%rsp)&#10;  0x00007fb865061a0f: jmpq   0x00007fb865038c00  ;   &#123;runtime_call&#125;&#10;  0x00007fb865061a14: hlt&#10;  0x00007fb865061a15: hlt&#10;  0x00007fb865061a16: hlt&#10;  0x00007fb865061a17: hlt&#10;Decoding compiled method 0x00007fb86505fc90:&#10;Code:&#10;[Entry Point]&#10;[Verified Entry Point]&#10;[Constants]&#10;  # &#123;method&#125; &#39;run&#39; &#39;()V&#39; in &#39;MemoryBarrierDemo$1&#39;&#10;  0x00007fb86505fde0: callq  0x00007fb86f3c7370  ;   &#123;runtime_call&#125;&#10;  0x00007fb86505fde5: nopw   0x0(%rax,%rax,1)&#10;  0x00007fb86505fdf0: mov    %eax,-0x14000(%rsp)&#10;  0x00007fb86505fdf7: push   %rbp&#10;  0x00007fb86505fdf8: sub    $0x10,%rsp&#10;  0x00007fb86505fdfc: mov    (%rsi),%ebp&#10;  0x00007fb86505fdfe: mov    %rsi,%rdi&#10;  0x00007fb86505fe01: mov    $0x7fb86f454400,%r10&#10;  0x00007fb86505fe0b: callq  *%r10              ;*synchronization entry&#10;                                                ; - MemoryBarrierDemo::access$000@-1 (line 1)&#10;                                                ; - MemoryBarrierDemo$1::run@2 (line 10)&#10;  0x00007fb86505fe0e: mov    $0xebcfc590,%r10   ;   &#123;oop(a &#39;java/lang/Class&#39; = &#39;MemoryBarrierDemo&#39;)&#125;&#10;  0x00007fb86505fe18: movzbl 0x70(%r10),%r8d    ;*getstatic cancel&#10;                                                ; - MemoryBarrierDemo::access$000@0 (line 1)&#10;                                                ; - MemoryBarrierDemo$1::run@2 (line 10)&#10;  0x00007fb86505fe1d: test   %r8d,%r8d&#10;  0x00007fb86505fe20: jne    0x00007fb86505fe42  ;*ifne&#10;                                                ; - MemoryBarrierDemo$1::run@5 (line 10)&#10;  0x00007fb86505fe22: nopw   0x0(%rax,%rax,1)&#10;  0x00007fb86505fe2c: xchg   %ax,%ax            ;*iinc&#10;                                                ; - MemoryBarrierDemo$1::run@8 (line 11)&#10;  0x00007fb86505fe30: movzbl 0x70(%r10),%r11d   ;*getstatic cancel&#10;                                                ; - MemoryBarrierDemo::access$000@0 (line 1)&#10;                                                ; - MemoryBarrierDemo$1::run@2 (line 10)&#10;  0x00007fb86505fe35: inc    %ebp               ; OopMap&#123;r10=Oop off=87&#125;&#10;                                                ;*goto&#10;                                                ; - MemoryBarrierDemo$1::run@11 (line 11)&#10;  0x00007fb86505fe37: test   %eax,0xb5601c3(%rip)        # 0x00007fb8705c0000&#10;                                                ;*getstatic cancel&#10;                                                ; - MemoryBarrierDemo::access$000@0 (line 1)&#10;                                                ; - MemoryBarrierDemo$1::run@2 (line 10)&#10;                                                ;   &#123;poll&#125;&#10;  0x00007fb86505fe3d: test   %r11d,%r11d&#10;  0x00007fb86505fe40: je     0x00007fb86505fe30  ;*ifne&#10;                                                ; - MemoryBarrierDemo$1::run@5 (line 10)&#10;  0x00007fb86505fe42: mov    $0xebcb0d10,%r10   ;   &#123;oop(a &#39;java/lang/Class&#39; = &#39;java/lang/System&#39;)&#125;&#10;  0x00007fb86505fe4c: mov    0x74(%r10),%r10d   ;*getstatic out&#10;                                                ; - MemoryBarrierDemo$1::run@14 (line 13)&#10;  0x00007fb86505fe50: test   %r10d,%r10d&#10;  0x00007fb86505fe53: je     0x00007fb86505fe74  ;*invokevirtual println&#10;                                                ; - MemoryBarrierDemo$1::run@19 (line 13)&#10;  0x00007fb86505fe55: mov    %r10,%rsi          ;*getstatic out&#10;                                                ; - MemoryBarrierDemo$1::run@14 (line 13)&#10;  0x00007fb86505fe58: mov    $0xebd4b960,%rdx   ;   &#123;oop(&#34;Done!&#34;)&#125;&#10;  0x00007fb86505fe62: nop&#10;  0x00007fb86505fe63: callq  0x00007fb865037c60  ; OopMap&#123;off=136&#125;&#10;                                                ;*invokevirtual println&#10;                                                ; - MemoryBarrierDemo$1::run@19 (line 13)&#10;                                                ;   &#123;optimized virtual_call&#125;&#10;  0x00007fb86505fe68: add    $0x10,%rsp&#10;  0x00007fb86505fe6c: pop    %rbp&#10;  0x00007fb86505fe6d: test   %eax,0xb56018d(%rip)        # 0x00007fb8705c0000&#10;                                                ;   &#123;poll_return&#125;&#10;  0x00007fb86505fe73: retq&#10;  0x00007fb86505fe74: mov    $0xfffffff6,%esi&#10;  0x00007fb86505fe79: xchg   %ax,%ax&#10;  0x00007fb86505fe7b: callq  0x00007fb865039020  ; OopMap&#123;off=160&#125;&#10;                                                ;*invokevirtual println&#10;                                                ; - MemoryBarrierDemo$1::run@19 (line 13)&#10;                                                ;   &#123;runtime_call&#125;&#10;  0x00007fb86505fe80: callq  0x00007fb86f3c7370  ;*invokevirtual println&#10;                                                ; - MemoryBarrierDemo$1::run@19 (line 13)&#10;                                                ;   &#123;runtime_call&#125;&#10;  0x00007fb86505fe85: mov    %rax,%rsi&#10;  0x00007fb86505fe88: add    $0x10,%rsp&#10;  0x00007fb86505fe8c: pop    %rbp&#10;  0x00007fb86505fe8d: jmpq   0x00007fb8650615e0  ;   &#123;runtime_call&#125;&#10;  0x00007fb86505fe92: hlt&#10;  0x00007fb86505fe93: hlt&#10;  0x00007fb86505fe94: hlt&#10;  0x00007fb86505fe95: hlt&#10;  0x00007fb86505fe96: hlt&#10;  0x00007fb86505fe97: hlt&#10;  0x00007fb86505fe98: hlt&#10;  0x00007fb86505fe99: hlt&#10;  0x00007fb86505fe9a: hlt&#10;  0x00007fb86505fe9b: hlt&#10;  0x00007fb86505fe9c: hlt&#10;  0x00007fb86505fe9d: hlt&#10;  0x00007fb86505fe9e: hlt&#10;  0x00007fb86505fe9f: hlt&#10;[Stub Code]&#10;  0x00007fb86505fea0: mov    $0x0,%rbx          ;   &#123;no_reloc&#125;&#10;  0x00007fb86505feaa: jmpq   0x00007fb86505feaa  ;   &#123;runtime_call&#125;&#10;[Exception Handler]&#10;  0x00007fb86505feaf: jmpq   0x00007fb86505e860  ;   &#123;runtime_call&#125;&#10;[Deopt Handler Code]&#10;  0x00007fb86505feb4: callq  0x00007fb86505feb9&#10;  0x00007fb86505feb9: subq   $0x5,(%rsp)&#10;  0x00007fb86505febe: jmpq   0x00007fb865038c00  ;   &#123;runtime_call&#125;&#10;  0x00007fb86505fec3: hlt&#10;  0x00007fb86505fec4: hlt&#10;  0x00007fb86505fec5: hlt&#10;  0x00007fb86505fec6: hlt&#10;  0x00007fb86505fec7: hlt&#10;flag cancel set to true&#10;Done!&#10;yuan@yuan-HP:~/learn$</span><br></pre></td></tr></table></figure>
-<p>现在我们分析一下。在没有volatile的版本中，循环递增部分的汇编代码很有趣，</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0x00007fbe883dde58: movzbl 0x70(%r10),%r11d&#10;0x00007fbe883dde5d: test   %r11d,%r11d&#10;0x00007fbe883dde60: jne    0x00007fbe883dde6c  ;*goto&#10;                                              ; - MemoryBarrierDemo$1::run@11 (line 11)&#10;0x00007fbe883dde62: inc    %ebx               ; OopMap&#123;off=68&#125;&#10;                                              ;*goto&#10;                                              ; - MemoryBarrierDemo$1::run@11 (line 11)&#10;0x00007fbe883dde64: test   %eax,0x9c6d196(%rip)        # 0x00007fbe9204b000&#10;                                              ;*goto&#10;                                              ; - MemoryBarrierDemo$1::run@11 (line 11)&#10;                                              ;   &#123;poll&#125;&#10;0x00007fbe883dde6a: jmp    0x00007fbe883dde62</span><br></pre></td></tr></table></figure>
-<p>进入循环时检查过一次<code>cancel</code>，但是在后面却成了<code>jmp</code>无条件跳转，可想而知这肯定是编译器的“功劳”。在此笔者就先不深究这里所做的编译优化的原因了，只是简单的相信编译器已经获得了足够多的信息来判断<code>cancel</code>值在该线程是不变的。反过来推理，编译器的开发者肯定是对硬件层面的memory barrier有深入的理解才会做这个优化，这样也是本文想要探索的。</p>
-<p>在带有volatile的版本中，循环递增部分的汇编代码如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0x00007fb86505fe18: movzbl 0x70(%r10),%r8d    ;*getstatic cancel&#10;                                              ; - MemoryBarrierDemo::access$000@0 (line 1)&#10;                                              ; - MemoryBarrierDemo$1::run@2 (line 10)&#10;0x00007fb86505fe1d: test   %r8d,%r8d&#10;0x00007fb86505fe20: jne    0x00007fb86505fe42  ;*ifne&#10;                                              ; - MemoryBarrierDemo$1::run@5 (line 10)&#10;0x00007fb86505fe22: nopw   0x0(%rax,%rax,1)&#10;0x00007fb86505fe2c: xchg   %ax,%ax            ;*iinc&#10;                                              ; - MemoryBarrierDemo$1::run@8 (line 11)&#10;0x00007fb86505fe30: movzbl 0x70(%r10),%r11d   ;*getstatic cancel&#10;                                              ; - MemoryBarrierDemo::access$000@0 (line 1)&#10;                                              ; - MemoryBarrierDemo$1::run@2 (line 10)&#10;0x00007fb86505fe35: inc    %ebp               ; OopMap&#123;r10=Oop off=87&#125;&#10;                                              ;*goto&#10;                                              ; - MemoryBarrierDemo$1::run@11 (line 11)&#10;0x00007fb86505fe37: test   %eax,0xb5601c3(%rip)        # 0x00007fb8705c0000&#10;                                              ;*getstatic cancel&#10;                                              ; - MemoryBarrierDemo::access$000@0 (line 1)&#10;                                              ; - MemoryBarrierDemo$1::run@2 (line 10)&#10;                                              ;   &#123;poll&#125;&#10;0x00007fb86505fe3d: test   %r11d,%r11d&#10;0x00007fb86505fe40: je     0x00007fb86505fe30  ;*ifne&#10;                                              ; - MemoryBarrierDemo$1::run@5 (line 10)&#10;0x00007fb86505fe42: mov    $0xebcb0d10,%r10   ;   &#123;oop(a &#39;java/lang/Class&#39; = &#39;java/lang/System&#39;)&#125;</span><br></pre></td></tr></table></figure>
-<p>该版本的主要不同是在于获取cacel前执行了<code>xchg   %ax,%ax</code>。</p>
-<p>xchg是什么东东？查_Intel 64 and IA-32 Architectures Software Developer’s Manual Combined Volumes 3A, 3B, and 3C: System Programming Guide_：</p>
-<p>8-3页：</p>
-<blockquote>
-<p>8.1.2 Bus Locking</p>
-</blockquote>
-<blockquote>
-<p>Intel 64 and IA-32 processors provide a LOCK# signal that is asserted automatically during certain critical memory operations to lock the system bus or equivalent link. While this output signal is asserted, requests from other processors or bus agents for control of the bus are blocked. Software can specify other occasions when the LOCK semantics are to be followed by prepending the LOCK prefix to an instruction.</p>
-</blockquote>
-<blockquote>
-<p>In the case of the Intel386, Intel486, and Pentium processors , explicitly locked instructions will result in the assertion of the LOCK# signal. It is the responsibility of the hardware designer to make the LOCK# signal available in system hardware to control memory accesses among processors.</p>
-</blockquote>
-<blockquote>
-<p>For the P6 and more recent processor families, if the memory area being accessed is cached internally in the processor, the LOCK# signal is generally not asserted; instead, locking is only applied to the processor’s caches (see Section 8.1.4, “Effects of a LOCK Operation on Internal Processor Caches”).</p>
-</blockquote>
-<blockquote>
-<p>8.1.2.1 Automatic Locking</p>
-</blockquote>
-<blockquote>
-<p>The operations on which the processor automatically follows the LOCK semantics are as follows:</p>
-</blockquote>
-<blockquote>
-<p>• When executing an XCHG instruction that references memory.</p>
-</blockquote>
-<p>8-15页：</p>
-<blockquote>
-<p>Synchronization mechanisms in multiple-processor systems may depend upon a strong memory-ordering model. Here, a program can use a locking instruction such as the XCHG instruction or the LOCK prefix to ensure that a read-modify-write operation on memory is carried out atomically. Locking operations typically operate like I/O operations in that they wait for all previous instructions to complete and for all buffered writes to drain to memory (see Section 8.1.2, “Bus Locking”).</p>
-</blockquote>
-<p>8-16页：</p>
-<blockquote>
-<p>Intel recommends that software written to run on Intel Core 2 Duo, Intel Atom, Intel Core Duo, Pentium 4, Intel Xeon, and P6 family processors assume the processor-ordering model or a weaker memory-ordering model. The Intel Core 2 Duo, Intel Atom, Intel Core Duo, Pentium 4, Intel Xeon, and P6 family processors do not implement a strong memory-ordering model, except when using the UC memory type. Despite the fact that Pentium 4, Intel Xeon, and P6 family processors support processor ordering, Intel does not guarantee that future processors will support this model. To make software portable to futu re processors, it is recommended that operating systems provide critical region and resource control constructs and API’s (application program interfaces) based on I/O, locking, and/or serializing instructions be used to synchronize access to shared areas of memory in multiple-processor systems. Also, software should not depend on processor ordering in situations where the system hardware does not support this memory-ordering model.</p>
-</blockquote>
-<p>读完之后，笔者大致了解了三点：</p>
-<ol style="list-style-type: decimal">
-<li><p>执行XCHG指令会自动跟随LOCK语义；</p></li>
-<li><p>locking操作会等待前面所有的指令完成，并且将所有buffered writes写到内存；</p></li>
-<li><p>memory-ordering model的强度是变化的，软件不能依赖processor ordering。这就解释了第一个版本中的编译优化，编译器从高级语言中得不到显式的信息（比如Locking和volatile），所以就默认使用processor-ordering model，编译器就会尽可能的优化性能；而在第二个版本中，有显式的volatile关键字，所以编译器就会加入XCHG指令，以实现strong memory-ordering model。</p></li>
-</ol>
-<p>等一下，好像哪里有问题。就算<code>xchg</code>触发了<code>LOCK</code>语义，但是缓存中的<code>cancel</code>并没有改变，所以也不会触发cache coherency protocol；就算<code>cancel</code>所在的cache line由于别的原因被修改了，而此前主线程没有对<code>cancel</code>进行修改的话，也是没有用呀。再从头开始想想这个逻辑，如果让笔者设计编译器，笔者应该会在<code>cancel = true;</code>这行之后加上LOCK语义。再回过头看看汇编代码，竟然找不到对应的代码！</p>
-<p>经过笔者多次尝试，最后通过加入<code>-Xcomp</code>打印出了所需的信息，另外对Java代码也做了点儿改动。（笔者对此有蛮多疑惑，暂且存疑吧-_-）</p>
-<p>修改后的代码如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MemoryBarrierDemo</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">volatile</span> <span class="keyword">boolean</span> cancel = <span class="keyword">false</span>;</span><br><span class="line">        <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">setCancel</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                cancel = <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">                <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">                        <span class="annotation">@Override</span></span><br><span class="line">                        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                                <span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">                                <span class="keyword">while</span> (!cancel) &#123;</span><br><span class="line">                                        i++;</span><br><span class="line">                                &#125;</span><br><span class="line">                                System.out.println(<span class="string">"Done!"</span>);</span><br><span class="line">                        &#125;</span><br><span class="line"></span><br><span class="line">                &#125;).start();</span><br><span class="line"></span><br><span class="line">                System.out.println(<span class="string">"OS: "</span> + System.getProperty(<span class="string">"os.name"</span>) + <span class="string">" "</span> + System.getProperty(<span class="string">"os.arch"</span>) + <span class="string">"\n"</span></span><br><span class="line">                                + <span class="string">"JavaVersion: "</span> + System.getProperty(<span class="string">"java.version"</span>) + <span class="string">"\n"</span>);</span><br><span class="line">                Thread.sleep(<span class="number">2048</span>);</span><br><span class="line">                <span class="comment">//cancel = true;</span></span><br><span class="line">                setCancel();</span><br><span class="line">                System.out.println(<span class="string">"flag cancel set to true"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>汇编代码如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yuan@yuan-HP:~/learn$ jdk1.7.0_25/bin/java -Xcomp  -XX:+UnlockDiagnosticVMOptions -XX:PrintAssemblyOptions=hsdis-print-bytes -XX:CompileCommand=print,MemoryBarrierDemo.* MemoryBarrierDemo&#10;CompilerOracle: print MemoryBarrierDemo.*&#10;Java HotSpot(TM) 64-Bit Server VM warning: printing of assembly code is enabled; turning on DebugNonSafepoints to gain additional output&#10;Compiled method (c2)     888  370             MemoryBarrierDemo::&#60;clinit&#62; (5 bytes)&#10; total in heap  [0x00007fbaec8ae2d0,0x00007fbaec8ae4a0] = 464&#10; relocation     [0x00007fbaec8ae3f0,0x00007fbaec8ae400] = 16&#10; main code      [0x00007fbaec8ae400,0x00007fbaec8ae440] = 64&#10; stub code      [0x00007fbaec8ae440,0x00007fbaec8ae458] = 24&#10; oops           [0x00007fbaec8ae458,0x00007fbaec8ae460] = 8&#10; scopes data    [0x00007fbaec8ae460,0x00007fbaec8ae468] = 8&#10; scopes pcs     [0x00007fbaec8ae468,0x00007fbaec8ae498] = 48&#10; dependencies   [0x00007fbaec8ae498,0x00007fbaec8ae4a0] = 8&#10;Loaded disassembler from /home/yuan/learn/jdk1.7.0_25/jre/lib/amd64/hsdis-amd64.so&#10;Decoding compiled method 0x00007fbaec8ae2d0:&#10;Code:&#10;[Disassembling for mach=&#39;i386:x86-64&#39;]&#10;[Entry Point]&#10;[Verified Entry Point]&#10;[Constants]&#10;  # &#123;method&#125; &#39;&#60;clinit&#62;&#39; &#39;()V&#39; in &#39;MemoryBarrierDemo&#39;&#10;  #           [sp+0x20]  (sp of caller)&#10;  0x00007fbaec8ae400: sub    $0x18,%rsp         ;...4881ec18 000000&#10;  0x00007fbaec8ae407: mov    %rbp,0x10(%rsp)    ;...48896c24 10&#10;  0x00007fbaec8ae40c: mov    $0xebd9deb8,%r10   ;...49bab8de d9eb00&#10;                                                ;...000000&#10;                                                ;   &#123;oop(a &#39;java/lang/Class&#39; = &#39;MemoryBarrierDemo&#39;)&#125;&#10;  0x00007fbaec8ae416: mov    %r12b,0x70(%r10)   ;...45886270&#10;  0x00007fbaec8ae41a: lock addl $0x0,(%rsp)     ;...f0830424 00&#10;                                                ;*putstatic cancel&#10;                                                ; - MemoryBarrierDemo::&#60;clinit&#62;@1 (line 3)&#10;  0x00007fbaec8ae41f: add    $0x10,%rsp         ;...4883c410&#10;  0x00007fbaec8ae423: pop    %rbp               ;...5d&#10;  0x00007fbaec8ae424: test   %eax,0x9c59bd6(%rip)        # 0x00007fbaf6508000&#10;                                                ;...8505d69b c509&#10;                                                ;   &#123;poll_return&#125;&#10;  0x00007fbaec8ae42a: retq                      ;...c3&#10;  0x00007fbaec8ae42b: hlt                       ;...f4&#10;  0x00007fbaec8ae42c: hlt                       ;...f4&#10;  0x00007fbaec8ae42d: hlt                       ;...f4&#10;  0x00007fbaec8ae42e: hlt                       ;...f4&#10;  0x00007fbaec8ae42f: hlt                       ;...f4&#10;  0x00007fbaec8ae430: hlt                       ;...f4&#10;  0x00007fbaec8ae431: hlt                       ;...f4&#10;  0x00007fbaec8ae432: hlt                       ;...f4&#10;  0x00007fbaec8ae433: hlt                       ;...f4&#10;  0x00007fbaec8ae434: hlt                       ;...f4&#10;  0x00007fbaec8ae435: hlt                       ;...f4&#10;  0x00007fbaec8ae436: hlt                       ;...f4&#10;  0x00007fbaec8ae437: hlt                       ;...f4&#10;  0x00007fbaec8ae438: hlt                       ;...f4&#10;  0x00007fbaec8ae439: hlt                       ;...f4&#10;  0x00007fbaec8ae43a: hlt                       ;...f4&#10;  0x00007fbaec8ae43b: hlt                       ;...f4&#10;  0x00007fbaec8ae43c: hlt                       ;...f4&#10;  0x00007fbaec8ae43d: hlt                       ;...f4&#10;  0x00007fbaec8ae43e: hlt                       ;...f4&#10;  0x00007fbaec8ae43f: hlt                       ;...f4&#10;[Exception Handler]&#10;[Stub Code]&#10;  0x00007fbaec8ae440: jmpq   0x00007fbaec80f860  ;...e91b14f6 ff&#10;                                                ;   &#123;no_reloc&#125;&#10;[Deopt Handler Code]&#10;  0x00007fbaec8ae445: callq  0x00007fbaec8ae44a  ;...e8000000 00&#10;  0x00007fbaec8ae44a: subq   $0x5,(%rsp)        ;...48832c24 05&#10;  0x00007fbaec8ae44f: jmpq   0x00007fbaec7eac00  ;...e9acc7f3 ff&#10;                                                ;   &#123;runtime_call&#125;&#10;  0x00007fbaec8ae454: hlt                       ;...f4&#10;  0x00007fbaec8ae455: hlt                       ;...f4&#10;  0x00007fbaec8ae456: hlt                       ;...f4&#10;  0x00007fbaec8ae457: hlt                       ;...f4&#10;OopMapSet contains 0 OopMaps&#10;&#10;Compiled method (c2)     893  371             MemoryBarrierDemo::main (100 bytes)&#10; total in heap  [0x00007fbaec8b10d0,0x00007fbaec8b12b0] = 480&#10; relocation     [0x00007fbaec8b11f0,0x00007fbaec8b1200] = 16&#10; main code      [0x00007fbaec8b1200,0x00007fbaec8b1220] = 32&#10; stub code      [0x00007fbaec8b1220,0x00007fbaec8b1238] = 24&#10; oops           [0x00007fbaec8b1238,0x00007fbaec8b1240] = 8&#10; scopes data    [0x00007fbaec8b1240,0x00007fbaec8b1258] = 24&#10; scopes pcs     [0x00007fbaec8b1258,0x00007fbaec8b12a8] = 80&#10; dependencies   [0x00007fbaec8b12a8,0x00007fbaec8b12b0] = 8&#10;Decoding compiled method 0x00007fbaec8b10d0:&#10;Code:&#10;[Entry Point]&#10;[Verified Entry Point]&#10;[Constants]&#10;  # &#123;method&#125; &#39;main&#39; &#39;([Ljava/lang/String;)V&#39; in &#39;MemoryBarrierDemo&#39;&#10;  # parm0:    rsi:rsi   = &#39;[Ljava/lang/String;&#39;&#10;  #           [sp+0x20]  (sp of caller)&#10;  0x00007fbaec8b1200: mov    %eax,-0x14000(%rsp)  ;...89842400 c0feff&#10;  0x00007fbaec8b1207: push   %rbp               ;...55&#10;  0x00007fbaec8b1208: sub    $0x10,%rsp         ;...4883ec10&#10;                                                ;*synchronization entry&#10;                                                ; - MemoryBarrierDemo::main@-1 (line 9)&#10;  0x00007fbaec8b120c: mov    $0x3,%esi          ;...be030000 00&#10;  0x00007fbaec8b1211: xchg   %ax,%ax            ;...6690&#10;  0x00007fbaec8b1213: callq  0x00007fbaec7eb020  ;...e8089ef3 ff&#10;                                                ; OopMap&#123;off=24&#125;&#10;                                                ;*new  ; - MemoryBarrierDemo::main@0 (line 9)&#10;                                                ;   &#123;runtime_call&#125;&#10;  0x00007fbaec8b1218: callq  0x00007fbaf530f370  ;...e853e1a5 08&#10;                                                ;*new  ; - MemoryBarrierDemo::main@0 (line 9)&#10;                                                ;   &#123;runtime_call&#125;&#10;  0x00007fbaec8b121d: hlt                       ;...f4&#10;  0x00007fbaec8b121e: hlt                       ;...f4&#10;  0x00007fbaec8b121f: hlt                       ;...f4&#10;[Exception Handler]&#10;[Stub Code]&#10;  0x00007fbaec8b1220: jmpq   0x00007fbaec80f860  ;...e93be6f5 ff&#10;                                                ;   &#123;no_reloc&#125;&#10;[Deopt Handler Code]&#10;  0x00007fbaec8b1225: callq  0x00007fbaec8b122a  ;...e8000000 00&#10;  0x00007fbaec8b122a: subq   $0x5,(%rsp)        ;...48832c24 05&#10;  0x00007fbaec8b122f: jmpq   0x00007fbaec7eac00  ;...e9cc99f3 ff&#10;                                                ;   &#123;runtime_call&#125;&#10;  0x00007fbaec8b1234: hlt                       ;...f4&#10;  0x00007fbaec8b1235: hlt                       ;...f4&#10;  0x00007fbaec8b1236: hlt                       ;...f4&#10;  0x00007fbaec8b1237: hlt                       ;...f4&#10;OopMapSet contains 1 OopMaps&#10;&#10;#0&#10;OopMap&#123;off=24&#125;&#10;Compiled method (c2)     994  398             MemoryBarrierDemo::access$000 (4 bytes)&#10; total in heap  [0x00007fbaec8b9390,0x00007fbaec8b9578] = 488&#10; relocation     [0x00007fbaec8b94b0,0x00007fbaec8b94c0] = 16&#10; main code      [0x00007fbaec8b94c0,0x00007fbaec8b9500] = 64&#10; stub code      [0x00007fbaec8b9500,0x00007fbaec8b9518] = 24&#10; oops           [0x00007fbaec8b9518,0x00007fbaec8b9520] = 8&#10; scopes data    [0x00007fbaec8b9520,0x00007fbaec8b9530] = 16&#10; scopes pcs     [0x00007fbaec8b9530,0x00007fbaec8b9570] = 64&#10; dependencies   [0x00007fbaec8b9570,0x00007fbaec8b9578] = 8&#10;Decoding compiled method 0x00007fbaec8b9390:&#10;Code:&#10;[Entry Point]&#10;[Verified Entry Point]&#10;[Constants]&#10;  # &#123;method&#125; &#39;access$000&#39; &#39;()Z&#39; in &#39;MemoryBarrierDemo&#39;&#10;  #           [sp+0x20]  (sp of caller)&#10;  0x00007fbaec8b94c0: sub    $0x18,%rsp         ;...4881ec18 000000&#10;  0x00007fbaec8b94c7: mov    %rbp,0x10(%rsp)    ;...48896c24 10&#10;                                                ;*synchronization entry&#10;                                                ; - MemoryBarrierDemo::access$000@-1 (line 1)&#10;  0x00007fbaec8b94cc: mov    $0xebd9deb8,%r10   ;...49bab8de d9eb00&#10;                                                ;...000000&#10;                                                ;   &#123;oop(a &#39;java/lang/Class&#39; = &#39;MemoryBarrierDemo&#39;)&#125;&#10;  0x00007fbaec8b94d6: movzbl 0x70(%r10),%eax    ;...410fb642 70&#10;                                                ;*getstatic cancel&#10;                                                ; - MemoryBarrierDemo::access$000@0 (line 1)&#10;  0x00007fbaec8b94db: add    $0x10,%rsp         ;...4883c410&#10;  0x00007fbaec8b94df: pop    %rbp               ;...5d&#10;  0x00007fbaec8b94e0: test   %eax,0x9c4eb1a(%rip)        # 0x00007fbaf6508000&#10;                                                ;...85051aeb c409&#10;                                                ;   &#123;poll_return&#125;&#10;  0x00007fbaec8b94e6: retq                      ;...c3&#10;  0x00007fbaec8b94e7: hlt                       ;...f4&#10;  0x00007fbaec8b94e8: hlt                       ;...f4&#10;  0x00007fbaec8b94e9: hlt                       ;...f4&#10;  0x00007fbaec8b94ea: hlt                       ;...f4&#10;  0x00007fbaec8b94eb: hlt                       ;...f4&#10;  0x00007fbaec8b94ec: hlt                       ;...f4&#10;  0x00007fbaec8b94ed: hlt                       ;...f4&#10;  0x00007fbaec8b94ee: hlt                       ;...f4&#10;  0x00007fbaec8b94ef: hlt                       ;...f4&#10;  0x00007fbaec8b94f0: hlt                       ;...f4&#10;  0x00007fbaec8b94f1: hlt                       ;...f4&#10;  0x00007fbaec8b94f2: hlt                       ;...f4&#10;  0x00007fbaec8b94f3: hlt                       ;...f4&#10;  0x00007fbaec8b94f4: hlt                       ;...f4&#10;  0x00007fbaec8b94f5: hlt                       ;...f4&#10;  0x00007fbaec8b94f6: hlt                       ;...f4&#10;  0x00007fbaec8b94f7: hlt                       ;...f4&#10;  0x00007fbaec8b94f8: hlt                       ;...f4&#10;  0x00007fbaec8b94f9: hlt                       ;...f4&#10;  0x00007fbaec8b94fa: hlt                       ;...f4&#10;  0x00007fbaec8b94fb: hlt                       ;...f4&#10;  0x00007fbaec8b94fc: hlt                       ;...f4&#10;  0x00007fbaec8b94fd: hlt                       ;...f4&#10;  0x00007fbaec8b94fe: hlt                       ;...f4&#10;  0x00007fbaec8b94ff: hlt                       ;...f4&#10;[Exception Handler]&#10;[Stub Code]&#10;  0x00007fbaec8b9500: jmpq   0x00007fbaec80f860  ;...e95b63f5 ff&#10;                                                ;   &#123;no_reloc&#125;&#10;[Deopt Handler Code]&#10;  0x00007fbaec8b9505: callq  0x00007fbaec8b950a  ;...e8000000 00&#10;  0x00007fbaec8b950a: subq   $0x5,(%rsp)        ;...48832c24 05&#10;  0x00007fbaec8b950f: jmpq   0x00007fbaec7eac00  ;...e9ec16f3 ff&#10;                                                ;   &#123;runtime_call&#125;&#10;  0x00007fbaec8b9514: hlt                       ;...f4&#10;  0x00007fbaec8b9515: hlt                       ;...f4&#10;  0x00007fbaec8b9516: hlt                       ;...f4&#10;  0x00007fbaec8b9517: hlt                       ;...f4&#10;OopMapSet contains 0 OopMaps&#10;&#10;OS: Linux amd64&#10;JavaVersion: 1.7.0_25&#10;&#10;Compiled method (c2)    3101  428             MemoryBarrierDemo::setCancel (5 bytes)&#10; total in heap  [0x00007fbaec896b90,0x00007fbaec896d60] = 464&#10; relocation     [0x00007fbaec896cb0,0x00007fbaec896cc0] = 16&#10; main code      [0x00007fbaec896cc0,0x00007fbaec896d00] = 64&#10; stub code      [0x00007fbaec896d00,0x00007fbaec896d18] = 24&#10; oops           [0x00007fbaec896d18,0x00007fbaec896d20] = 8&#10; scopes data    [0x00007fbaec896d20,0x00007fbaec896d28] = 8&#10; scopes pcs     [0x00007fbaec896d28,0x00007fbaec896d58] = 48&#10; dependencies   [0x00007fbaec896d58,0x00007fbaec896d60] = 8&#10;Decoding compiled method 0x00007fbaec896b90:&#10;Code:&#10;[Entry Point]&#10;[Verified Entry Point]&#10;[Constants]&#10;  # &#123;method&#125; &#39;setCancel&#39; &#39;()V&#39; in &#39;MemoryBarrierDemo&#39;&#10;  #           [sp+0x20]  (sp of caller)&#10;  0x00007fbaec896cc0: sub    $0x18,%rsp         ;...4881ec18 000000&#10;  0x00007fbaec896cc7: mov    %rbp,0x10(%rsp)    ;...48896c24 10&#10;  0x00007fbaec896ccc: mov    $0xebd9deb8,%r10   ;...49bab8de d9eb00&#10;                                                ;...000000&#10;                                                ;   &#123;oop(a &#39;java/lang/Class&#39; = &#39;MemoryBarrierDemo&#39;)&#125;&#10;  0x00007fbaec896cd6: movb   $0x1,0x70(%r10)    ;...41c64270 01&#10;  0x00007fbaec896cdb: lock addl $0x0,(%rsp)     ;...f0830424 00&#10;                                                ;*putstatic cancel&#10;                                                ; - MemoryBarrierDemo::setCancel@1 (line 5)&#10;  0x00007fbaec896ce0: add    $0x10,%rsp         ;...4883c410&#10;  0x00007fbaec896ce4: pop    %rbp               ;...5d&#10;  0x00007fbaec896ce5: test   %eax,0x9c71315(%rip)        # 0x00007fbaf6508000&#10;                                                ;...85051513 c709&#10;                                                ;   &#123;poll_return&#125;&#10;  0x00007fbaec896ceb: retq                      ;...c3&#10;  0x00007fbaec896cec: hlt                       ;...f4&#10;  0x00007fbaec896ced: hlt                       ;...f4&#10;  0x00007fbaec896cee: hlt                       ;...f4&#10;  0x00007fbaec896cef: hlt                       ;...f4&#10;  0x00007fbaec896cf0: hlt                       ;...f4&#10;  0x00007fbaec896cf1: hlt                       ;...f4&#10;  0x00007fbaec896cf2: hlt                       ;...f4&#10;  0x00007fbaec896cf3: hlt                       ;...f4&#10;  0x00007fbaec896cf4: hlt                       ;...f4&#10;  0x00007fbaec896cf5: hlt                       ;...f4&#10;  0x00007fbaec896cf6: hlt                       ;...f4&#10;  0x00007fbaec896cf7: hlt                       ;...f4&#10;  0x00007fbaec896cf8: hlt                       ;...f4&#10;  0x00007fbaec896cf9: hlt                       ;...f4&#10;  0x00007fbaec896cfa: hlt                       ;...f4&#10;  0x00007fbaec896cfb: hlt                       ;...f4&#10;  0x00007fbaec896cfc: hlt                       ;...f4&#10;  0x00007fbaec896cfd: hlt                       ;...f4&#10;  0x00007fbaec896cfe: hlt                       ;...f4&#10;  0x00007fbaec896cff: hlt                       ;...f4&#10;[Exception Handler]&#10;[Stub Code]&#10;  0x00007fbaec896d00: jmpq   0x00007fbaec80f860  ;...e95b8bf7 ff&#10;                                                ;   &#123;no_reloc&#125;&#10;[Deopt Handler Code]&#10;  0x00007fbaec896d05: callq  0x00007fbaec896d0a  ;...e8000000 00&#10;  0x00007fbaec896d0a: subq   $0x5,(%rsp)        ;...48832c24 05&#10;  0x00007fbaec896d0f: jmpq   0x00007fbaec7eac00  ;...e9ec3ef5 ff&#10;                                                ;   &#123;runtime_call&#125;&#10;  0x00007fbaec896d14: hlt                       ;...f4&#10;  0x00007fbaec896d15: hlt                       ;...f4&#10;  0x00007fbaec896d16: hlt                       ;...f4&#10;  0x00007fbaec896d17: hlt                       ;...f4&#10;OopMapSet contains 0 OopMaps&#10;&#10;flag cancel set to true&#10;Done!&#10;yuan@yuan-HP:~/learn$</span><br></pre></td></tr></table></figure>
-<p>摘出我们所关心的部分：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0x00007fbaec896ccc: mov    $0xebd9deb8,%r10   ;...49bab8de d9eb00&#10;                                              ;...000000&#10;                                              ;   &#123;oop(a &#39;java/lang/Class&#39; = &#39;MemoryBarrierDemo&#39;)&#125;&#10;0x00007fbaec896cd6: movb   $0x1,0x70(%r10)    ;...41c64270 01&#10;0x00007fbaec896cdb: lock addl $0x0,(%rsp)     ;...f0830424 00</span><br></pre></td></tr></table></figure>
-<p>在<code>movb   $0x1,0x70(%r10)</code>将<code>cancel</code>设为<code>true</code>之后有一行带有LOCK语义的代码，这就与笔者推理的一致了^_^。</p>
-<p>（在这里还有一个让笔者困惑的地方：对于没有volatile的版本，如果执行的时候加了<code>-Xcomp</code>，程序同样可以正常退出，程序行为与加了volatile的版本一致，但是汇编代码中到LOCK。笔者对于JIT完全不懂，所以也只能暂且存疑啦。）</p>
-<p>再回过头来整理一下思路。在笔者提供的例子主要是因为没有遵守Java Memory Model，编译器为了性能而做出的优化造成程序无法终止。这其实也不是笔者想要看到的结果，但是通过读_Intel 64 and IA-32 Architectures Software Developer’s Manual Combined Volumes 3A, 3B, and 3C: System Programming Guide_解开了笔者心中的疑惑。</p>
-<p>让笔者产生困惑的地方是buffer。</p>
-<h2 id="buffer">Buffer</h2>
-<p>笔者之前头脑中的CPU模型大概是这样：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">+-------------------+&#10;| Memory Controller |&#10;+-------------------+&#10;        |&#10;+---------------------------------------------------------------+&#10;| L3                                                            |&#10;+---------------------------------------------------------------+&#10;        |                        |&#10;+-----------------+      +-----------------+&#10;| L1 L2           |      | L1 L2           |    ...&#10;+-----------------+      +-----------------+&#10;        |                        |&#10;+-----------------+      +-----------------+&#10;| Execution Units |      | Execution Units |    ...&#10;+-----------------+      +-----------------+</span><br></pre></td></tr></table></figure>
-<p>从执行单元进入L1或L2 cache之后就是cache coherency protocol控制的“天下”了，其它的core肯定就会“看到”相应的改变，怎么还会“看不到”相应的改变呢？这就是让笔者一直困惑的地方。（关于cache coherency，请看<em>支撑处理器的技术</em>的第5.2节）</p>
-<p>实际上现代的CPU在执行单元与L1、L2之间还存在Load Buffer、Store Buffer和WCBuffers。它们存在的原因？可想而知是为了弥补执行单元与缓存之间的速度差异，比如<a href="http://mechanical-sympathy.blogspot.com/2011/07/write-combining.html" target="_blank" rel="external">Write Combining</a>技术。对于这三个buffer，x86指令集中有三个细粒度的指令LFENCE、SFENCE和MFENCE控制，在前面所看到的LOCK等同于MFENCE。</p>
-<p>在<em>Intel 64 and IA-32 Architectures Software Developer’s Manual Combined Volumes 3A, 3B, and 3C: System Programming Guide</em>的第8-16页：</p>
-<blockquote>
-<p>The SFENCE, LFENCE, and MFENCE instructions provide a performance-efficient way of ensuring load and store memory ordering between routines that produce weakly-ord ered results and routines that consume that data. The functions of these instructions are as follows:</p>
-</blockquote>
-<blockquote>
-<ul>
-<li>SFENCE — Serializes all store (write) operations that occu rred prior to the SFENCE instruction in the program instruction stream, but does not affect load operations.</li>
-</ul>
-</blockquote>
-<blockquote>
-<ul>
-<li>LFENCE — Serializes all load (read) operations that occurred prior to the LFENCE instruction in the program instruction stream, but does not affect store operations.</li>
-</ul>
-</blockquote>
-<blockquote>
-<ul>
-<li>MFENCE — Serializes all store and load operations that occurred prior to the MFENCE instruction in the program instruction stream.</li>
-</ul>
-</blockquote>
-<p>关于这三个指令与Java语言的关系，请看<a href="http://mechanical-sympathy.blogspot.com/2011/07/memory-barriersfences.html" target="_blank" rel="external">Memory Barriers/Fences</a>。这篇文章中还提到了Out of Order的影响，所以本文就不再重复了。</p>
-<h2 id="总结">总结</h2>
-<ol style="list-style-type: decimal">
-<li><p>CPU的“人生价值”就是尽可能的快！为此可以不择手段，比如Write Combining和Out of Order；但是它也提供了LOCK、XCHG、LFENCE、SFENCE、MFENCE等指令满足上层软件同步的需求。</p></li>
-<li><p>同步要以牺牲性能为代价。JVM会尽可能优化性能，如果要实现必要的同步就得遵守Java Memory Model，在程序中显式的使用相关机制。</p></li>
-<li><p>“Shared mutability is pure evil”（引自_Programming Concurrency on the JVM_）。如果不是legacy系统，笔者肯定优先考虑Actor-based Model。</p></li>
-</ol>
-
-	
-	</div>
-	
-  
-</div>
-	<a type="button" href="/2013/08/10/memorybarrier/#more" class="btn btn-default more">Read More</a>
+  <a type="button" href="/2013/11/05/notes_eyawtkasbwata/#more" class="btn btn-default more">Read More</a>
 </div>
 
 		
@@ -859,6 +808,14 @@
   <ul class="entry list-unstyled">
     
       <li>
+        <a href="/2015/11/03/password-strengths-evaluation-pcfg/" ><i class="fa fa-file-o"></i>Password Strengths Evaluati...</a>
+      </li>
+    
+      <li>
+        <a href="/2015/11/01/weekly/" ><i class="fa fa-file-o"></i>Weekly 2015-11-01...</a>
+      </li>
+    
+      <li>
         <a href="/2015/10/25/weekly/" ><i class="fa fa-file-o"></i>Weekly 2015-10-25...</a>
       </li>
     
@@ -868,14 +825,6 @@
     
       <li>
         <a href="/2015/08/26/RSA-PKCS1-V1-5-Padding/" ><i class="fa fa-file-o"></i>BigInteger#toByteArray引发的处理...</a>
-      </li>
-    
-      <li>
-        <a href="/2015/08/13/slick-upsert/" ><i class="fa fa-file-o"></i>Slick中的upsert操作...</a>
-      </li>
-    
-      <li>
-        <a href="/2015/08/06/startup-web-playframework/" ><i class="fa fa-file-o"></i>如何快速开始一个小项目 —— playframewor...</a>
       </li>
     
   </ul>
@@ -910,6 +859,9 @@
 </p> </footer>
 </div> <!-- container-narrow -->
   
+
+
+  
 <a id="gotop" href="#">   
   <span>▲</span> 
 </a>
@@ -918,6 +870,8 @@
 <script src="/js/gallery.js"></script>
 <script src="/js/bootstrap.min.js"></script>
 <script src="/js/main.js"></script>
+<script src="/js/search.js"></script> 
+
 
 
 
@@ -930,6 +884,8 @@
   $('.fancybox').fancybox();
 })(jQuery);
 </script>
+
+
 
 
 <!-- mathjax config similar to math.stackexchange -->

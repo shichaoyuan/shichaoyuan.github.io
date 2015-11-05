@@ -27,6 +27,7 @@
   <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/font-awesome.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/responsive.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/highlight.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/google-fonts.css" media="screen" type="text/css">
   <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
@@ -87,14 +88,15 @@
 <div class="row post">
 	<!-- cols -->
 	
+	<div id="top_meta"></div>
 	<div class="col-md-9">
 	
 
-			
-
 	<!-- content -->
 	<div class="mypage">		
-	    <p><a href="http://sigops.org/sosp/sosp13/papers/p33-david.pdf" target="_blank" rel="external">Everything You Always Wanted to Know About Synchronization but Were Afraid to Ask</a>，SOSP’13上的一篇文章，如果对concurrent感兴趣，那么推荐读一下。</p>
+	  		
+
+	  <p><a href="http://sigops.org/sosp/sosp13/papers/p33-david.pdf" target="_blank" rel="external">Everything You Always Wanted to Know About Synchronization but Were Afraid to Ask</a>，SOSP’13上的一篇文章，如果对concurrent感兴趣，那么推荐读一下。</p>
 <p>扩展软件系统到多核很难很重要，关键在于synchronization。</p>
 <blockquote>
 <p>From the Greek “syn”, i.e., <em>with</em>, and “khronos”, i.e., <em>time</em>, synchronization denotes the act of coordinating the timeline of a set of processes. (供扯淡使用)</p>
@@ -143,11 +145,11 @@
   
 </section>
 
-	
 	</div> <!-- col-md-9/col-md-12 -->
+		
 	
-	
-		<div class="col-md-3"> 
+	<div id="side_meta">
+		<div class="col-md-3" id="post_meta"> 
 
 	<!-- date -->
 	
@@ -183,9 +185,12 @@
 	
 </div><!-- col-md-3 -->
 
-	
+	</div>
+		
 
 </div><!-- row -->
+
+
 
 	</div>
   </div>
@@ -197,6 +202,9 @@
 </p> </footer>
 </div> <!-- container-narrow -->
   
+
+
+  
 <a id="gotop" href="#">   
   <span>▲</span> 
 </a>
@@ -205,6 +213,8 @@
 <script src="/js/gallery.js"></script>
 <script src="/js/bootstrap.min.js"></script>
 <script src="/js/main.js"></script>
+<script src="/js/search.js"></script> 
+
 
 
 
@@ -217,6 +227,8 @@
   $('.fancybox').fancybox();
 })(jQuery);
 </script>
+
+
 
 
 </body>

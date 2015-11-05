@@ -27,6 +27,7 @@ A：既然是Concurrency，那么自然而然就有两个问题——mutual excl
   <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/font-awesome.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/responsive.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/highlight.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/google-fonts.css" media="screen" type="text/css">
   <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
@@ -87,14 +88,15 @@ A：既然是Concurrency，那么自然而然就有两个问题——mutual excl
 <div class="row post">
 	<!-- cols -->
 	
+	<div id="top_meta"></div>
 	<div class="col-md-9">
 	
 
-			
-
 	<!-- content -->
 	<div class="mypage">		
-	    <p>Q：Concurrency有什么难的？</p>
+	  		
+
+	  <p>Q：Concurrency有什么难的？</p>
 <p>A：既然是Concurrency，那么自然而然就有两个问题——mutual exclusion和visibility of change。要实现互斥就得加lock，不仅逻辑上复杂而且对性能也有很大影响。visibility of change相对容易，只要牺牲一下cache就行。</p>
 <p>Q：不过是有个CAS么，这个比lock的性能好多了。</p>
 <p>A：CAS的性能是比lock高很多，但是CAS结合Memory Barriers会使程序跟复杂，很难验证程序的正确性。</p>
@@ -134,11 +136,11 @@ A：既然是Concurrency，那么自然而然就有两个问题——mutual excl
   
 </section>
 
-	
 	</div> <!-- col-md-9/col-md-12 -->
+		
 	
-	
-		<div class="col-md-3"> 
+	<div id="side_meta">
+		<div class="col-md-3" id="post_meta"> 
 
 	<!-- date -->
 	
@@ -174,9 +176,12 @@ A：既然是Concurrency，那么自然而然就有两个问题——mutual excl
 	
 </div><!-- col-md-3 -->
 
-	
+	</div>
+		
 
 </div><!-- row -->
+
+
 
 	</div>
   </div>
@@ -188,6 +193,9 @@ A：既然是Concurrency，那么自然而然就有两个问题——mutual excl
 </p> </footer>
 </div> <!-- container-narrow -->
   
+
+
+  
 <a id="gotop" href="#">   
   <span>▲</span> 
 </a>
@@ -196,6 +204,8 @@ A：既然是Concurrency，那么自然而然就有两个问题——mutual excl
 <script src="/js/gallery.js"></script>
 <script src="/js/bootstrap.min.js"></script>
 <script src="/js/main.js"></script>
+<script src="/js/search.js"></script> 
+
 
 
 
@@ -208,6 +218,8 @@ A：既然是Concurrency，那么自然而然就有两个问题——mutual excl
   $('.fancybox').fancybox();
 })(jQuery);
 </script>
+
+
 
 
 </body>

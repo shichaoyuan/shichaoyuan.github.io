@@ -29,6 +29,7 @@
   <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/font-awesome.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/responsive.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/highlight.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/google-fonts.css" media="screen" type="text/css">
   <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
@@ -89,14 +90,15 @@
 <div class="row post">
 	<!-- cols -->
 	
+	<div id="top_meta"></div>
 	<div class="col-md-9">
 	
 
-			
-
 	<!-- content -->
 	<div class="mypage">		
-	    <h2 id="section">1</h2>
+	  		
+
+	  <h2 id="section">1</h2>
 <p>之前的<a href="http://shichaoyuan.github.io/2015/07/10/notes-pepfcp/">文章</a>提到过使用RSA加密传输密码的应用场景，在和H5联调的时候遇到了不少问题……</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Cipher cipher = Cipher.getInstance(<span class="string">"RSA/ECB/PKCS1Padding"</span>);</span><br><span class="line">cipher.init(Cipher.DECRYPT_MODE, prikey);</span><br></pre></td></tr></table></figure>
 <p>后端限定的RSA解密实现如上所示；H5前端发来的消息，偶尔会报下述异常：</p>
@@ -154,11 +156,11 @@
   
 </section>
 
-	
 	</div> <!-- col-md-9/col-md-12 -->
+		
 	
-	
-		<div class="col-md-3"> 
+	<div id="side_meta">
+		<div class="col-md-3" id="post_meta"> 
 
 	<!-- date -->
 	
@@ -175,7 +177,7 @@
     <ul id="categorys" class="tag_box list-unstyled collapse in">
           
   <li>
-    <li><a href="/categories/security/">security<span>3</span></a></li> <li><a href="/categories/security/RSA/">RSA<span>1</span></a></li>
+    <li><a href="/categories/security/">security<span>4</span></a></li> <li><a href="/categories/security/RSA/">RSA<span>1</span></a></li>
   </li>
 
     </ul>
@@ -194,9 +196,12 @@
 	
 </div><!-- col-md-3 -->
 
-	
+	</div>
+		
 
 </div><!-- row -->
+
+
 
 	</div>
   </div>
@@ -208,6 +213,9 @@
 </p> </footer>
 </div> <!-- container-narrow -->
   
+
+
+  
 <a id="gotop" href="#">   
   <span>▲</span> 
 </a>
@@ -216,6 +224,8 @@
 <script src="/js/gallery.js"></script>
 <script src="/js/bootstrap.min.js"></script>
 <script src="/js/main.js"></script>
+<script src="/js/search.js"></script> 
+
 
 
 
@@ -228,6 +238,8 @@
   $('.fancybox').fancybox();
 })(jQuery);
 </script>
+
+
 
 
 </body>

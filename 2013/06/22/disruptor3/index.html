@@ -28,6 +28,7 @@ Q">
   <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/font-awesome.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/responsive.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/highlight.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/google-fonts.css" media="screen" type="text/css">
   <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
@@ -88,14 +89,15 @@ Q">
 <div class="row post">
 	<!-- cols -->
 	
+	<div id="top_meta"></div>
 	<div class="col-md-9">
 	
 
-			
-
 	<!-- content -->
 	<div class="mypage">		
-	    <p>Q：queue这种如此简单的数据结构为什么得到了这么广泛的关注？</p>
+	  		
+
+	  <p>Q：queue这种如此简单的数据结构为什么得到了这么广泛的关注？</p>
 <p>A：queue确实是一种很容易理解的数据结构，她受到广泛关注是因为在SEDA和Actors中她扮演者重要的角色，她重要是因为她很容易成为系统性能的瓶颈。为什么呢？因为有很多actor或者thread要并发的对queue进程操作嘛。</p>
 <p>Q：SEDA和Actors，我也略知一二，仔细想想这里的queue肯定得加锁或者用CAS，之前你也说到这些对性能影响很大，有什么更好的方法么？</p>
 <p>A：有，就像之前说到的——避免写竞争。</p>
@@ -133,11 +135,11 @@ Q">
   
 </section>
 
-	
 	</div> <!-- col-md-9/col-md-12 -->
+		
 	
-	
-		<div class="col-md-3"> 
+	<div id="side_meta">
+		<div class="col-md-3" id="post_meta"> 
 
 	<!-- date -->
 	
@@ -173,9 +175,12 @@ Q">
 	
 </div><!-- col-md-3 -->
 
-	
+	</div>
+		
 
 </div><!-- row -->
+
+
 
 	</div>
   </div>
@@ -187,6 +192,9 @@ Q">
 </p> </footer>
 </div> <!-- container-narrow -->
   
+
+
+  
 <a id="gotop" href="#">   
   <span>▲</span> 
 </a>
@@ -195,6 +203,8 @@ Q">
 <script src="/js/gallery.js"></script>
 <script src="/js/bootstrap.min.js"></script>
 <script src="/js/main.js"></script>
+<script src="/js/search.js"></script> 
+
 
 
 
@@ -207,6 +217,8 @@ Q">
   $('.fancybox').fancybox();
 })(jQuery);
 </script>
+
+
 
 
 </body>

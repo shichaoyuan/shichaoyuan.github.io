@@ -29,6 +29,7 @@ For performance gains modern CPUs often execute instructions out of order to mak
   <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/font-awesome.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/responsive.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/highlight.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/google-fonts.css" media="screen" type="text/css">
   <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
@@ -89,14 +90,15 @@ For performance gains modern CPUs often execute instructions out of order to mak
 <div class="row post">
 	<!-- cols -->
 	
+	<div id="top_meta"></div>
 	<div class="col-md-9">
 	
 
-			
-
 	<!-- content -->
 	<div class="mypage">		
-	    <h2 id="引言">引言</h2>
+	  		
+
+	  <h2 id="引言">引言</h2>
 <p>什么是Memory Barrier？stackoverflow中有一个经典的<a href="http://stackoverflow.com/questions/286629/what-is-a-memory-fence" target="_blank" rel="external">回答</a>：</p>
 <blockquote>
 <p>For performance gains modern CPUs often execute instructions out of order to make maximum use of the available silicon (including memory read/writes). Because the hardware enforces instructions integrity you never notice this in a single thread of execution. However for multiple threads or environments with volatile memory (memory mapped I/O for example) this can lead to unpredictable behavior.</p>
@@ -245,11 +247,11 @@ For performance gains modern CPUs often execute instructions out of order to mak
   
 </section>
 
-	
 	</div> <!-- col-md-9/col-md-12 -->
+		
 	
-	
-		<div class="col-md-3"> 
+	<div id="side_meta">
+		<div class="col-md-3" id="post_meta"> 
 
 	<!-- date -->
 	
@@ -285,9 +287,12 @@ For performance gains modern CPUs often execute instructions out of order to mak
 	
 </div><!-- col-md-3 -->
 
-	
+	</div>
+		
 
 </div><!-- row -->
+
+
 
 	</div>
   </div>
@@ -299,6 +304,9 @@ For performance gains modern CPUs often execute instructions out of order to mak
 </p> </footer>
 </div> <!-- container-narrow -->
   
+
+
+  
 <a id="gotop" href="#">   
   <span>▲</span> 
 </a>
@@ -307,6 +315,8 @@ For performance gains modern CPUs often execute instructions out of order to mak
 <script src="/js/gallery.js"></script>
 <script src="/js/bootstrap.min.js"></script>
 <script src="/js/main.js"></script>
+<script src="/js/search.js"></script> 
+
 
 
 
@@ -319,6 +329,8 @@ For performance gains modern CPUs often execute instructions out of order to mak
   $('.fancybox').fancybox();
 })(jQuery);
 </script>
+
+
 
 
 <!-- mathjax config similar to math.stackexchange -->

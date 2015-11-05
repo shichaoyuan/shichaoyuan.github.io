@@ -31,6 +31,7 @@ INSERT ... ON DUP">
   <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/font-awesome.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/responsive.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/highlight.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/google-fonts.css" media="screen" type="text/css">
   <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
@@ -91,14 +92,15 @@ INSERT ... ON DUP">
 <div class="row post">
 	<!-- cols -->
 	
+	<div id="top_meta"></div>
 	<div class="col-md-9">
 	
 
-			
-
 	<!-- content -->
 	<div class="mypage">		
-	    <h2 id="section">1</h2>
+	  		
+
+	  <h2 id="section">1</h2>
 <p>在做一个Single Page Application，然后使用三方登陆，不维护账号信息，每次登陆拉一次最新的三方账户信息。</p>
 <p>所以数据库操作就有个问题，没有注册，insert，老用户，update，俗称upsert。</p>
 <h2 id="section-1">2</h2>
@@ -150,11 +152,11 @@ INSERT ... ON DUP">
   
 </section>
 
-	
 	</div> <!-- col-md-9/col-md-12 -->
+		
 	
-	
-		<div class="col-md-3"> 
+	<div id="side_meta">
+		<div class="col-md-3" id="post_meta"> 
 
 	<!-- date -->
 	
@@ -190,9 +192,12 @@ INSERT ... ON DUP">
 	
 </div><!-- col-md-3 -->
 
-	
+	</div>
+		
 
 </div><!-- row -->
+
+
 
 	</div>
   </div>
@@ -204,6 +209,9 @@ INSERT ... ON DUP">
 </p> </footer>
 </div> <!-- container-narrow -->
   
+
+
+  
 <a id="gotop" href="#">   
   <span>▲</span> 
 </a>
@@ -212,6 +220,8 @@ INSERT ... ON DUP">
 <script src="/js/gallery.js"></script>
 <script src="/js/bootstrap.min.js"></script>
 <script src="/js/main.js"></script>
+<script src="/js/search.js"></script> 
+
 
 
 
@@ -224,6 +234,8 @@ INSERT ... ON DUP">
   $('.fancybox').fancybox();
 })(jQuery);
 </script>
+
+
 
 
 <!-- mathjax config similar to math.stackexchange -->

@@ -31,6 +31,7 @@ Do">
   <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/font-awesome.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/responsive.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/highlight.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/google-fonts.css" media="screen" type="text/css">
   <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
@@ -91,14 +92,15 @@ Do">
 <div class="row post">
 	<!-- cols -->
 	
+	<div id="top_meta"></div>
 	<div class="col-md-9">
 	
 
-			
-
 	<!-- content -->
 	<div class="mypage">		
-	    <h3 id="how-to-write-a-git-commit-message"><a href="http://chris.beams.io/posts/git-commit/" target="_blank" rel="external">How to Write a Git Commit Message</a></h3>
+	  		
+
+	  <h3 id="how-to-write-a-git-commit-message"><a href="http://chris.beams.io/posts/git-commit/" target="_blank" rel="external">How to Write a Git Commit Message</a></h3>
 <ol style="list-style-type: decimal">
 <li>Separate subject from body with a blank line</li>
 <li>Limit the subject line to 50 characters</li>
@@ -122,9 +124,9 @@ Do">
 	<div class="pagination">
 <ul class="pagination">
 	 
-		
-          <li class="prev disabled"><a><i class="fa fa-arrow-circle-o-left"></i>Prev</a></li>
-        
+				
+    	<li class="prev"><a href="/2015/11/01/weekly/" class="alignleft prev"><i class="fa fa-arrow-circle-o-left"></i>Prev</a></li>
+  		
 
         <li><a href="/archives"><i class="fa fa-archive"></i>Archive</a></li>
 
@@ -146,11 +148,11 @@ Do">
   
 </section>
 
-	
 	</div> <!-- col-md-9/col-md-12 -->
+		
 	
-	
-		<div class="col-md-3"> 
+	<div id="side_meta">
+		<div class="col-md-3" id="post_meta"> 
 
 	<!-- date -->
 	
@@ -167,7 +169,7 @@ Do">
     <ul id="categorys" class="tag_box list-unstyled collapse in">
           
   <li>
-    <li><a href="/categories/weekly/">weekly<span>1</span></a></li>
+    <li><a href="/categories/weekly/">weekly<span>2</span></a></li>
   </li>
 
     </ul>
@@ -186,9 +188,12 @@ Do">
 	
 </div><!-- col-md-3 -->
 
-	
+	</div>
+		
 
 </div><!-- row -->
+
+
 
 	</div>
   </div>
@@ -200,6 +205,9 @@ Do">
 </p> </footer>
 </div> <!-- container-narrow -->
   
+
+
+  
 <a id="gotop" href="#">   
   <span>▲</span> 
 </a>
@@ -208,6 +216,8 @@ Do">
 <script src="/js/gallery.js"></script>
 <script src="/js/bootstrap.min.js"></script>
 <script src="/js/main.js"></script>
+<script src="/js/search.js"></script> 
+
 
 
 
@@ -220,6 +230,8 @@ Do">
   $('.fancybox').fancybox();
 })(jQuery);
 </script>
+
+
 
 
 </body>

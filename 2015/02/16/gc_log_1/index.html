@@ -39,6 +39,7 @@ Print more details at garbage c">
   <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/font-awesome.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/responsive.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/highlight.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/google-fonts.css" media="screen" type="text/css">
   <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
@@ -99,14 +100,15 @@ Print more details at garbage c">
 <div class="row post">
 	<!-- cols -->
 	
+	<div id="top_meta"></div>
 	<div class="col-md-9">
 	
 
-			
-
 	<!-- content -->
 	<div class="mypage">		
-	    <p>本文基于Java HotSpot(TM) 64-Bit Server VM (build 24.71-b01, mixed mode)</p>
+	  		
+
+	  <p>本文基于Java HotSpot(TM) 64-Bit Server VM (build 24.71-b01, mixed mode)</p>
 <h1 id="section">1</h1>
 <p>GC相关的几个JVM启动参数：</p>
 <table>
@@ -193,11 +195,11 @@ Print more details at garbage c">
   
 </section>
 
-	
 	</div> <!-- col-md-9/col-md-12 -->
+		
 	
-	
-		<div class="col-md-3"> 
+	<div id="side_meta">
+		<div class="col-md-3" id="post_meta"> 
 
 	<!-- date -->
 	
@@ -233,9 +235,12 @@ Print more details at garbage c">
 	
 </div><!-- col-md-3 -->
 
-	
+	</div>
+		
 
 </div><!-- row -->
+
+
 
 	</div>
   </div>
@@ -247,6 +252,9 @@ Print more details at garbage c">
 </p> </footer>
 </div> <!-- container-narrow -->
   
+
+
+  
 <a id="gotop" href="#">   
   <span>▲</span> 
 </a>
@@ -255,6 +263,8 @@ Print more details at garbage c">
 <script src="/js/gallery.js"></script>
 <script src="/js/bootstrap.min.js"></script>
 <script src="/js/main.js"></script>
+<script src="/js/search.js"></script> 
+
 
 
 
@@ -267,6 +277,8 @@ Print more details at garbage c">
   $('.fancybox').fancybox();
 })(jQuery);
 </script>
+
+
 
 
 </body>

@@ -29,6 +29,7 @@
   <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/font-awesome.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/responsive.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/highlight.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/google-fonts.css" media="screen" type="text/css">
   <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
@@ -89,14 +90,15 @@
 <div class="row post">
 	<!-- cols -->
 	
+	<div id="top_meta"></div>
 	<div class="col-md-9">
 	
 
-			
-
 	<!-- content -->
 	<div class="mypage">		
-	    <h2 id="section">1</h2>
+	  		
+
+	  <h2 id="section">1</h2>
 <p>密码应该说是最普遍的身份认证的方式，对其的攻击也有很多种，比如：暴力破解、基于字典、甚至可以通过用户信息猜测、撞库，近年来又出现了基于机器学习的方法猜测密码的黑科技。</p>
 <p>所以就有一系列问题，哪种密码对上述攻击的抵抗性更高？如何评估密码的强度？如何引导用户选择高强度而且容易记忆的密码。</p>
 <p>关于这个几个问题，最近也是在边学边做，所以顺便做一下笔记，这篇就谈一下目前使用最广泛的密码强度评估方法——Entropy。</p>
@@ -166,11 +168,11 @@
   
 </section>
 
-	
 	</div> <!-- col-md-9/col-md-12 -->
+		
 	
-	
-		<div class="col-md-3"> 
+	<div id="side_meta">
+		<div class="col-md-3" id="post_meta"> 
 
 	<!-- date -->
 	
@@ -187,7 +189,7 @@
     <ul id="categorys" class="tag_box list-unstyled collapse in">
           
   <li>
-    <li><a href="/categories/security/">security<span>3</span></a></li> <li><a href="/categories/security/password/">password<span>1</span></a></li>
+    <li><a href="/categories/security/">security<span>4</span></a></li> <li><a href="/categories/security/password/">password<span>2</span></a></li>
   </li>
 
     </ul>
@@ -206,9 +208,12 @@
 	
 </div><!-- col-md-3 -->
 
-	
+	</div>
+		
 
 </div><!-- row -->
+
+
 
 	</div>
   </div>
@@ -220,6 +225,9 @@
 </p> </footer>
 </div> <!-- container-narrow -->
   
+
+
+  
 <a id="gotop" href="#">   
   <span>▲</span> 
 </a>
@@ -228,6 +236,7 @@
 <script src="/js/gallery.js"></script>
 <script src="/js/bootstrap.min.js"></script>
 <script src="/js/main.js"></script>
+<script src="/js/search.js"></script> 
 
 
 <!-- mathjax config similar to math.stackexchange -->
@@ -265,6 +274,7 @@
 
 
 
+
 <link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
 <script src="/fancybox/jquery.fancybox.pack.js"></script>
 <script type="text/javascript">
@@ -272,6 +282,8 @@
   $('.fancybox').fancybox();
 })(jQuery);
 </script>
+
+
 
 
 <!-- mathjax config similar to math.stackexchange -->

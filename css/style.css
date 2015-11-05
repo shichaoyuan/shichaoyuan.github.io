@@ -28,6 +28,7 @@ body {
   position: relative;
   padding-top: 40px;
   background-color: #fff;
+  background-image: url(../img/grid-18px-masked.png);
   background-repeat: repeat-x;
   background-position: 0 40px;
   padding-bottom: 70px;
@@ -45,9 +46,6 @@ body {
 }
 
 #sidebar {
-  margin-left: 5px;
-  padding-left: 15px;
-  border-left: 1px solid #e0e0e0;
   font-size: 0.9em;
 }
 
@@ -176,6 +174,30 @@ li i {
 .widget {
   padding-bottom: 25px;
   border-bottom: 1px solid #e0e0e0; 
+}
+
+#local-search-result {
+  scroll:auto;
+  overflow:auto;
+  max-height:3in;
+  background-color:#fef;
+}
+
+ul.search-result-list {
+  padding-left: 10px;
+}
+
+a.search-result-title {
+  font-weight: bold;
+}
+
+p.search-result {
+  color=#555;
+}
+
+em.search-keyword {
+  border-bottom: 1px dashed #4088b8;
+  font-weight: bold;
 }
 
 .tagcloud .entry{
@@ -378,6 +400,11 @@ h4 {
   padding-top: 10px 0;
 }
 
+.page .entry .row{
+  padding-left: 20px;
+  padding-right: 5px;
+}
+
 .page .entry h2{
   display:block; overflow: hidden; width: 0; height: 0;
   margin: -20px 0;
@@ -389,6 +416,10 @@ h4 {
 
 .page .entry .col-md-8{
   margin: 10px 0;
+}
+
+.page .entry .thumbnail{
+  margin: 10px;
 }
 
 .page h3.title {

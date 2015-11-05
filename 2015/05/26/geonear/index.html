@@ -34,6 +34,7 @@ google一下，
   <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/font-awesome.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/responsive.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/highlight.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/google-fonts.css" media="screen" type="text/css">
   <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
@@ -94,14 +95,15 @@ google一下，
 <div class="row post">
 	<!-- cols -->
 	
+	<div id="top_meta"></div>
 	<div class="col-md-9">
 	
 
-			
-
 	<!-- content -->
 	<div class="mypage">		
-	    <h1 id="section">1</h1>
+	  		
+
+	  <h1 id="section">1</h1>
 <p>近来的一个需求——附近的XXX。</p>
 <p>google一下，</p>
 <p>最方便的解决方案是MongoDB的<a href="http://docs.mongodb.org/manual/reference/command/geoNear/" target="_blank" rel="external">geoNear</a>命令。</p>
@@ -175,11 +177,11 @@ google一下，
   
 </section>
 
-	
 	</div> <!-- col-md-9/col-md-12 -->
+		
 	
-	
-		<div class="col-md-3"> 
+	<div id="side_meta">
+		<div class="col-md-3" id="post_meta"> 
 
 	<!-- date -->
 	
@@ -215,9 +217,12 @@ google一下，
 	
 </div><!-- col-md-3 -->
 
-	
+	</div>
+		
 
 </div><!-- row -->
+
+
 
 	</div>
   </div>
@@ -229,6 +234,9 @@ google一下，
 </p> </footer>
 </div> <!-- container-narrow -->
   
+
+
+  
 <a id="gotop" href="#">   
   <span>▲</span> 
 </a>
@@ -237,6 +245,8 @@ google一下，
 <script src="/js/gallery.js"></script>
 <script src="/js/bootstrap.min.js"></script>
 <script src="/js/main.js"></script>
+<script src="/js/search.js"></script> 
+
 
 
 
@@ -249,6 +259,8 @@ google一下，
   $('.fancybox').fancybox();
 })(jQuery);
 </script>
+
+
 
 
 </body>

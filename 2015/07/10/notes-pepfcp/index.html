@@ -30,6 +30,7 @@
   <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/font-awesome.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/responsive.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/highlight.css" media="screen" type="text/css">
   <link rel="stylesheet" href="/css/google-fonts.css" media="screen" type="text/css">
   <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
@@ -90,14 +91,15 @@
 <div class="row post">
 	<!-- cols -->
 	
+	<div id="top_meta"></div>
 	<div class="col-md-9">
 	
 
-			
-
 	<!-- content -->
 	<div class="mypage">		
-	    <h2 id="section">1</h2>
+	  		
+
+	  <h2 id="section">1</h2>
 <p>最近在做一个关于支付的小需求，其中有个关于支付密码的地方，由于运维短时间内提供不了HTTPS，所以需要设计一个简单的加密协议，保证密码不能泄露，不能被重放攻击。</p>
 <p>如何做？</p>
 <p>使用RSA算法，客户端内置一个公钥（或者动态获取），服务器保存一个私钥，</p>
@@ -179,11 +181,11 @@
   
 </section>
 
-	
 	</div> <!-- col-md-9/col-md-12 -->
+		
 	
-	
-		<div class="col-md-3"> 
+	<div id="side_meta">
+		<div class="col-md-3" id="post_meta"> 
 
 	<!-- date -->
 	
@@ -200,7 +202,7 @@
     <ul id="categorys" class="tag_box list-unstyled collapse in">
           
   <li>
-    <li><a href="/categories/security/">security<span>3</span></a></li>
+    <li><a href="/categories/security/">security<span>4</span></a></li>
   </li>
 
     </ul>
@@ -219,9 +221,12 @@
 	
 </div><!-- col-md-3 -->
 
-	
+	</div>
+		
 
 </div><!-- row -->
+
+
 
 	</div>
   </div>
@@ -233,6 +238,9 @@
 </p> </footer>
 </div> <!-- container-narrow -->
   
+
+
+  
 <a id="gotop" href="#">   
   <span>▲</span> 
 </a>
@@ -241,6 +249,8 @@
 <script src="/js/gallery.js"></script>
 <script src="/js/bootstrap.min.js"></script>
 <script src="/js/main.js"></script>
+<script src="/js/search.js"></script> 
+
 
 
 
@@ -253,6 +263,8 @@
   $('.fancybox').fancybox();
 })(jQuery);
 </script>
+
+
 
 
 </body>
