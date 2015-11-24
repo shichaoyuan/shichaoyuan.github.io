@@ -1,0 +1,23 @@
+# Welcome to Jekyll!
+#
+# This config file is meant for settings that affect your whole blog, values
+# which you are expected to set up once and rarely need to edit after that.
+# For technical reasons, this file is *NOT* reloaded automatically when you use
+# 'jekyll serve'. If you change this file, please restart the server process.
+
+# Site settings
+title: 笔记本
+email: oahcihsnauy@gmail.com
+description: > #
+  随手记一下零散的知识
+baseurl: "" # the subpath of your site, e.g. /blog
+url: "http://scyuan.info" # the base hostname & protocol for your site
+twitter_username: shichaoyuan
+github_username:  shichaoyuan
+
+# Build settings
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+github: [Repository metadata]
