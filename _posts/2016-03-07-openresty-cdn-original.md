@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 使用OpenResty控制CDN回源主机
-date: 2016-03-07 19:05:20
+date: 2016-03-07 20:05:20
 tags: engineering
 ---
 
