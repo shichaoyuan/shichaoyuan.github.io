@@ -100,4 +100,4 @@ server {
 
 `ssl_protocols`指定支持的协议版本，`ssl_ciphers`指定支持的算法，`ssl_prefer_server_ciphers`指定优先选择服务端指定的算法，就是上一个字段的值，值的顺序很重要（[《从启用 HTTP/2 导致网站无法访问说起》](https://imququ.com/post/why-tls-handshake-failed-with-http2-enabled.html)这篇文章描述的问题对理解这个参数很有帮助）；
 
-`ssl_stapling`、`ssl_stapling_verify `、`ssl_trusted_certificate`和`resolver`控制OCSP Stapling，也就是缓存证书状态，可以使浏览器省去验证流程（不过我们用Godaddy的证书，日志里总是报“获取状态超时”。。。）
+`ssl_stapling`、`ssl_stapling_verify `、`ssl_trusted_certificate`和`resolver`控制OCSP Stapling，也就是缓存证书状态，可以使浏览器省去验证流程（不过我们用Godaddy的证书，日志里总是报“获取状态超时”。。。另外[《从无法开启 OCSP Stapling 说起》](https://imququ.com/post/why-can-not-turn-on-ocsp-stapling.html)这篇文章对OCSP Stapling的配置讲得挺清楚）
