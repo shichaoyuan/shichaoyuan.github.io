@@ -108,3 +108,47 @@ http {
 服务切了过来，一切正常，性能也没受到影响。（刚切过来时，回源请求比较多，受了点儿影响）
 
 总的来说，对于OpenResty印象相当好，如果场景合适，以后会多多使用。
+
+## 更新 0603
+
+最近有一个后端tomcat挂掉了，然后看到error.log中大量的
+
+```plain
+2016/06/02 15:00:25 [error] 5128#0: *412855176 connect() failed (111: Connection refused) while connecting to upstream, client: 49.117.113.178, server: *.touclick.com, request: "GET /xxx HTTP/1.1", upstream: "http://10.47.64.40:8099/xxx", host: "js.touclick.com", referrer: "http://x"
+2016/06/02 15:00:25 [warn] 5128#0: *412855176 upstream server temporarily disabled while connecting to upstream, client: 49.117.113.178, server: *.touclick.com, request: "GET /xxx HTTP/1.1", upstream: "http://10.47.64.40:8099/xxx", host: "js.touclick.com", referrer: "http://x"
+2016/06/02 15:00:25 [error] 5128#0: *412855176 [lua] xxx_url_rewrite.lua:15: nil while reading response header from upstream, client: 49.117.113.178, server: *.touclick.com, request: "GET /xxx HTTP/1.1", upstream: "http://10.168.234.54:8099/xxx", host: "js.touclick.com", referrer: "http://x"
+```
+
+前两行容易理解，是由于后端tomcat挂掉了，但是第三行有点儿奇怪，意思是正则表达式无法匹配`ngx.var.upstream_addr`，然后回想起平时偶尔也会看到一两条，但是因为太偶然所以没继续关注。
+
+将`ngx.var.upstream_addr`打印出来发现是`10.47.64.40:8099, 10.168.234.54:8099`这个，查了一下文档：
+
+> $upstream_addr
+>
+> keeps the IP address and port, or the path to the UNIX-domain socket of the upstream server. If several servers were contacted during request processing, their addresses are separated by commas, e.g. “192.168.1.1:80, 192.168.1.2:80, unix:/tmp/sock”. If an internal redirect from one server group to another happens, initiated by “X-Accel-Redirect” or error_page, then the server addresses from different groups are separated by colons, e.g. “192.168.1.1:80, 192.168.1.2:80, unix:/tmp/sock : 192.168.10.1:80, 192.168.10.2:80”.
+
+啊…… 发现了一个bug……
+
+修复如下：
+
+```lua
+if ngx.status == ngx.HTTP_MOVED_TEMPORARILY then
+    local regex = "^([0-9]+).([0-9]+).([0-9]+).([0-9]+):([0-9]+)$"
+    local upstream_addr = ngx.var.upstream_addr
+    local i, j = upstream_addr:find(", ")
+    while i do
+        upstream_addr = upstream_addr:sub(j+1, -1)
+        i, j = upstream_addr:find(", ")
+    end
+    local m, err = ngx.re.match(upstream_addr, regex, "o")
+    if m then
+        local loc = ngx.header["Location"]
+        local i, j = loc:find("://")
+        local s = loc:find("/", j+1)
+        ngx.header["Location"] = table.concat({ngx.var.scheme, loc:sub(i, s), m[4], "/", loc:sub(s+1, -1)})
+    else
+        ngx.log(ngx.WARN, "upstream_addr: ", ngx.var.upstream_addr)
+        ngx.log(ngx.ERR, err)
+    end
+end
+```
