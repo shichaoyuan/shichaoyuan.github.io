@@ -69,15 +69,15 @@ type ChaincodeSpec struct {
 
 服务端执行`Deploy`主要流程如下：
 
-1. getChaincodeBytes
+a) getChaincodeBytes
   
-  获取代码，根据路径http下载到`$GOPATH/_usercode_`或者本地`$GOPATH`
+获取代码，根据路径http下载到`$GOPATH/_usercode_`或者本地`$GOPATH`
   
-  spec.ChaincodeID.Name = hash(CtorMsg + [all file content])
+spec.ChaincodeID.Name = hash(CtorMsg + [all file content])
   
-  返回`ChaincodeDeploymentSpec`
+返回`ChaincodeDeploymentSpec`
   
-  ```go
+```go
   type ChaincodeDeploymentSpec struct {
 	ChaincodeSpec *ChaincodeSpec `protobuf:"bytes,1,opt,name=chaincodeSpec" json:"chaincodeSpec,omitempty"`
 	// Controls when the chaincode becomes executable.
@@ -85,28 +85,28 @@ type ChaincodeSpec struct {
 	CodePackage   []byte                                       `protobuf:"bytes,3,opt,name=codePackage,proto3" json:"codePackage,omitempty"`
 	ExecEnv       ChaincodeDeploymentSpec_ExecutionEnvironment `protobuf:"varint,4,opt,name=execEnv,enum=protos.ChaincodeDeploymentSpec_ExecutionEnvironment" json:"execEnv,omitempty"`
 }
-  ```
+```
   
-  其中`CodePackage`是所有源文件打的tar包，还有一个Dockerfile
+其中`CodePackage`是所有源文件打的tar包，还有一个Dockerfile
   
-  ```plain
+```plain
 FROM hyperledger/fabric-ccenv:$(ARCH)-$(PROJECT_VERSION)
 COPY src $GOPATH/src
 WORKDIR $GOPATH
 RUN go install %s && cp src/github.com/hyperledger/fabric/peer/core.yaml $GOPATH/bin && mv $GOPATH/bin/%s $GOPATH/bin/%s"
-  ```
+```
   
-2. 如果启动安全，那么通过crypto对transaction进行签名；否则直接构建Transaction
+b) 如果启动安全，那么通过crypto对transaction进行签名；否则直接构建Transaction
 
-3. `d.coord.ExecuteTransaction(tx)`将transaction交给consensus模块，在pbft中，消息进入`eer.manager.Queue()`就返回结果
+c) `d.coord.ExecuteTransaction(tx)`将transaction交给consensus模块，在pbft中，消息进入`eer.manager.Queue()`就返回结果
 
-4. 如果进入consensus模块成功，`Deploy`就返回`ChaincodeID.Name`，但是这并不表示chaincode已经部署成功。
+d) 如果进入consensus模块成功，`Deploy`就返回`ChaincodeID.Name`，但是这并不表示chaincode已经部署成功。
 
 consensus模块的流程在此略过，最终会调用`chaincode.ExecuteTransactions`执行具体的chaincode，主要流程如下：
 
-1. 如果启动安全，那么首先解密transaction
-2. `chain.Deploy`部署Docker镜像
-3. `chain.Launch`启动镜像，镜像启动之后调用peer服务注册，然后peer服务调用chaincode容器执行`init`方法。
+a) 如果启动安全，那么首先解密transaction
+b) `chain.Deploy`部署Docker镜像
+c) `chain.Launch`启动镜像，镜像启动之后调用peer服务注册，然后peer服务调用chaincode容器执行`init`方法。
 
 在代码实现中chaincode服务两部分形式化为状态机：
 
